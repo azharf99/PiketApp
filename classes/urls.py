@@ -1,5 +1,5 @@
 from django.urls import path
-from views import ClassListView, ClassDetailView, ClassCreateView, ClassUpdateView, ClassDeleteView
+from classes.views import ClassListView, ClassDetailView, ClassCreateView, ClassUpdateView, ClassDeleteView
 
 urlpatterns = [
     path('', ClassListView.as_view(), {}, "class-list"),

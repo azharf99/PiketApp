@@ -1,6 +1,6 @@
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from models import Schedule
+from schedules.models import Schedule
 # Create your views here.
 
 
