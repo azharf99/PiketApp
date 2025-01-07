@@ -9,7 +9,7 @@ from django.forms import BaseModelForm
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, TemplateView
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 
@@ -38,15 +38,21 @@ class UserDetailView(BaseUserView, DetailView):
 class UserCreateView(BaseUserView, CreateView):
     form_class = UserCreateForm
     permission_required = 'users.add_user'
+    success_url = reverse_lazy("user-list")
+
 
 
 class UserUpdateView(BaseUserView, UpdateView):
     form_class = UserForm
     permission_required = 'users.change_user'
+    success_url = reverse_lazy("user-list")
+
 
 
 class UserDeleteView(BaseUserView, DeleteView):
     permission_required = 'users.delete_user'
+    success_url = reverse_lazy("user-list")
+
 
 
 class MyLoginView(LoginView):
@@ -69,6 +75,19 @@ class MyLogoutView(LogoutView):
         return super().post(request, *args, **kwargs)
 
 
+class MyProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "registration/profile.html"
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['object'] = self.request.user
+        first_name, last_name = context['object'].first_name, context['object'].last_name
+        if first_name or last_name:
+            data = "".join([first_name.split(" ")[0][0],last_name.split(" ")[0][0]])
+            context['name'] = data
+        return context
+
+
 class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     form_class = UserPasswordUpdateForm
     success_url = reverse_lazy("user-change-password-done")
@@ -79,7 +98,7 @@ class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
         raise PermissionDenied
     
     def form_invalid(self, form: BaseModelForm) -> HttpResponse:
-        messages.error(self.request, "Update Password Gagal! :( Ada kesalahan input!")
+        messages.error(self.request, "Update Password Ditolak! :( Ada kesalahan input!")
         return super().form_invalid(form)
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
