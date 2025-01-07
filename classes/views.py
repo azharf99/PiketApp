@@ -1,6 +1,7 @@
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from classes.models import Class
+from classes.forms import ClassForm
 # Create your views here.
 
 
@@ -18,12 +19,14 @@ class ClassDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
 class ClassCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Class
+    form_class = ClassForm
     permission_required = 'classes.add_class'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
 class ClassUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Class
+    form_class = ClassForm
     permission_required = 'classes.change_class'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 

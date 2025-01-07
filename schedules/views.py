@@ -18,12 +18,14 @@ class ScheduleDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView
 
 class ScheduleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Schedule
+    fields = '__all__'
     permission_required = 'schedules.add_schedule'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
 class ScheduleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Schedule
+    fields = '__all__'
     permission_required = 'schedules.change_schedule'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 

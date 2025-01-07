@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from debug_toolbar.toolbar import debug_toolbar_urls
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
@@ -56,7 +57,11 @@ urlpatterns = [
     path('course/', include('courses.urls')),
     path('report/', include('reports.urls')),
     path('schedule/', include('schedules.urls')),
+    path('users/', TemplateView.as_view(template_name='index.html'), {"site_title": "Piket SMA IT AL BINAA"}, "user-create"),
+    path('users/', TemplateView.as_view(template_name='index.html'), {"site_title": "Piket SMA IT AL BINAA"}, "user-list"),
 ]
 
-
-urlpatterns += debug_toolbar_urls()
+if not settings.TESTING:
+    urlpatterns = [
+        *urlpatterns,
+    ] + debug_toolbar_urls()

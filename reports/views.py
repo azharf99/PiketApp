@@ -18,12 +18,14 @@ class ReportDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
 class ReportCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Report
+    fields = '__all__'
     permission_required = 'reports.add_report'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
 class ReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Report
+    fields = '__all__'
     permission_required = 'reports.change_report'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 

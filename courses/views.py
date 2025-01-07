@@ -18,12 +18,14 @@ class CourseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
 class CourseCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Course
+    fields = '__all__'
     permission_required = 'courses.add_course'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
 class CourseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Course
+    fields = '__all__'
     permission_required = 'courses.change_course'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 
