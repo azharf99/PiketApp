@@ -11,10 +11,44 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from typing import Any
-from users.forms import UserForm, UserChangeForm, UserCreateForm, UserPasswordUpdateForm
+from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 
 
 # Create your views here.
+
+class BaseUserView(LoginRequiredMixin, PermissionRequiredMixin):
+    """Base view for User views with common functionality."""
+    model = User
+    raise_exception = True  # Raise PermissionDenied for unauthorized users
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        data = super().get_context_data(**kwargs)
+        data.update(self.kwargs)
+        return data  
+
+
+class UserListView(BaseUserView, ListView):
+    permission_required = 'users.view_user'
+    
+
+class UserDetailView(BaseUserView, DetailView):
+    permission_required = 'users.view_user'
+
+
+class UserCreateView(BaseUserView, CreateView):
+    form_class = UserCreateForm
+    permission_required = 'users.add_user'
+
+
+class UserUpdateView(BaseUserView, UpdateView):
+    form_class = UserForm
+    permission_required = 'users.change_user'
+
+
+class UserDeleteView(BaseUserView, DeleteView):
+    permission_required = 'users.delete_user'
+
+
 class MyLoginView(LoginView):
     redirect_authenticated_user = True
     
@@ -33,39 +67,7 @@ class MyLogoutView(LogoutView):
 
     def post(self, request: WSGIRequest, *args: Any, **kwargs: Any) -> TemplateResponse:
         return super().post(request, *args, **kwargs)
-    
 
-
-class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    model = User
-    permission_required = 'users.view_user'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-    
-
-class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    model = User
-    permission_required = 'users.view_user'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-
-
-class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = User
-    form_class = UserCreateForm
-    permission_required = 'users.add_user'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-
-
-class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    model = User
-    form_class = UserForm
-    permission_required = 'users.change_user'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-
-
-class UserDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    model = User
-    permission_required = 'users.delete_user'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     form_class = UserPasswordUpdateForm

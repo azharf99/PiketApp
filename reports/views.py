@@ -1,36 +1,36 @@
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from reports.models import Report
+from typing import Any
 # Create your views here.
-
-
-class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class BaseReportView(LoginRequiredMixin, PermissionRequiredMixin):
+    """Base view for Report views with common functionality."""
     model = Report
-    permission_required = 'reports.view_report'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        data = super().get_context_data(**kwargs)
+        data.update(self.kwargs)
+        return data
+
+
+class ReportListView(BaseReportView, ListView):
+    permission_required = 'reports.view_report'
     
 
-class ReportDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    model = Report
+class ReportDetailView(BaseReportView, DetailView):
     permission_required = 'reports.view_report'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ReportCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = Report
+class ReportCreateView(BaseReportView, CreateView):
     fields = '__all__'
     permission_required = 'reports.add_report'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    model = Report
+class ReportUpdateView(BaseReportView, UpdateView):
     fields = '__all__'
     permission_required = 'reports.change_report'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ReportDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    model = Report
+class ReportDeleteView(BaseReportView, DeleteView):
     permission_required = 'reports.delete_report'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users

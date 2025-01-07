@@ -2,36 +2,36 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from classes.models import Class
 from classes.forms import ClassForm
+from typing import Any
 # Create your views here.
-
-
-class ClassListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class BaseClassView(LoginRequiredMixin, PermissionRequiredMixin):
+    """Base view for Class views with common functionality."""
     model = Class
-    permission_required = 'classes.view_class'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-    
-
-class ClassDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    model = Class
-    permission_required = 'classes.view_class'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
 
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        data = super().get_context_data(**kwargs)
+        data.update(self.kwargs)
+        return data
 
-class ClassCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = Class
+
+class ClassListView(BaseClassView, ListView):
+    permission_required = 'classes.view_class'
+
+
+class ClassDetailView(BaseClassView, DetailView):
+    permission_required = 'classes.view_class'
+
+
+class ClassCreateView(BaseClassView, CreateView):
     form_class = ClassForm
     permission_required = 'classes.add_class'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ClassUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    model = Class
+class ClassUpdateView(BaseClassView, UpdateView):
     form_class = ClassForm
     permission_required = 'classes.change_class'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ClassDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    model = Class
+class ClassDeleteView(BaseClassView, DeleteView):
     permission_required = 'classes.delete_class'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users

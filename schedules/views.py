@@ -1,36 +1,36 @@
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from schedules.models import Schedule
+from typing import Any
 # Create your views here.
 
-
-class ScheduleListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class BaseScheduleView(LoginRequiredMixin, PermissionRequiredMixin):
+    """Base view for Schedule views with common functionality."""
     model = Schedule
-    permission_required = 'schedules.view_schedule'
     raise_exception = True  # Raise PermissionDenied for unauthorized users
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        data = super().get_context_data(**kwargs)
+        data.update(self.kwargs)
+        return data
+
+class ScheduleListView(BaseScheduleView, ListView):
+    permission_required = 'schedules.view_schedule'
     
 
-class ScheduleDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    model = Schedule
+class ScheduleDetailView(BaseScheduleView, DetailView):
     permission_required = 'schedules.view_schedule'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ScheduleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = Schedule
+class ScheduleCreateView(BaseScheduleView, CreateView):
     fields = '__all__'
     permission_required = 'schedules.add_schedule'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ScheduleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    model = Schedule
+class ScheduleUpdateView(BaseScheduleView, UpdateView):
     fields = '__all__'
     permission_required = 'schedules.change_schedule'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
 
 
-class ScheduleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    model = Schedule
+class ScheduleDeleteView(BaseScheduleView, DeleteView):
     permission_required = 'schedules.delete_schedule'
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
