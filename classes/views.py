@@ -5,9 +5,9 @@ from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from typing import Any
-from utils.mixins import BaseModelView, BaseFormView
+from utils.mixins import BaseModelView, BaseFormView, BaseModelListView
 
-class ClassListView(BaseModelView, ListView):
+class ClassListView(BaseModelView, BaseModelListView):
     model = Class
     menu_name = "class"
     permission_required = 'classes.view_class'

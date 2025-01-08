@@ -13,11 +13,11 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView, D
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 from utils.menu_link import export_menu_link
-from utils.mixins import BaseFormView, BaseModelView
+from utils.mixins import BaseFormView, BaseModelView, BaseModelListView
 
 
 # Create your views here.
-class UserListView(BaseModelView, ListView):
+class UserListView(BaseModelView, BaseModelListView):
     model = User
     menu_name = 'user'
     permission_required = 'users.view_user'

@@ -5,10 +5,10 @@ from django.urls import reverse_lazy
 from reports.forms import ReportForm
 from reports.models import Report
 from typing import Any
-from utils.mixins import BaseFormView, BaseModelView
+from utils.mixins import BaseFormView, BaseModelView, BaseModelListView
 # Create your views here.
 
-class ReportListView(BaseModelView, ListView):
+class ReportListView(BaseModelView, BaseModelListView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'

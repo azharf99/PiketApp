@@ -5,10 +5,10 @@ from django.http import HttpRequest, HttpResponse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from typing import Any
-from utils.mixins import BaseFormView, BaseModelView
+from utils.mixins import BaseFormView, BaseModelView, BaseModelListView
 
 # Create your views here.
-class CourseListView(BaseModelView, ListView):
+class CourseListView(BaseModelView, BaseModelListView):
     model = Course
     menu_name = 'course'
     permission_required = 'courses.view_course'

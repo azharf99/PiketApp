@@ -5,10 +5,10 @@ from django.urls import reverse_lazy
 from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
-from utils.mixins import BaseFormView, BaseModelView
+from utils.mixins import BaseFormView, BaseModelView, BaseModelListView
 
 # Create your views here.
-class ScheduleListView(BaseModelView, ListView):
+class ScheduleListView(BaseModelView, BaseModelListView):
     model = Schedule
     menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
