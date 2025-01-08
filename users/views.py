@@ -108,6 +108,16 @@ class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
         messages.success(self.request, "Update Password Berhasil! :)")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(export_menu_link("profile"))
+        return context
+
 
 class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     template_name ="registration/password_change_done.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(export_menu_link("profile"))
+        return context

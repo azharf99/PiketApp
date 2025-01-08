@@ -3,6 +3,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from classes.models import Class
 from classes.forms import ClassForm
 from typing import Any
+from utils.menu_link import export_menu_link
+
 # Create your views here.
 class BaseClassView(LoginRequiredMixin, PermissionRequiredMixin):
     """Base view for Class views with common functionality."""
@@ -11,8 +13,10 @@ class BaseClassView(LoginRequiredMixin, PermissionRequiredMixin):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         data = super().get_context_data(**kwargs)
+        model_name = self.kwargs["site_title"].split(" - ")[0].title()
         data.update(self.kwargs)
-        data.update({"form_name": self.kwargs["site_title"].split(" - ")[0].title()})
+        data.update({"form_name": model_name})
+        data.update(export_menu_link("class"))
         return data
 
 
