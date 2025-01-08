@@ -1,46 +1,48 @@
+from django.contrib import messages
+from django.http import HttpRequest, HttpResponse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.urls import reverse_lazy
 from reports.models import Report
 from typing import Any
-from utils.menu_link import export_menu_link
+from utils.mixins import BaseFormView, BaseModelView
 # Create your views here.
-class BaseReportView(LoginRequiredMixin, PermissionRequiredMixin):
-    """Base view for Report views with common functionality."""
+
+class ReportListView(BaseModelView, ListView):
     model = Report
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        data = super().get_context_data(**kwargs)
-        model_name = self.kwargs["site_title"].split(" - ")[0].title()
-        data.update(self.kwargs)
-        data.update({"form_name": model_name})
-        data.update(export_menu_link("report"))
-        return data
-
-
-class ReportListView(ListView):
-    model = Report
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        data = super().get_context_data(**kwargs)
-        data.update(self.kwargs)
-        data.update(export_menu_link("report"))
-        return data
+    menu_name = 'report'
+    permission_required = 'reports.view_report'
     
 
-class ReportDetailView(BaseReportView, DetailView):
+class ReportDetailView(BaseModelView, DetailView):
+    model = Report
+    menu_name = 'report'
     permission_required = 'reports.view_report'
 
 
-class ReportCreateView(BaseReportView, CreateView):
+class ReportCreateView(BaseFormView, CreateView):
+    model = Report
+    menu_name = 'report'
     fields = '__all__'
     permission_required = 'reports.add_report'
+    success_message = "Input data berhasil!"
+    error_message = "Input data ditolak!"
 
 
-class ReportUpdateView(BaseReportView, UpdateView):
+class ReportUpdateView(BaseFormView, UpdateView):
+    model = Report
+    menu_name = 'report'
     fields = '__all__'
     permission_required = 'reports.change_report'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
 
 
-class ReportDeleteView(BaseReportView, DeleteView):
+class ReportDeleteView(BaseModelView, DeleteView):
+    model = Report
+    menu_name = 'report'
     permission_required = 'reports.delete_report'
+    success_url = reverse_lazy("report-list")
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        messages.success(self.request, "Laporan berhasil dihapus!")
+        return super().post(request, *args, **kwargs)

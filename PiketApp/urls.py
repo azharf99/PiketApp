@@ -24,7 +24,9 @@ from utils.menu_link import export_home_kwargs
 
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html'), export_home_kwargs("home"), "home"),
+    path('', TemplateView.as_view(template_name='home.html'), export_home_kwargs("home", "PIKET"), "home"),
+    path('menu/', TemplateView.as_view(template_name='menu.html'), export_home_kwargs("menu", "MENU PIKET"), "menu"),
+    path('dashboard/', TemplateView.as_view(template_name='dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD PIKET"), "dashboard"),
     path('accounts/', include('users.urls')),
     path('admin/', admin.site.urls),
     path('class/', include('classes.urls')),

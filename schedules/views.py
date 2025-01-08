@@ -1,41 +1,48 @@
+from django.contrib import messages
+from django.http import HttpRequest, HttpResponse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.urls import reverse_lazy
 from schedules.models import Schedule
 from typing import Any
-from utils.menu_link import export_menu_link
+from utils.mixins import BaseFormView, BaseModelView
 
 # Create your views here.
-
-class BaseScheduleView(LoginRequiredMixin, PermissionRequiredMixin):
-    """Base view for Schedule views with common functionality."""
+class ScheduleListView(BaseModelView, ListView):
     model = Schedule
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        data = super().get_context_data(**kwargs)
-        model_name = self.kwargs["site_title"].split(" - ")[0].title()
-        data.update(self.kwargs)
-        data.update({"form_name": model_name})
-        data.update(export_menu_link("schedule"))
-        return data
-
-class ScheduleListView(BaseScheduleView, ListView):
+    menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
     
 
-class ScheduleDetailView(BaseScheduleView, DetailView):
+class ScheduleDetailView(BaseModelView, DetailView):
+    model = Schedule
+    menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
 
 
-class ScheduleCreateView(BaseScheduleView, CreateView):
+class ScheduleCreateView(BaseFormView, CreateView):
+    model = Schedule
+    menu_name = 'schedule'
     fields = '__all__'
     permission_required = 'schedules.add_schedule'
+    success_message = "Input data berhasil!"
+    error_message = "Input data ditolak!"
 
 
-class ScheduleUpdateView(BaseScheduleView, UpdateView):
+class ScheduleUpdateView(BaseFormView, UpdateView):
+    model = Schedule
+    menu_name = 'schedule'
     fields = '__all__'
     permission_required = 'schedules.change_schedule'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
 
 
-class ScheduleDeleteView(BaseScheduleView, DeleteView):
+class ScheduleDeleteView(BaseModelView, DeleteView):
+    model = Schedule
+    menu_name = 'schedule'
     permission_required = 'schedules.delete_schedule'
+    success_url = reverse_lazy("class-list")
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        messages.success(self.request, "Laporan berhasil dihapus!")
+        return super().post(request, *args, **kwargs)

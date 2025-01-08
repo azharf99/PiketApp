@@ -7,7 +7,7 @@ def export_menu_link(link_name:str = "") -> dict[str, str]:
 }
 
 
-def export_home_kwargs(link_name:str = "") -> dict[str, str]:
-    home_kwargs = {"site_title": "Piket SMA IT AL BINAA"}
+def export_home_kwargs(link_name:str = "", title_name:str = "") -> dict[str, str]:
+    home_kwargs = {"site_title": f"{title_name} SMA IT AL BINAA"}
     home_kwargs.update(export_menu_link(link_name))
     return home_kwargs

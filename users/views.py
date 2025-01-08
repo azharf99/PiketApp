@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.core.exceptions import PermissionDenied
@@ -13,48 +13,51 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView, D
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 from utils.menu_link import export_menu_link
+from utils.mixins import BaseFormView, BaseModelView
 
 
 # Create your views here.
-
-class BaseUserView(LoginRequiredMixin, PermissionRequiredMixin):
-    """Base view for User views with common functionality."""
+class UserListView(BaseModelView, ListView):
     model = User
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        data = super().get_context_data(**kwargs)
-        data.update(self.kwargs)
-        data.update({"form_name": self.kwargs["site_title"].split(" - ")[0].title()})
-        return data
-
-
-class UserListView(BaseUserView, ListView):
+    menu_name = 'user'
     permission_required = 'users.view_user'
     
 
-class UserDetailView(BaseUserView, DetailView):
+class UserDetailView(BaseModelView, DetailView):
+    model = User
+    menu_name = 'user'
     permission_required = 'users.view_user'
 
 
-class UserCreateView(BaseUserView, CreateView):
+class UserCreateView(BaseFormView, CreateView):
+    model = User
+    menu_name = 'user'
     form_class = UserCreateForm
     permission_required = 'users.add_user'
     success_url = reverse_lazy("user-list")
+    success_message = 'Input data berhasil!'
+    error_message = 'Input data ditolak!'
 
 
-
-class UserUpdateView(BaseUserView, UpdateView):
+class UserUpdateView(BaseFormView, UpdateView):
+    model = User
+    menu_name = 'user'
     form_class = UserForm
     permission_required = 'users.change_user'
     success_url = reverse_lazy("user-list")
+    success_message = 'Update data berhasil!'
+    error_message = 'Update data ditolak!'
 
 
-
-class UserDeleteView(BaseUserView, DeleteView):
+class UserDeleteView(BaseModelView, DeleteView):
+    model = User
+    menu_name = 'user'
     permission_required = 'users.delete_user'
     success_url = reverse_lazy("user-list")
 
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        messages.success(self.request, "User berhasil dihapus!")
+        return super().post(request, *args, **kwargs)
 
 
 class MyLoginView(LoginView):

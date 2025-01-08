@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 class Class(models.Model):
-    class_name = models.CharField(_("Nama Kelas"), max_length=50)
+    class_name = models.CharField(_("Nama Kelas"), max_length=50, unique=True)
     short_class_name = models.CharField(_("Nama Singkat Kelas"), max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

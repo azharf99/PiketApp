@@ -1,42 +1,49 @@
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from classes.models import Class
 from classes.forms import ClassForm
+from django.http import HttpRequest, HttpResponse
+from django.contrib import messages
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
+from django.urls import reverse_lazy
 from typing import Any
-from utils.menu_link import export_menu_link
+from utils.mixins import BaseModelView, BaseFormView
 
-# Create your views here.
-class BaseClassView(LoginRequiredMixin, PermissionRequiredMixin):
-    """Base view for Class views with common functionality."""
+class ClassListView(BaseModelView, ListView):
     model = Class
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        data = super().get_context_data(**kwargs)
-        model_name = self.kwargs["site_title"].split(" - ")[0].title()
-        data.update(self.kwargs)
-        data.update({"form_name": model_name})
-        data.update(export_menu_link("class"))
-        return data
-
-
-class ClassListView(BaseClassView, ListView):
+    menu_name = "class"
     permission_required = 'classes.view_class'
 
 
-class ClassDetailView(BaseClassView, DetailView):
+class ClassDetailView(BaseModelView, DetailView):
+    model = Class
+    menu_name = "class"
     permission_required = 'classes.view_class'
 
 
-class ClassCreateView(BaseClassView, CreateView):
+class ClassCreateView(BaseFormView, CreateView):
+    model = Class
     form_class = ClassForm
+    menu_name = "class"
     permission_required = 'classes.add_class'
+    success_message = 'Input data berhasil!'
+    error_message = 'Input data ditolak!'
 
 
-class ClassUpdateView(BaseClassView, UpdateView):
+class ClassUpdateView(BaseFormView, UpdateView):
+    model = Class
     form_class = ClassForm
+    menu_name = "class"
     permission_required = 'classes.change_class'
+    success_message = 'Update data berhasil!'
+    error_message = 'Update data ditolak!'
 
 
-class ClassDeleteView(BaseClassView, DeleteView):
+class ClassDeleteView(BaseModelView, DeleteView):
+    model = Class
+    menu_name = "class"
     permission_required = 'classes.delete_class'
+    success_url = reverse_lazy("class-list")
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        messages.success(self.request, "Kelas berhasil dihapus!")
+        return super().post(request, *args, **kwargs)
+
