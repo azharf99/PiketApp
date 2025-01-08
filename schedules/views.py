@@ -12,6 +12,7 @@ class BaseScheduleView(LoginRequiredMixin, PermissionRequiredMixin):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         data = super().get_context_data(**kwargs)
         data.update(self.kwargs)
+        data.update({"form_name": self.kwargs["site_title"].split(" - ")[0].title()})
         return data
 
 class ScheduleListView(BaseScheduleView, ListView):

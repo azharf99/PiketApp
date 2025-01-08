@@ -12,6 +12,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, TemplateView
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
+from utils.menu_link import export_menu_link
 
 
 # Create your views here.
@@ -24,7 +25,8 @@ class BaseUserView(LoginRequiredMixin, PermissionRequiredMixin):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         data = super().get_context_data(**kwargs)
         data.update(self.kwargs)
-        return data  
+        data.update({"form_name": self.kwargs["site_title"].split(" - ")[0].title()})
+        return data
 
 
 class UserListView(BaseUserView, ListView):
@@ -85,6 +87,7 @@ class MyProfileView(LoginRequiredMixin, TemplateView):
         if first_name or last_name:
             data = "".join([first_name.split(" ")[0][0],last_name.split(" ")[0][0]])
             context['name'] = data
+        context.update(export_menu_link("profile"))
         return context
 
 

@@ -16,14 +16,15 @@ Including another URLconf
 """
 from debug_toolbar.toolbar import debug_toolbar_urls
 from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-
+from utils.menu_link import export_home_kwargs
 
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html'), {"site_title": "Piket SMA IT AL BINAA"}, "home"),
+    path('', TemplateView.as_view(template_name='index.html'), export_home_kwargs("home"), "home"),
     path('accounts/', include('users.urls')),
     path('admin/', admin.site.urls),
     path('class/', include('classes.urls')),
@@ -32,7 +33,11 @@ urlpatterns = [
     path('schedule/', include('schedules.urls')),
 ]
 
-if not settings.TESTING:
-    urlpatterns = [
-        *urlpatterns,
-    ] + debug_toolbar_urls()
+# if not settings.TESTING:
+#     urlpatterns = [
+#         *urlpatterns,
+#     ] + debug_toolbar_urls()
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
