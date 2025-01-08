@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
+from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
 from utils.mixins import BaseFormView, BaseModelView
@@ -22,7 +23,7 @@ class ScheduleDetailView(BaseModelView, DetailView):
 class ScheduleCreateView(BaseFormView, CreateView):
     model = Schedule
     menu_name = 'schedule'
-    fields = '__all__'
+    form_class = ScheduleForm
     permission_required = 'schedules.add_schedule'
     success_message = "Input data berhasil!"
     error_message = "Input data ditolak!"
@@ -31,7 +32,7 @@ class ScheduleCreateView(BaseFormView, CreateView):
 class ScheduleUpdateView(BaseFormView, UpdateView):
     model = Schedule
     menu_name = 'schedule'
-    fields = '__all__'
+    form_class = ScheduleForm
     permission_required = 'schedules.change_schedule'
     success_message = "Update data berhasil!"
     error_message = "Update data ditolak!"

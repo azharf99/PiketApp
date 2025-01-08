@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
+from reports.forms import ReportForm
 from reports.models import Report
 from typing import Any
 from utils.mixins import BaseFormView, BaseModelView
@@ -22,7 +23,7 @@ class ReportDetailView(BaseModelView, DetailView):
 class ReportCreateView(BaseFormView, CreateView):
     model = Report
     menu_name = 'report'
-    fields = '__all__'
+    form_class = ReportForm
     permission_required = 'reports.add_report'
     success_message = "Input data berhasil!"
     error_message = "Input data ditolak!"
@@ -31,7 +32,7 @@ class ReportCreateView(BaseFormView, CreateView):
 class ReportUpdateView(BaseFormView, UpdateView):
     model = Report
     menu_name = 'report'
-    fields = '__all__'
+    form_class = ReportForm
     permission_required = 'reports.change_report'
     success_message = "Update data berhasil!"
     error_message = "Update data ditolak!"

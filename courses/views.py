@@ -1,3 +1,4 @@
+from courses.forms import CourseForm
 from courses.models import Course
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
@@ -21,7 +22,7 @@ class CourseDetailView(BaseModelView, DetailView):
 
 class CourseCreateView(BaseFormView, CreateView):
     model = Course
-    fields = '__all__'
+    form_class = CourseForm
     menu_name = 'course'
     permission_required = 'courses.add_course'
     success_message = "Input data berhasil!"
@@ -30,7 +31,7 @@ class CourseCreateView(BaseFormView, CreateView):
 
 class CourseUpdateView(BaseFormView, UpdateView):
     model = Course
-    fields = '__all__'
+    form_class = CourseForm
     menu_name = 'course'
     permission_required = 'courses.change_course'
     success_message = "Update data berhasil!"
