@@ -25,7 +25,7 @@ class Schedule(models.Model):
     
 
     class Meta:
-        ordering = ["schedule_day"]
+        ordering = ["-schedule_day", "schedule_class"]
         verbose_name = _("Schedule")
         verbose_name_plural = _("Schedules")
         db_table = "schedules"
