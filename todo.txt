@@ -1,0 +1,87 @@
+USER MODELS
+
+CLASS MODELS
+    - CLASS NAME
+    - CLASS SHORT NAME
+
+COURSE MODELS
+    - COURSE NAME
+    - COURSE CODE
+
+TIME MODELS
+    - TIME
+    - TIME NAME
+    - TIME VERSION
+    - TIME START
+    - TIME END
+
+SCHEDULE MODELS
+    - SCHEDULE DATE
+    - SCHEDULE DAY
+    - TIME ID
+    - COURSE ID
+    - CLASS ID
+    - TEACHER/USER ID
+
+
+SCHEDULE MODELS
+    - REPORT DATE
+    - SCHEDULE ID
+    - STATUS
+    - NOTE
+    - SUBSTITUTE TEACHER
+
+
+
+------------------TO DO LIST---------------
+
+USER MODELS
+    - LIST ✅
+    - CREATE ✅
+    - FORM CLASS ✅
+    - QUICK CREATE ❌
+    - READ/DETAIL ✅
+    - UPDATE ✅
+    - DELETE ✅
+
+CLASS MODELS
+    - LIST ✅
+    - CREATE ✅
+    - FORM CLASS ✅
+    - QUICK CREATE ❌
+    - READ/DETAIL ✅
+    - UPDATE ✅
+    - DELETE ✅
+
+COURSE MODELS
+    - LIST ✅
+    - CREATE ✅
+    - FORM CLASS ✅
+    - QUICK CREATE ❌
+    - READ/DETAIL ✅
+    - UPDATE ✅
+    - DELETE ✅
+
+SCHEDULE MODELS
+    - LIST ✅
+    - CREATE ✅
+    - FORM CLASS ✅
+    - QUICK CREATE ❌
+    - READ/DETAIL ✅
+    - UPDATE ✅
+    - DELETE ✅
+
+REPORT MODELS
+    - LIST ✅
+    - CREATE ✅
+    - FORM CLASS  ✅
+    - QUICK CREATE ❌
+    - READ/DETAIL ✅
+    - UPDATE ✅
+    - DELETE ✅
+
+
+CREATE UTILS FOR MENU AND MIXINS ✅
+CREATE MENU PAGE ✅
+CREATE DASHBOARD REPORT ❌
+GENERATE REPORT EXCEL FILE ❌
