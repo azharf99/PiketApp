@@ -21,6 +21,7 @@ class ScheduleDetailView(BaseModelView, DetailView):
     model = Schedule
     menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
+    raise_exception = False
 
 
 class ScheduleCreateView(BaseFormView, CreateView):

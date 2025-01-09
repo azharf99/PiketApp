@@ -131,7 +131,7 @@ class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
 
 
 class UserUploadView(BaseModelUploadView):
-    template_name = 'users/user_form.html'
+    template_name = 'auth/user_form.html'
     menu_name = "user"
     permission_required = 'users.create_user'
     success_url = reverse_lazy("user-list")
@@ -153,18 +153,17 @@ class UserDownloadExcelView(BaseModelView, BaseModelListView):
     model = User
     menu_name = 'user'
     permission_required = 'users.view_user'
-    template_name = 'users/download.html'
+    template_name = 'auth/download.html'
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         buffer = BytesIO()
         workbook = Workbook(buffer)
         worksheet = workbook.add_worksheet()
-        worksheet.write_row(0, 0, ['No', 'TANGGAL', 'HARI', 'STATUS', 'JAM KE-', 'KELAS', 'PELAJARAN', 'PENGAJAR', 'GURU PENGGANTI'])
+        worksheet.write_row(0, 0, ['No', 'USERNAME', 'PASSWORD', 'PASSWORD', 'EMAIL', 'IS STAFF', 'IS ACTIVE', 'IS ADMIN', 'TANGGAL GABUNG', 'TERAKHIR LOGIN'])
         row = 1
         for data in self.get_queryset():
-            subtitue_teacher = f"{data.subtitute_teacher.first_name} {data.subtitute_teacher.last_name}" if data.subtitute_teacher else ""
-            worksheet.write_row(row, 0, [row, f"{data.user_date}", f"{data.user_day}", data.status, data.schedule.schedule_time, f"{data.schedule.schedule_class}", f"{data.schedule.schedule_course.course_name}",
-                                         f"{data.schedule.schedule_course.teacher.first_name} {data.schedule.schedule_course.teacher.last_name}", subtitue_teacher])
+            worksheet.write_row(row, 0, [row, data.username, 'Albinaa2004', data.password, data.email, f"{data.is_staff}", f"{data.is_active}",
+                                         f'{data.is_superuser}', f"{data.date_joined}", f"{data.last_login}"])
             row += 1
         worksheet.autofit()
         workbook.close()

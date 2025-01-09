@@ -15,6 +15,7 @@ class CourseListView(BaseModelView, BaseModelListView):
     model = Course
     menu_name = 'course'
     permission_required = 'courses.view_course'
+    raise_exception = False
     
 
 class CourseDetailView(BaseModelView, DetailView):

@@ -17,7 +17,7 @@ from utils.menu_link import export_menu_link
 
 class BaseModelView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Base view for generic model views with shared functionality."""
-    raise_exception = True  # Raise PermissionDenied for unauthorized users
+    raise_exception = False  # Raise PermissionDenied for unauthorized users
     menu_name = ''
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -96,6 +96,7 @@ class BaseModelUploadView(BaseModelView, FormView):
                         defaults={
                             "class_name": df.iloc[i, 1],
                             "short_class_name": df.iloc[i, 2],
+                            "category": df.iloc[i, 3],
                         },
                     )
                 case "Course":
@@ -109,6 +110,7 @@ class BaseModelUploadView(BaseModelView, FormView):
                         teacher_id = teacher,
                         defaults={
                             "course_code": df.iloc[i, 2],
+                            "category": df.iloc[i, 4],
                         },
                     )
 

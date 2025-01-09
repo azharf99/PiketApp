@@ -15,6 +15,7 @@ class ReportListView(BaseModelView, BaseModelListView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
+    raise_exception = False
     
 
 class ReportDetailView(BaseModelView, DetailView):

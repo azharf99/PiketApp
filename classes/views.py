@@ -14,6 +14,7 @@ class ClassListView(BaseModelView, BaseModelListView):
     model = Class
     menu_name = "class"
     permission_required = 'classes.view_class'
+    raise_exception = False
 
 
 class ClassDetailView(BaseModelView, DetailView):
