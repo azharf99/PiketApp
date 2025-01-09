@@ -1,3 +1,4 @@
+from io import BytesIO
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -5,15 +6,17 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
+from django.db import IntegrityError
 from django.forms import BaseModelForm
-from django.http import HttpRequest, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, TemplateView
+from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, TemplateView
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 from utils.menu_link import export_menu_link
-from utils.mixins import BaseFormView, BaseModelView, BaseModelListView
+from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
+from xlsxwriter import Workbook
 
 
 # Create your views here.
@@ -124,3 +127,46 @@ class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
         context = super().get_context_data(**kwargs)
         context.update(export_menu_link("profile"))
         return context
+    
+
+
+class UserUploadView(BaseModelUploadView):
+    template_name = 'users/user_form.html'
+    menu_name = "user"
+    permission_required = 'users.create_user'
+    success_url = reverse_lazy("user-list")
+
+    
+    def form_valid(self, form: Any) -> HttpResponse:
+        try:
+            self.process_excel_data(User, form.cleaned_data["file"])
+            return super().form_valid(form)
+        except IntegrityError as e:
+            self.success_message = f"Upload data sudah terbaru! Note: {str(e)}"
+            return super().form_valid(form)
+        except Exception as e:
+            self.error_message = f"Upload data ditolak! Error: {str(e)}"
+            return super().form_invalid(form)
+
+
+class UserDownloadExcelView(BaseModelView, BaseModelListView):
+    model = User
+    menu_name = 'user'
+    permission_required = 'users.view_user'
+    template_name = 'users/download.html'
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        buffer = BytesIO()
+        workbook = Workbook(buffer)
+        worksheet = workbook.add_worksheet()
+        worksheet.write_row(0, 0, ['No', 'TANGGAL', 'HARI', 'STATUS', 'JAM KE-', 'KELAS', 'PELAJARAN', 'PENGAJAR', 'GURU PENGGANTI'])
+        row = 1
+        for data in self.get_queryset():
+            subtitue_teacher = f"{data.subtitute_teacher.first_name} {data.subtitute_teacher.last_name}" if data.subtitute_teacher else ""
+            worksheet.write_row(row, 0, [row, f"{data.user_date}", f"{data.user_day}", data.status, data.schedule.schedule_time, f"{data.schedule.schedule_class}", f"{data.schedule.schedule_course.course_name}",
+                                         f"{data.schedule.schedule_course.teacher.first_name} {data.schedule.schedule_course.teacher.last_name}", subtitue_teacher])
+            row += 1
+        worksheet.autofit()
+        workbook.close()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=f'USERS PIKET SMA IT Al Binaa.xlsx')

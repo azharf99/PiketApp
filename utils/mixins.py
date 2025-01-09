@@ -1,12 +1,16 @@
 # utils/mixins.py
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Q
+from django.contrib.auth.models import User
+from django.db.models import Q, Model
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
-from django.http import HttpResponse
-from django.views.generic import View, ListView
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+from django.views.generic import View, ListView, FormView
+from pandas import read_excel
 from typing import Any
+from utils.forms import UploadModelForm
 from utils.menu_link import export_menu_link
 
 
@@ -66,3 +70,67 @@ class BaseModelListView(ListView):
                 case _:
                     return super().get_queryset()
         return super().get_queryset()
+
+
+
+
+class BaseModelUploadView(BaseModelView, FormView):
+    """Base view for generic model views with shared functionality."""
+    form_class = UploadModelForm
+    success_message: str = "Upload completed successfully!"
+    error_message: str = "Upload failed!"
+
+    def process_excel_data(self, model_name: Model, file: str):
+        """Process the uploaded Excel file and update or create Class instances."""
+        df = read_excel(
+            file,
+            na_filter=False,
+            dtype={"NAMA KELAS": str, "NAMA SINGKAT": str},
+        )
+        row, _ = df.shape
+        for i in range(row):
+            match model_name.__qualname__:
+                case "Class":
+                    model_name.objects.update_or_create(
+                        pk = df.iloc[i, 0],
+                        defaults={
+                            "class_name": df.iloc[i, 1],
+                            "short_class_name": df.iloc[i, 2],
+                        },
+                    )
+                case "Course":
+                    teacher = User.objects.get_or_create(id=df.iloc[i, 3], defaults={"user_name": f"username{df.iloc[i, 3]}", 
+                                                                                     "password1": "Albinaa2004",
+                                                                                     "password2": "Albinaa2004",
+                                                                                    })
+                    model_name.objects.update_or_create(
+                        pk = df.iloc[i, 0],
+                        course_name = df.iloc[i, 1],
+                        teacher_id = teacher,
+                        defaults={
+                            "course_code": df.iloc[i, 2],
+                        },
+                    )
+
+                case "Schedule":
+                    teacher = User.objects.get_or_create(id=df.iloc[i, 3], defaults={"user_name": f"username{df.iloc[i, 3]}", 
+                                                                                     "password1": "Albinaa2004",
+                                                                                     "password2": "Albinaa2004",
+                                                                                    })
+                    model_name.objects.update_or_create(
+                        pk = df.iloc[i, 0],
+                        course_name = df.iloc[i, 1],
+                        teacher_id = teacher,
+                        defaults={
+                            "course_code": df.iloc[i, 2],
+                        },
+                    )
+                    
+    
+    def form_valid(self, form: Any) -> HttpResponse:
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+    def form_invalid(self, form: Any) -> HttpResponse:
+        messages.error(self.request, self.error_message)
+        return HttpResponseRedirect(reverse(f"class-upload"))
