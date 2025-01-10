@@ -1,3 +1,5 @@
+from django.db.models.query import QuerySet
+from classes.models import Class
 from datetime import datetime
 from io import BytesIO
 from django.contrib import messages
@@ -10,7 +12,6 @@ from django.views.generic import CreateView, UpdateView, DetailView, DeleteView,
 from django.urls import reverse_lazy
 from reports.forms import ReportForm, QuickReportForm
 from reports.models import Report
-import requests
 from typing import Any
 from schedules.models import Schedule
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
@@ -18,12 +19,33 @@ from utils.validate_datetime import validate_date, validate_time, get_day
 from xlsxwriter import Workbook
 # Create your views here.
 
+class ReportView(BaseModelView, BaseModelListView):
+    model = Report
+    menu_name = 'report'
+    permission_required = 'reports.view_report'
+    raise_exception = False
+
+    def get_queryset(self) -> QuerySet[Any]:
+        groupped_qs = []
+        for i in range(1, 10):
+            qs = super().get_queryset().filter(report_date='2025-01-10', schedule__schedule_time=i)\
+                        .values('schedule__schedule_class__short_class_name', 
+                                'schedule__schedule_course__teacher__first_name', 
+                                'status')\
+                        .order_by('schedule__schedule_class__short_class_name')
+            groupped_qs.append(qs)
+        return groupped_qs
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["class"] = Class.objects.all()
+        return context
+    
 class ReportListView(BaseModelView, BaseModelListView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
     raise_exception = False
-    
 
 class ReportDetailView(BaseModelView, DetailView):
     model = Report
