@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.views.generic import View, ListView, FormView
 from pandas import read_excel
 from typing import Any
+from classes.models import Class
+from courses.models import Course
 from utils.forms import UploadModelForm
 from utils.menu_link import export_menu_link
 
@@ -83,10 +85,9 @@ class BaseModelUploadView(BaseModelView, FormView):
     def process_excel_data(self, model_name: Model, file: str):
         """Process the uploaded Excel file and update or create Class instances."""
         df = read_excel(
-            file,
-            na_filter=False,
-            dtype={"NAMA KELAS": str, "NAMA SINGKAT": str},
-        )
+                file,
+                na_filter=False,
+            )
         row, _ = df.shape
         for i in range(row):
             match model_name.__qualname__:
@@ -100,9 +101,9 @@ class BaseModelUploadView(BaseModelView, FormView):
                         },
                     )
                 case "Course":
-                    teacher = User.objects.get_or_create(id=df.iloc[i, 3], defaults={"user_name": f"username{df.iloc[i, 3]}", 
-                                                                                     "password1": "Albinaa2004",
-                                                                                     "password2": "Albinaa2004",
+                    teacher, is_created = User.objects.get_or_create(id=df.iloc[i, 3], defaults={"user_name": f"username{df.iloc[i, 3]}", 
+                                                                                        "password1": "Albinaa2004",
+                                                                                        "password2": "Albinaa2004",
                                                                                     })
                     model_name.objects.update_or_create(
                         pk = df.iloc[i, 0],
@@ -115,18 +116,21 @@ class BaseModelUploadView(BaseModelView, FormView):
                     )
 
                 case "Schedule":
-                    teacher = User.objects.get_or_create(id=df.iloc[i, 3], defaults={"user_name": f"username{df.iloc[i, 3]}", 
-                                                                                     "password1": "Albinaa2004",
-                                                                                     "password2": "Albinaa2004",
-                                                                                    })
+                    course, is_created = Course.objects.get_or_create(id=str(df.iloc[i, 3]), defaults={"course_name": f'Pelajaran{df.iloc[i, 3]}',
+                                                                                        "course_code": f'Pelajaran{df.iloc[i, 3]}',})
+                    class_name, is_created = Class.objects.get_or_create(id=str(df.iloc[i, 4]), defaults={"class_name": f'Class{df.iloc[i, 4]}',
+                                                                                        "short_class_code": f'Class{df.iloc[i, 4]}',})
                     model_name.objects.update_or_create(
                         pk = df.iloc[i, 0],
-                        course_name = df.iloc[i, 1],
-                        teacher_id = teacher,
+                        schedule_day = df.iloc[i, 1],
+                        schedule_time = str(df.iloc[i, 2]),
                         defaults={
-                            "course_code": df.iloc[i, 2],
+                            "schedule_course": course,
+                            "schedule_class": class_name,
                         },
                     )
+                case _:
+                    print("error case!")
                     
     
     def form_valid(self, form: Any) -> HttpResponse:
@@ -135,4 +139,4 @@ class BaseModelUploadView(BaseModelView, FormView):
 
     def form_invalid(self, form: Any) -> HttpResponse:
         messages.error(self.request, self.error_message)
-        return HttpResponseRedirect(reverse(f"class-upload"))
+        return HttpResponseRedirect(reverse(f"{self.menu_name}-upload"))

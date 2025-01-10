@@ -30,7 +30,7 @@ class Report(models.Model):
     
 
     class Meta:
-        ordering = ["report_date"]
+        ordering = ["-report_date", "schedule__schedule_class", "schedule__schedule_time"]
         verbose_name = _("Report")
         verbose_name_plural = _("Reports")
         db_table = "reports"

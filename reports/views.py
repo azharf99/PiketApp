@@ -1,13 +1,20 @@
+from datetime import datetime
 from io import BytesIO
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.core.exceptions import BadRequest
 from django.db import IntegrityError
+from django.forms import BaseModelForm
 from django.http import FileResponse, HttpRequest, HttpResponse
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, FormView
 from django.urls import reverse_lazy
-from reports.forms import ReportForm
+from reports.forms import ReportForm, QuickReportForm
 from reports.models import Report
+import requests
 from typing import Any
+from schedules.models import Schedule
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
+from utils.validate_datetime import validate_date, validate_time, get_day
 from xlsxwriter import Workbook
 # Create your views here.
 
@@ -32,6 +39,54 @@ class ReportCreateView(BaseFormView, CreateView):
     success_message = "Input data berhasil!"
     error_message = "Input data ditolak!"
 
+class ReportQuickCreateView(BaseFormView, FormView):
+    menu_name = 'report'
+    form_class = QuickReportForm
+    template_name = 'reports/report_quick_form.html'
+    permission_required = 'reports.add_report'
+    success_message = "Input data berhasil!"
+    error_message = "Input data ditolak!"
+    success_url = reverse_lazy("report-list")
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        k = super().get_form_kwargs()
+        k["report_date"] = self.request.GET.get('report_date')
+        k["schedule_time"] = self.request.GET.get('schedule_time')
+        return k
+    
+    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        return super().get(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        report_date = self.request.GET.get('report_date', datetime.now().date())
+        schedule_time = self.request.GET.get('schedule_time', "1")
+
+        date_valid = validate_date(report_date)
+        time_valid = validate_time(schedule_time)
+
+        if not (date_valid and time_valid):
+            raise BadRequest("Invalid Date and Time")
+        
+        context["day"] = get_day(report_date)
+        context["subtitute_teachers"] = User.objects.all()
+        context["schedules"] = Schedule.objects.filter(schedule_day=context["day"], schedule_time=schedule_time)
+        return context
+    
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        report_date = form.cleaned_data["report_date"]
+        context = self.get_context_data()
+
+        for data in context["schedules"]:
+            Report.objects.update_or_create(
+                report_date = report_date,
+                schedule = data,
+                defaults={
+                    'status': form.data[f"status{data.id}"],
+                    'subtitute_teacher': form.data[f"subtitute_teacher{data.id}"] or None,
+                }
+            )
+        return super().form_valid(form)
 
 class ReportUpdateView(BaseFormView, UpdateView):
     model = Report

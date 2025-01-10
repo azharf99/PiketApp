@@ -1,9 +1,10 @@
 from django.urls import path
 from schedules.views import ScheduleListView, ScheduleDetailView, ScheduleCreateView, ScheduleUpdateView, ScheduleDeleteView, \
-                            ScheduleUploadView, ScheduleDownloadExcelView
+                            ScheduleUploadView, ScheduleDownloadExcelView, ScheduleAPIView
 
 urlpatterns = [
     path('', ScheduleListView.as_view(),  {"site_title": "SCHEDULE LIST - PIKET SMA IT AL BINAA"}, "schedule-list"),
+    path("api/v1/", ScheduleAPIView.as_view(),  {"site_title": "SCHEDULE API - PIKET SMA IT AL BINAA"}, "schedule-api-view"),
     path("create/", ScheduleCreateView.as_view(),  {"site_title": "CREATE SCHEDULE - PIKET SMA IT AL BINAA"}, "schedule-create"),
     path("upload/", ScheduleUploadView.as_view(),  {"site_title": "UPLOAD SCHEDULE - PIKET SMA IT AL BINAA"}, "schedule-upload"),
     path("download/", ScheduleDownloadExcelView.as_view(),  {"site_title": "DOWNLOAD SCHEDULE - PIKET SMA IT AL BINAA"}, "schedule-download"),

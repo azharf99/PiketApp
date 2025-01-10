@@ -1,13 +1,16 @@
-from io import BytesIO
+from datetime import datetime
 from django.contrib import messages
+from django.core.exceptions import BadRequest
 from django.db import IntegrityError
-from django.http import FileResponse, HttpRequest, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
+from io import BytesIO
 from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
+from utils.validate_datetime import validate_date, validate_time, get_day
 from xlsxwriter import Workbook
 
 # Create your views here.
@@ -16,6 +19,37 @@ class ScheduleListView(BaseModelView, BaseModelListView):
     menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
     
+class ScheduleAPIView(BaseModelView, BaseModelListView):
+    model = Schedule
+    menu_name = 'schedule'
+    form_class = ScheduleForm
+    permission_required = 'schedules.add_schedule'
+    success_message = "Input data berhasil!"
+    error_message = "Input data ditolak!"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        date_now = datetime.now().date()
+        report_date = request.GET.get('date', str(date_now))
+        schedule_time = request.GET.get('time')
+
+        # Validate the provided date and time using WEEKDAYS
+        valid_date = validate_date(report_date)
+        valid_time = validate_time(schedule_time)
+
+        if not (valid_date and valid_time):
+            raise BadRequest("Invalid date or time provided.")
+
+        # Fetch schedules matching the provided date and time
+        schedule_qs = Schedule.objects.filter(
+            schedule_day=get_day(report_date),
+            schedule_time=schedule_time,
+        )
+
+        data = {
+            "error": not schedule_qs.exists(),
+            "data": list(schedule_qs.values()),  # Serialize queryset to JSON
+        }
+        return JsonResponse(data)
 
 class ScheduleDetailView(BaseModelView, DetailView):
     model = Schedule
