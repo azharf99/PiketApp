@@ -1,4 +1,5 @@
 from django.db.models.query import QuerySet
+from django.shortcuts import get_object_or_404
 from classes.models import Class
 from datetime import datetime
 from io import BytesIO
@@ -15,7 +16,7 @@ from reports.models import Report
 from typing import Any
 from schedules.models import Schedule
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
-from utils.validate_datetime import validate_date, validate_time, get_day
+from utils.validate_datetime import validate_date, validate_time, get_day, parse_to_date
 from xlsxwriter import Workbook
 # Create your views here.
 
@@ -46,6 +47,29 @@ class ReportListView(BaseModelView, BaseModelListView):
     menu_name = 'report'
     permission_required = 'reports.view_report'
     raise_exception = False
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query_class = self.request.GET.get('query_class') if self.request.GET.get('query_class') else None
+        query_date = self.request.GET.get('query_date') if self.request.GET.get('query_date') else ''
+        query_time = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
+
+        is_valid_date = validate_date(query_date)
+
+        if is_valid_date and query_class and query_time:
+            return Report.objects.filter(report_date=parse_to_date(query_date), schedule__schedule_class__class_name=query_class, schedule__schedule_time=query_time)
+        elif is_valid_date and query_time:
+            return Report.objects.filter(report_date=parse_to_date(query_date), schedule__schedule_time=query_time)
+        elif is_valid_date and query_class:
+            return Report.objects.filter(report_date=parse_to_date(query_date), schedule__schedule_time=query_time)
+            
+        return super().get_queryset()
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["query_class"] = self.request.GET.get('query_class') if self.request.GET.get('query_class') else None
+        context["query_date"] = self.request.GET.get('query_date') if self.request.GET.get('query_date') else datetime.now().date()
+        context["query_time"] = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
+        return context
 
 class ReportDetailView(BaseModelView, DetailView):
     model = Report
@@ -90,24 +114,42 @@ class ReportQuickCreateView(BaseFormView, FormView):
         if not (date_valid and time_valid):
             raise BadRequest("Invalid Date and Time")
         
-        context["day"] = get_day(report_date)
+        data = Report.objects.filter(report_date=parse_to_date(report_date), schedule__schedule_time=schedule_time)
+        if data.exists():
+            context["reports"] = data
+        else:
+            context["day"] = get_day(report_date)
+            context["schedules"] = Schedule.objects.filter(schedule_day=context["day"], schedule_time=schedule_time)
         context["subtitute_teachers"] = User.objects.all()
-        context["schedules"] = Schedule.objects.filter(schedule_day=context["day"], schedule_time=schedule_time)
         return context
     
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         report_date = form.cleaned_data["report_date"]
+        
         context = self.get_context_data()
+        if context.get("schedules", False):
+            for data in context["schedules"]:
+                sub_teacher = get_object_or_404(User, pk=form.data[f"subtitute_teacher{data.id}"]) if form.data[f"subtitute_teacher{data.id}"] else None
+                Report.objects.update_or_create(
+                    report_date = report_date,
+                    schedule = data,
+                    defaults={
+                        'status': form.data[f"status{data.id}"],
+                        'subtitute_teacher': sub_teacher,
+                    }
+                )
+        else:
+            for data in context["reports"]:
+                sub_teacher = get_object_or_404(User, pk=form.data[f"subtitute_teacher{data.id}"]) if form.data[f"subtitute_teacher{data.id}"] else None
+                Report.objects.update_or_create(
+                    report_date = report_date,
+                    schedule = data.schedule,
+                    defaults={
+                        'status': form.data[f"status{data.id}"],
+                        'subtitute_teacher': sub_teacher,
+                    }
+                )
 
-        for data in context["schedules"]:
-            Report.objects.update_or_create(
-                report_date = report_date,
-                schedule = data,
-                defaults={
-                    'status': form.data[f"status{data.id}"],
-                    'subtitute_teacher': form.data[f"subtitute_teacher{data.id}"] or None,
-                }
-            )
         return super().form_valid(form)
 
 class ReportUpdateView(BaseFormView, UpdateView):

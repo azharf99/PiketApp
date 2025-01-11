@@ -70,7 +70,7 @@ SCHEDULE MODELS
     - CREATE ✅
     - FORM CLASS ✅
     - UPLOAD ✅
-    - ADD TIME START AND TIME END ❌
+    - ADD TIME START AND TIME END ✅
     - DOWNLOAD EXCEL✅
     - READ/DETAIL ✅
     - UPDATE ✅
@@ -81,7 +81,7 @@ REPORT MODELS
     - CREATE ✅
     - FORM CLASS  ✅
     - UPLOAD ✅
-    - QUICK CREATE ❌
+    - QUICK CREATE ✅
     - DOWNLOAD EXCEL✅
     - READ/DETAIL ✅
     - UPDATE ✅

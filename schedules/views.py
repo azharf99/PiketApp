@@ -2,6 +2,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.core.exceptions import BadRequest
 from django.db import IntegrityError
+from django.db.models.query import QuerySet
 from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
@@ -10,7 +11,7 @@ from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
-from utils.validate_datetime import validate_date, validate_time, get_day
+from utils.validate_datetime import parse_to_date, validate_date, validate_time, get_day
 from xlsxwriter import Workbook
 
 # Create your views here.
@@ -19,6 +20,35 @@ class ScheduleListView(BaseModelView, BaseModelListView):
     menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
     paginate_by = 50
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query_class = self.request.GET.get('query_class') if self.request.GET.get('query_class') else None
+        query_day = self.request.GET.get('query_day') if self.request.GET.get('query_time') else None
+        query_time = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
+
+        if query_day and query_class and query_time:
+            return Schedule.objects.filter(report_day=query_day, schedule_class__class_name=query_class, schedule_time=query_time)
+        elif query_time and query_class:
+            return Schedule.objects.filter(schedule_class__class_name=query_class, schedule_time=query_time)
+        elif query_class and query_day:
+            return Schedule.objects.filter(report_day=query_day, schedule_class__class_name=query_class)
+        elif query_day and query_time:
+            return Schedule.objects.filter(report_day=query_day, schedule_time=query_time)
+        elif query_day:
+            return Schedule.objects.filter(report_day=query_day)
+        elif query_class:
+            return Schedule.objects.filter(schedule_class__class_name=query_class)
+        elif query_time:
+            return Schedule.objects.filter(schedule_time=query_time)
+            
+        return super().get_queryset()
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["query_class"] = self.request.GET.get('query_class') if self.request.GET.get('query_class') else None
+        context["query_day"] = self.request.GET.get('query_day') if self.request.GET.get('query_day') else None
+        context["query_time"] = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
+        return context
     
 class ScheduleAPIView(BaseModelView, BaseModelListView):
     model = Schedule
