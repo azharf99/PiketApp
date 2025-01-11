@@ -7,6 +7,8 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView,
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
+from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.http import FileResponse, HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
@@ -24,6 +26,22 @@ class UserListView(BaseModelView, BaseModelListView):
     model = User
     menu_name = 'user'
     permission_required = 'users.view_user'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query = self.request.GET.get('query')
+
+        if query :
+            return User.objects.filter(Q(username__icontains=query) | 
+                                         Q(first_name__icontains=query) |
+                                         Q(email__icontains=query)
+                                         )
+            
+        return super().get_queryset()
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["query"] = self.request.GET.get('query')
+        return context
     
 
 class UserDetailView(BaseModelView, DetailView):

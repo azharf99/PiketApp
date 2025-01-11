@@ -1,12 +1,14 @@
 from io import BytesIO
 from django.db import IntegrityError
+from django.db.models import Q
+from django.db.models.query import QuerySet
 from courses.forms import CourseForm
 from courses.models import Course
 from django.contrib import messages
 from django.http import FileResponse, HttpRequest, HttpResponse
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from typing import Any
+from django.urls import reverse_lazy
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
 from xlsxwriter import Workbook
 
@@ -16,6 +18,23 @@ class CourseListView(BaseModelView, BaseModelListView):
     menu_name = 'course'
     permission_required = 'courses.view_course'
     raise_exception = False
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query = self.request.GET.get('query')
+
+        if query :
+            return Course.objects.filter(Q(course_name__icontains=query) | 
+                                         Q(course_code__icontains=query) |
+                                         Q(category__icontains=query) |
+                                         Q(teacher__first_name__icontains=query)
+                                         )
+            
+        return super().get_queryset()
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["query"] = self.request.GET.get('query')
+        return context
     
 
 class CourseDetailView(BaseModelView, DetailView):
