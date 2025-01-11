@@ -12,6 +12,7 @@ COURSE_CATEGORY_CHOICES = (
     (None, "----Pilih Kategori----"),
     ("Syar'i", _("Syar'i")),
     ("Ashri", _("Ashri")),
+    ("Netral", _("Netral")),
 )
 
 SCHEDULE_WEEKDAYS = (

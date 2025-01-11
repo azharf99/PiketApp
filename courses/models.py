@@ -7,8 +7,9 @@ from utils.constants import COURSE_CATEGORY_CHOICES
 # Create your models here.
 class Course(models.Model):
     course_name = models.CharField(_("Nama Pelajaran"), max_length=50)
-    course_code = models.CharField(_("Kode Pelajaran"), max_length=20)
-    category = models.CharField(_("Kode Pelajaran"), max_length=20, choices=COURSE_CATEGORY_CHOICES, default=COURSE_CATEGORY_CHOICES[1][0])
+    course_short_name = models.CharField(_("Nama Singkat"), max_length=30, default="")
+    course_code = models.CharField(_("Kode Pelajaran"), max_length=20, blank=True)
+    category = models.CharField(_("Kategori"), max_length=20, choices=COURSE_CATEGORY_CHOICES, default=COURSE_CATEGORY_CHOICES[1][0])
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("Guru"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -6,6 +6,7 @@ from django.db.models import Q, Model
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import View, ListView, FormView
 from pandas import read_excel
@@ -94,32 +95,28 @@ class BaseModelUploadView(BaseModelView, FormView):
                 case "Class":
                     model_name.objects.update_or_create(
                         pk = df.iloc[i, 0],
+                        class_name = df.iloc[i, 1],
                         defaults={
-                            "class_name": df.iloc[i, 1],
                             "short_class_name": df.iloc[i, 2],
                             "category": df.iloc[i, 3],
                         },
                     )
                 case "Course":
-                    teacher, is_created = User.objects.get_or_create(id=df.iloc[i, 3], defaults={"user_name": f"username{df.iloc[i, 3]}", 
-                                                                                        "password1": "Albinaa2004",
-                                                                                        "password2": "Albinaa2004",
-                                                                                    })
+                    teacher = get_object_or_404(User, id=df.iloc[i, 5])
                     model_name.objects.update_or_create(
                         pk = df.iloc[i, 0],
                         course_name = df.iloc[i, 1],
-                        teacher_id = teacher,
+                        teacher = teacher,
                         defaults={
-                            "course_code": df.iloc[i, 2],
+                            "course_short_name": df.iloc[i, 2],
+                            "course_code": df.iloc[i, 3],
                             "category": df.iloc[i, 4],
                         },
                     )
 
                 case "Schedule":
-                    course, is_created = Course.objects.get_or_create(id=str(df.iloc[i, 3]), defaults={"course_name": f'Pelajaran{df.iloc[i, 3]}',
-                                                                                        "course_code": f'Pelajaran{df.iloc[i, 3]}',})
-                    class_name, is_created = Class.objects.get_or_create(id=str(df.iloc[i, 4]), defaults={"class_name": f'Class{df.iloc[i, 4]}',
-                                                                                        "short_class_code": f'Class{df.iloc[i, 4]}',})
+                    course = get_object_or_404(Course, id=df.iloc[i, 3])
+                    class_name = get_object_or_404(Class, id=df.iloc[i, 4])
                     model_name.objects.update_or_create(
                         pk = df.iloc[i, 0],
                         schedule_day = df.iloc[i, 1],
@@ -127,10 +124,27 @@ class BaseModelUploadView(BaseModelView, FormView):
                         defaults={
                             "schedule_course": course,
                             "schedule_class": class_name,
+                            "time_start": df.iloc[i, 5],
+                            "time_end": df.iloc[i, 6],
                         },
                     )
+                case "User":
+                    obj, is_created = model_name.objects.update_or_create(
+                        pk = df.iloc[i, 0],
+                        username = df.iloc[i, 1],
+                        defaults={
+                            "first_name": df.iloc[i, 3],
+                            "last_name": df.iloc[i, 4],
+                            "email": df.iloc[i, 5],
+                            "is_staff": True if df.iloc[i, 6] else False,
+                            "is_superuser": True if df.iloc[i, 7] else False,
+                        },
+                    )
+                    if is_created:
+                        obj.set_password(df.iloc[i, 2])
+                        obj.save()
                 case _:
-                    print("error case!")
+                    print("Error Case!")
                     
     
     def form_valid(self, form: Any) -> HttpResponse:

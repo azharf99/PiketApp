@@ -18,6 +18,7 @@ class ScheduleListView(BaseModelView, BaseModelListView):
     model = Schedule
     menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
+    paginate_by = 50
     
 class ScheduleAPIView(BaseModelView, BaseModelListView):
     model = Schedule
