@@ -13,8 +13,10 @@ import sys
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+project_folder = os.path.expanduser('~/PiketApp')  # adjust as appropriate
+load_dotenv(os.path.join(project_folder, '.env'))
 
-load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
