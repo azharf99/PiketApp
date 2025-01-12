@@ -1,7 +1,7 @@
 # utils/mixins.py
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models import Q, Model
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
@@ -131,10 +131,11 @@ class BaseModelUploadView(BaseModelView, FormView):
                         },
                     )
                 case "User":
-                    obj, is_created = model_name.objects.update_or_create(
+                    group = get_object_or_404(Group, pk=df.iloc[i, 8])
+                    obj, is_created = User.objects.update_or_create(
                         pk = df.iloc[i, 0],
+                        username = df.iloc[i, 0],
                         defaults={
-                            "username": df.iloc[i, 1],
                             "first_name": df.iloc[i, 3],
                             "last_name": df.iloc[i, 4],
                             "email": df.iloc[i, 5],
@@ -145,6 +146,7 @@ class BaseModelUploadView(BaseModelView, FormView):
                     if is_created:
                         obj.set_password(df.iloc[i, 2])
                         obj.save()
+                    obj.groups.add(group)
                 case _:
                     print("Error Case!")
                     
