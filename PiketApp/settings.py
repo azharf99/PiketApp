@@ -29,7 +29,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['piket.pythonanywhere.com' '127.0.0.1', 'piket.albinaa.sch.id']
+if DEBUG:
+    ALLOWED_HOSTS = ['piket.pythonanywhere.com', '127.0.0.1', 'piket.albinaa.sch.id']
+else:
+    ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
