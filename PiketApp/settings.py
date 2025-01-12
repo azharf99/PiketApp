@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^q61xxs8o-#unob$&rttltoyo6ut*-*(nz9nv476-@bgox^bm*'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['piket.pythonanywhere.com' '127.0.0.1', 'piket.albinaa.sch.id']
 
 
 # Application definition
@@ -62,7 +62,7 @@ MIDDLEWARE = [
 # Activate django debug toolbar
 TESTING = "test" in sys.argv
 
-if not TESTING:
+if DEBUG and not TESTING:
     INSTALLED_APPS = [
         *INSTALLED_APPS,
         "debug_toolbar",
@@ -97,12 +97,31 @@ WSGI_APPLICATION = 'PiketApp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+if not DEBUG:
+    DATABASES = {
+            'default':{
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME' : os.getenv('MYSQL_DB_NAME'),
+                'USER' : os.getenv('MYSQL_DB_USER'),
+                'PASSWORD' : os.getenv('MYSQL_DB_PASSWORD'),
+                'HOST' : os.getenv('MYSQL_DB_HOST'),
+                'PORT' : os.getenv('MYSQL_DB_PORT'),
+                "OPTIONS": {
+                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                    'charset': 'utf8mb4',
+                    "autocommit": True,
+                }
+
+            }
+        }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 
 # Password validation
@@ -155,19 +174,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
-# Django debug toolbar
-INTERNAL_IPS = [
-    # ...
-    "127.0.0.1",
-    # ...
-]
+if DEBUG:
+    # Django debug toolbar
+    INTERNAL_IPS = [
+        # ...
+        "127.0.0.1",
+        # ...
+    ]
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://example.com",
-    "https://sub.example.com",
+    "https://piket.pythonanywhere.com",
+    "https://pythonanywhere.com",
+    "https://piket.albinaa.sch.id",
     "http://localhost:8080",
+    "http://127.0.0.1:8000",
     "http://127.0.0.1:9000",
 ]
 
@@ -190,8 +211,39 @@ CORS_ALLOW_HEADERS = (
 )
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://example.com",
-    "https://sub.example.com",
+    "https://piket.pythonanywhere.com",
+    "https://pythonanywhere.com",
+    "https://piket.albinaa.sch.id",
     "http://localhost:8080",
+    "http://127.0.0.1:8000",
     "http://127.0.0.1:9000",
 ]
+
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    X_FRAME_OPTIONS = 'DENY'
+
+
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': os.path.join(BASE_DIR, 'logs', 'app.log'),
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+        },
+    }
