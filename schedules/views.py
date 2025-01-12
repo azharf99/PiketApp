@@ -12,7 +12,7 @@ from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
-from utils.validate_datetime import parse_to_date, validate_date, validate_time, get_day
+from utils.validate_datetime import validate_date, validate_time, get_day
 from xlsxwriter import Workbook
 
 # Create your views here.
@@ -57,15 +57,15 @@ class ScheduleListView(BaseModelView, BaseModelListView):
         query_time = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
 
         if query_day and query_class and query_time:
-            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day, schedule_class__class_name=query_class, schedule_time=query_time)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_day=query_day, schedule_class__class_name=query_class, schedule_time=query_time)
         elif query_time and query_class:
             return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_class__class_name=query_class, schedule_time=query_time)
         elif query_class and query_day:
-            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day, schedule_class__class_name=query_class)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_day=query_day, schedule_class__class_name=query_class)
         elif query_day and query_time:
-            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day, schedule_time=query_time)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_day=query_day, schedule_time=query_time)
         elif query_day:
-            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_day=query_day)
         elif query_class:
             return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_class__class_name=query_class)
         elif query_time:
