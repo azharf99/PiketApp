@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Deploy updates to the working directory
+GIT_WORK_TREE=/home/piket/PiketApp GIT_DIR=/home/piket/PiketApp.git git checkout -f
+
+# Reload the Django app
+touch /home/piket/PiketApp/PiketApp/wsgi.py
