@@ -56,8 +56,6 @@ class ReportListView(BaseModelView, BaseModelListView):
         query_date = self.request.GET.get('query_date', datetime.now().date()) if self.request.GET.get('query_date') else datetime.now().date()
         query_time = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
 
-        print(query_class, query_date, query_time)
-
         is_valid_date = validate_date(query_date)
 
         if is_valid_date and query_class and query_time:
@@ -104,9 +102,6 @@ class ReportQuickCreateView(BaseFormView, FormView):
         k["report_date"] = self.request.GET.get('report_date')
         k["schedule_time"] = self.request.GET.get('schedule_time')
         return k
-    
-    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        return super().get(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

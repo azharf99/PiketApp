@@ -1,6 +1,7 @@
+from io import BytesIO
 from typing import Any
-
 from django.db.models.query import QuerySet
+from django.http import FileResponse, HttpRequest, HttpResponse
 from classes.models import Class
 from courses.models import Course
 from django.contrib.auth.models import User
@@ -10,6 +11,7 @@ from schedules.models import Schedule
 from reports.models import Report
 from utils.mixins import BaseModelView, BaseModelListView
 from utils.constants import WEEKDAYS
+from xlsxwriter import Workbook
 
 class DashboardListView(BaseModelView, BaseModelListView):
     model = Report
@@ -66,3 +68,53 @@ class DashboardListView(BaseModelView, BaseModelListView):
         return data
 
     
+class TeacherDashboardListView(BaseModelView, BaseModelListView):
+    model = Report
+    menu_name = "report"
+    permission_required = 'reports.view_report'
+    raise_exception = False
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query_month = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
+        query_year = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
+
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                             .filter(report_date__month=query_month, report_date__year=query_year)\
+                             .values('schedule__schedule_course__teacher__first_name', 'status').annotate(dcount=Count('status')).distinct().order_by('status')
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["query_month"] = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
+        context["query_year"] = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
+        return context
+    
+
+
+class TeacherReportDownloadExcelView(BaseModelView, BaseModelListView):
+    model = Report
+    menu_name = 'report'
+    permission_required = 'reports.view_report'
+    template_name = 'reports/download.html'
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        query_month = self.request.GET.get('query_month') or datetime.now().month
+        query_year = self.request.GET.get('query_year') or datetime.now().year
+
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                             .filter(report_date__month=query_month, report_date__year=query_year)\
+                             .values('schedule__schedule_course__teacher__first_name', 'status').annotate(dcount=Count('status')).distinct().order_by('status')
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        buffer = BytesIO()
+        workbook = Workbook(buffer)
+        worksheet = workbook.add_worksheet()
+        worksheet.write_row(0, 0, ['No', 'GURU', 'STATUS', 'JUMLAH JAM'])
+        row = 1
+        
+        for data in self.get_queryset():
+            worksheet.write_row(row, 0, [row, data.get("schedule__schedule_course__teacher__first_name"), data.get("status"), data.get("dcount")])
+            row += 1
+        worksheet.autofit()
+        workbook.close()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=f'REKAP KEHADIRAN GURU SMA IT Al Binaa.xlsx')

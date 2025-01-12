@@ -30,6 +30,11 @@ class QuickReportForm(forms.Form):
         report_date = kwargs.pop('report_date', None)
         schedule_time = kwargs.pop('schedule_time', None)
 
+        time_now = datetime.now().time()
+
+        if time_now > datetime.strptime("07:30:00", "%H:%M:%S").time():
+            print("Kelewat")
+
         valid_report_date = validate_date(report_date)
         valid_schedule_time = validate_time(schedule_time)
 

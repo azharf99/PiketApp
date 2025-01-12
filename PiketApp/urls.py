@@ -21,13 +21,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from utils.menu_link import export_home_kwargs
-from utils.views import DashboardListView
+from utils.views import DashboardListView, TeacherDashboardListView, TeacherReportDownloadExcelView
 
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), export_home_kwargs("home", "PIKET"), "home"),
     path('menu/', TemplateView.as_view(template_name='menu.html'), export_home_kwargs("menu", "MENU PIKET"), "menu"),
     path('dashboard/', DashboardListView.as_view(template_name='dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD PIKET"), "dashboard"),
+    path('dashboard/teachers/', TeacherDashboardListView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD GURU"), "dashboard-teachers"),
+    path('dashboard/teachers/download/', TeacherReportDownloadExcelView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DOWNLOAD TEACHER REPORT"), "dashboard-teachers-download"),
     path('accounts/', include('users.urls')),
     path('admin/', admin.site.urls),
     path('class/', include('classes.urls')),
