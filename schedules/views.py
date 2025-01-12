@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from django.contrib import messages
 from django.core.exceptions import BadRequest
 from django.db import IntegrityError
@@ -7,6 +7,7 @@ from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from io import BytesIO
+from classes.models import Class
 from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
@@ -15,6 +16,35 @@ from utils.validate_datetime import parse_to_date, validate_date, validate_time,
 from xlsxwriter import Workbook
 
 # Create your views here.
+
+class ScheduleView(BaseModelView, BaseModelListView):
+    model = Schedule
+    menu_name = 'report'
+    permission_required = 'reports.view_report'
+    raise_exception = False
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query_day = self.request.GET.get('query_day', 'Senin')
+
+        groupped_qs = []
+        for i in range(1, 10):
+            qs = super().get_queryset().filter(schedule_day=query_day, schedule_time=i)\
+                        .values('schedule_class__short_class_name', 
+                                'schedule_course__teacher__last_name',
+                                'schedule_course__course_code',
+                                'schedule_course__course_short_name')\
+                        .order_by('schedule_class__short_class_name')
+            groupped_qs.append(qs)
+        return groupped_qs
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["query_type"] = self.request.GET.get('query_type', 'code')
+        context["query_day"] = self.request.GET.get('query_day', 'Senin')
+        context["class"] = Class.objects.all()
+        return context
+    
+    
 class ScheduleListView(BaseModelView, BaseModelListView):
     model = Schedule
     menu_name = 'schedule'

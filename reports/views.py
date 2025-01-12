@@ -1,7 +1,7 @@
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
 from classes.models import Class
-from datetime import datetime
+from datetime import datetime, date
 from io import BytesIO
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -27,9 +27,11 @@ class ReportView(BaseModelView, BaseModelListView):
     raise_exception = False
 
     def get_queryset(self) -> QuerySet[Any]:
+        query_date = self.request.GET.get('query_date', datetime.now().date())
+
         groupped_qs = []
         for i in range(1, 10):
-            qs = super().get_queryset().filter(report_date='2025-01-10', schedule__schedule_time=i)\
+            qs = super().get_queryset().filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=i)\
                         .values('schedule__schedule_class__short_class_name', 
                                 'schedule__schedule_course__teacher__first_name', 
                                 'status')\
@@ -50,17 +52,17 @@ class ReportListView(BaseModelView, BaseModelListView):
 
     def get_queryset(self) -> QuerySet[Any]:
         query_class = self.request.GET.get('query_class') if self.request.GET.get('query_class') else None
-        query_date = self.request.GET.get('query_date') if self.request.GET.get('query_date') else ''
+        query_date = self.request.GET.get('query_date', datetime.now().date()) if self.request.GET.get('query_date') else datetime.now().date()
         query_time = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
 
         is_valid_date = validate_date(query_date)
 
         if is_valid_date and query_class and query_time:
-            return Report.objects.filter(report_date=parse_to_date(query_date), schedule__schedule_class__class_name=query_class, schedule__schedule_time=query_time)
+            return Report.objects.filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class, schedule__schedule_time=query_time)
         elif is_valid_date and query_time:
-            return Report.objects.filter(report_date=parse_to_date(query_date), schedule__schedule_time=query_time)
+            return Report.objects.filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=query_time)
         elif is_valid_date and query_class:
-            return Report.objects.filter(report_date=parse_to_date(query_date), schedule__schedule_time=query_time)
+            return Report.objects.filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=query_time)
             
         return super().get_queryset()
     
@@ -114,7 +116,11 @@ class ReportQuickCreateView(BaseFormView, FormView):
         if not (date_valid and time_valid):
             raise BadRequest("Invalid Date and Time")
         
-        data = Report.objects.filter(report_date=parse_to_date(report_date), schedule__schedule_time=schedule_time)
+        if isinstance(report_date, date):
+            data = Report.objects.filter(report_date=report_date, schedule__schedule_time=schedule_time)
+        else:
+            data = Report.objects.filter(report_date=parse_to_date(report_date), schedule__schedule_time=schedule_time)
+
         if data.exists():
             context["reports"] = data
         else:
