@@ -57,21 +57,21 @@ class ScheduleListView(BaseModelView, BaseModelListView):
         query_time = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
 
         if query_day and query_class and query_time:
-            return Schedule.objects.filter(report_day=query_day, schedule_class__class_name=query_class, schedule_time=query_time)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day, schedule_class__class_name=query_class, schedule_time=query_time)
         elif query_time and query_class:
-            return Schedule.objects.filter(schedule_class__class_name=query_class, schedule_time=query_time)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_class__class_name=query_class, schedule_time=query_time)
         elif query_class and query_day:
-            return Schedule.objects.filter(report_day=query_day, schedule_class__class_name=query_class)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day, schedule_class__class_name=query_class)
         elif query_day and query_time:
-            return Schedule.objects.filter(report_day=query_day, schedule_time=query_time)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day, schedule_time=query_time)
         elif query_day:
-            return Schedule.objects.filter(report_day=query_day)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(report_day=query_day)
         elif query_class:
-            return Schedule.objects.filter(schedule_class__class_name=query_class)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_class__class_name=query_class)
         elif query_time:
-            return Schedule.objects.filter(schedule_time=query_time)
+            return Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_time=query_time)
             
-        return super().get_queryset()
+        return super().get_queryset().select_related("schedule_course", "schedule_course__teacher","schedule_class")
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

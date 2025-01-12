@@ -1,4 +1,5 @@
 from django import forms
+from courses.models import Course
 from schedules.models import Schedule
 
 class ScheduleForm(forms.ModelForm):
@@ -14,3 +15,8 @@ class ScheduleForm(forms.ModelForm):
             'time_start': forms.TimeInput(attrs={"type":"time", "class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
             'time_end': forms.TimeInput(attrs={"type":"time", "class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Optimize related queries
+        self.fields['schedule_course'].queryset = Course.objects.select_related('teacher')

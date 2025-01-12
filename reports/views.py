@@ -49,22 +49,25 @@ class ReportListView(BaseModelView, BaseModelListView):
     menu_name = 'report'
     permission_required = 'reports.view_report'
     raise_exception = False
+    paginate_by = 30
 
     def get_queryset(self) -> QuerySet[Any]:
         query_class = self.request.GET.get('query_class') if self.request.GET.get('query_class') else None
         query_date = self.request.GET.get('query_date', datetime.now().date()) if self.request.GET.get('query_date') else datetime.now().date()
         query_time = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
 
+        print(query_class, query_date, query_time)
+
         is_valid_date = validate_date(query_date)
 
         if is_valid_date and query_class and query_time:
-            return Report.objects.filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class, schedule__schedule_time=query_time)
+            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher").filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class, schedule__schedule_time=query_time)
         elif is_valid_date and query_time:
-            return Report.objects.filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=query_time)
+            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher").filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=query_time)
         elif is_valid_date and query_class:
-            return Report.objects.filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=query_time)
+            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher").filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class)
             
-        return super().get_queryset()
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -117,15 +120,17 @@ class ReportQuickCreateView(BaseFormView, FormView):
             raise BadRequest("Invalid Date and Time")
         
         if isinstance(report_date, date):
-            data = Report.objects.filter(report_date=report_date, schedule__schedule_time=schedule_time)
+            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                        .filter(report_date=report_date, schedule__schedule_time=schedule_time)
         else:
-            data = Report.objects.filter(report_date=parse_to_date(report_date), schedule__schedule_time=schedule_time)
+            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                        .filter(report_date=parse_to_date(report_date), schedule__schedule_time=schedule_time)
 
         if data.exists():
             context["reports"] = data
         else:
             context["day"] = get_day(report_date)
-            context["schedules"] = Schedule.objects.filter(schedule_day=context["day"], schedule_time=schedule_time)
+            context["schedules"] = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class").filter(schedule_day=context["day"], schedule_time=schedule_time)
         context["subtitute_teachers"] = User.objects.all()
         return context
     
@@ -210,9 +215,9 @@ class ReportDownloadExcelView(BaseModelView, BaseModelListView):
         worksheet.write_row(0, 0, ['No', 'TANGGAL', 'HARI', 'STATUS', 'JAM KE-', 'KELAS', 'PELAJARAN', 'PENGAJAR', 'GURU PENGGANTI'])
         row = 1
         for data in self.get_queryset():
-            subtitue_teacher = f"{data.subtitute_teacher.first_name} {data.subtitute_teacher.last_name}" if data.subtitute_teacher else ""
+            subtitue_teacher = f"{data.subtitute_teacher.first_name}" if data.subtitute_teacher else ""
             worksheet.write_row(row, 0, [row, f"{data.report_date}", f"{data.report_day}", data.status, data.schedule.schedule_time, f"{data.schedule.schedule_class}", f"{data.schedule.schedule_course.course_name}",
-                                         f"{data.schedule.schedule_course.teacher.first_name} {data.schedule.schedule_course.teacher.last_name}", subtitue_teacher])
+                                         f"{data.schedule.schedule_course.teacher.first_name}", subtitue_teacher])
             row += 1
         worksheet.autofit()
         workbook.close()

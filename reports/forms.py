@@ -1,6 +1,7 @@
 from datetime import datetime
 from django import forms
 from reports.models import Report
+from schedules.models import Schedule
 from utils.constants import SCHEDULE_TIME
 from utils.validate_datetime import validate_date, validate_time, get_day
 
@@ -16,6 +17,11 @@ class ReportForm(forms.ModelForm):
             'status': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
             'subtitute_teacher': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Optimize related queries
+        self.fields['schedule'].queryset = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class")
 
 
 class QuickReportForm(forms.Form):

@@ -105,9 +105,11 @@ class BaseModelUploadView(BaseModelView, FormView):
                     teacher = get_object_or_404(User, id=df.iloc[i, 5])
                     model_name.objects.update_or_create(
                         pk = df.iloc[i, 0],
-                        course_name = df.iloc[i, 1],
-                        teacher = teacher,
+                        # course_name = df.iloc[i, 1],
+                        # teacher = teacher,
                         defaults={
+                            "course_name": df.iloc[i, 2],
+                            "teacher": teacher,
                             "course_short_name": df.iloc[i, 2],
                             "course_code": df.iloc[i, 3],
                             "category": df.iloc[i, 4],

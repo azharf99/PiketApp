@@ -23,13 +23,13 @@ class CourseListView(BaseModelView, BaseModelListView):
         query = self.request.GET.get('query')
 
         if query :
-            return Course.objects.filter(Q(course_name__icontains=query) | 
+            return Course.objects.select_related("teacher").filter(Q(course_name__icontains=query) | 
                                          Q(course_code__icontains=query) |
                                          Q(category__icontains=query) |
                                          Q(teacher__first_name__icontains=query)
                                          )
             
-        return super().get_queryset()
+        return super().get_queryset().select_related("teacher")
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

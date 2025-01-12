@@ -36,10 +36,10 @@ urlpatterns = [
     path('schedule/', include('schedules.urls')),
 ]
 
-# if not settings.TESTING:
-#     urlpatterns = [
-#         *urlpatterns,
-#     ] + debug_toolbar_urls()
+if not settings.TESTING:
+    urlpatterns = [
+        *urlpatterns,
+    ] + debug_toolbar_urls()
 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
