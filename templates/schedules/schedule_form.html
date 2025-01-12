@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <main class="p-4 sm:ml-64 overflow-auto">
+    <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">{{form_name}} Form</h1>
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2">
+      <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
+      <p class="text-2xl">
+        &triangleright;
+      </p>
+      <a href="{% url 'schedule-list' %}">Schedule List</a>
+      <p class="text-2xl">
+        &triangleright;
+      </p>
+      {% if form_name == "Create" %}
+      <a href="{% url 'schedule-create' %}">{{form_name}} Form</a>
+      {% else %}
+      <a href="">{{form_name}} Form</a>
+      {% endif %}
+    </div>
+    <!-- Analytics Card -->
+    <div class="mx-2 my-4 flex justify-center">
+        <div class="px-4 py-6 flex flex-col justify-center items-center gap-4 bg-white dark:bg-gray-700 shadow-lg md:w-3/4 w-full rounded-md">
+          {% if messages %}
+          {% for message in messages %}
+          {% if message.tags == "success" %}
+          <div class="flex items-center p-4 mb-4 mx-2 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
+            <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>
+              <span class="font-medium">Success!</span> {{message.message}}
+              <p class="m-2">Silahkan lihat hasilnya <a href="{% url 'schedule-list' %}" class="p-1 rounded-md bg-green-500 text-white font-bold">di sini</a></p>
+            </div>
+          </div>
+          {% else %}
+          <div class="flex items-center p-4 mb-4 mx-2 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+            <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>
+              <span class="font-medium">Error!</span> {{message.message}}
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+          <h2 class="font-semibold text-xl">{{form_name}} Data Jadwal Guru</h2>
+          <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 md:w-3/4 w-full">
+              {% csrf_token %}
+              {% for field in form %}
+                  <div class="flex flex-col">
+                      {{ field.errors }}
+                      {{ field.label_tag }} {{ field }}
+                      {% if field.help_text %}
+                        <p class="p-2 italic text-xs" id="{{ field.auto_id }}_helptext">
+                          {{ field.help_text|safe }}
+                        </p>
+                      {% endif %}
+                  </div>
+              {% endfor %}
+              
+              <input type="submit" id="submit" value="Input Data" class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 my-4">
+              <div id="loading" class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
+                <div class="loader"></div>
+                <p>Loading ...</p>
+              </div>
+            </form>
+        </div>
+    </div>
+
+  </main>
+
+  {% include 'loader.html' %}
+
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/selectize.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/selectize.bootstrap3.min.css' %}"/>
+  <script>
+      $(document).ready(function () {
+          $('#id_extracurricular').selectize({
+              sortField: 'text',
+              maxItems: 1,
+          });
+      });
+      $(document).ready(function () {
+          $('#id_student').selectize({
+              sortField: 'text',
+              maxItems: 1,
+          });
+      });
+      $(document).ready(function () {
+          $('#id_score').selectize({
+              sortField: 'text',
+              maxItems: 1,
+          });
+      });
+  </script>
+  
+{% endblock content %}

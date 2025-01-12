@@ -1,0 +1,20 @@
+{% extends 'base-exception.html' %}
+
+{% block content %}
+    <main class="p-4 sm:ml-64 overflow-auto my-4">
+        <div class="flex flex-col justify-center items-center">
+            <h1 style="font-size: 200px;">&#x1F595;</h1>
+            <p class="text-center">Bad Request - 400</p>
+            <h2 class="text-2xl text-center text-balance">Upss, ada gerak-gerik mencurigakan!</h2>
+            <h2 class="text-2xl text-center text-balance">Permintaan anda tidak valid!</h2>
+            <h3 class="text-2xl text-center text-balance">Anda tidak berniat hack, kan?!</h3>
+            <div class="flex gap-4 my-2">
+                <a href="{% url 'home' %}" class="p-2 rounded-md bg-red-500 my-4 text-white">&#x1F3E0; Home</a>
+                {% if not request.user.is_authenticated %}
+                <a href="{% url 'login' %}" class="p-2 rounded-md bg-blue-500 my-4 text-white">&#128273; Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+{% endblock content %}

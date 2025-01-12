@@ -1,0 +1,101 @@
+{
+  "name": "PIKET SMA IT AL BINAA",
+  "short_name": "PIKET",
+  "description": "A versatile PIKET web application optimized for mobile, tablet, and desktop devices.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#89c4ec",
+  "theme_color": "#89c4ec",
+  "icons": [
+    {
+      "src": "/static/icon/android-icon-48x48.png",
+      "type": "image/png",
+      "sizes": "48x48",
+      "purpose": "any",
+      "density": "1.0"
+    },
+    {
+      "src": "/static/icon/android-icon-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72",
+      "purpose": "any",
+      "density": "1.5"
+    },
+    {
+      "src": "/static/icon/android-icon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "any",
+      "density": "2.0"
+    },
+    {
+      "src": "/static/icon/android-icon-144x144.png",
+      "type": "image/png",
+      "sizes": "144x144",
+      "purpose": "any",
+      "density": "3.0"
+    },
+    {
+      "src": "/static/icon/apple-icon-152x152.png",
+      "type": "image/png",
+      "sizes": "152x152",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icon/web-app-manifest-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icon/web-app-manifest-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/screenshots/mobile-screenshot.png",
+      "type": "image/png",
+      "sizes": "1080x1920",
+      "form_factor": "narrow",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/screenshots/tablet-screenshot.png",
+      "type": "image/png",
+      "sizes": "1536x2048",
+      "platform": "tablet",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/screenshots/desktop-screenshot.png",
+      "type": "image/png",
+      "sizes": "1920x1080",
+      "form_factor": "wide",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "utilities",
+    "productivity",
+    "social"
+  ],
+  "scope": "/",
+  "id": "/",
+  "iarc_rating_id": "e10cda57-d59f-461c-8d4a-ec9df5d95a71",
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.mumtaz.albinaa",
+      "id": "com.mumtaz.albinaa"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/example-app/id123456789"
+    }
+  ],
+  "prefer_related_applications": false
+}

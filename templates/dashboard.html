@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="p-4 sm:ml-64 overflow-auto">
+    <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Dashboard</h1>
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2">
+      <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-2 border-0 sm:gap-4 gap-2 p-2">
+      <article class="rounded-lg border border-gray-100 bg-white dark:bg-gray-800 p-4 drop-shadow-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-slate-200">
+              Jumlah Tenaga Kependidikan
+            </p>
+
+            <p class="text-2xl font-medium text-gray-900 dark:text-slate-200">
+              {{sum_of_user.count}} Orang
+            </p>
+          </div>
+
+          <span class="rounded-full bg-blue-100 p-3 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+            </svg>            
+          </span>
+        </div>
+
+        <div class="mt-1 flex gap-1 text-green-600 items-center">
+          {% for object in sum_of_user_category %}
+          <p class="flex gap-2 text-sm">
+            <span class="font-medium">{{object.dcount}}</span>
+            <span class="text-gray-500 dark:text-slate-200">{% if object.is_superuser %} TU {% else %} Guru {% endif %}</span>
+          </p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="rounded-lg border border-gray-100 bg-white dark:bg-gray-800 p-4 drop-shadow-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-slate-200">
+              Jumlah Kelas
+            </p>
+
+            <p class="text-2xl font-medium text-gray-900 dark:text-slate-200">
+              {{sum_of_class.count}} Kelas
+            </p>
+          </div>
+
+          <span class="rounded-full bg-blue-100 p-3 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+            </svg>            
+          </span>
+        </div>
+        <div class="mt-1 flex gap-1 text-green-600 items-center">
+          {% for object in sum_of_class_category %}
+          <p class="flex gap-2 text-sm">
+            <span class="font-medium">{{object.dcount}}</span>
+            <span class="text-gray-500 dark:text-slate-200">{{object.category}}</span>
+          </p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="rounded-lg border border-gray-100 bg-white dark:bg-gray-800 p-4 drop-shadow-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-slate-200">
+              Jumlah Mapel
+            </p>
+
+            <p class="text-2xl font-medium text-gray-900 dark:text-slate-200">
+              {{sum_of_course.count}} Mapel
+            </p>
+          </div>
+
+          <span class="rounded-full bg-blue-100 p-3 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+            </svg>            
+          </span>
+        </div>
+
+        <div class="mt-1 flex gap-1 text-green-600 items-center">
+          <p class="flex gap-2 text-sm">
+            <span class="font-medium">{{sum_of_course_ashri.count}}</span>
+            <span class="text-gray-500 dark:text-slate-200">Ashri</span>
+          </p>
+          <p class="flex gap-2 text-sm">
+            <span class="font-medium">{{sum_of_course_syari.count}}</span>
+            <span class="text-gray-500 dark:text-slate-200">Syar'i</span>
+          </p>
+        </div>
+      </article>
+
+      <article class="rounded-lg border border-gray-100 bg-white dark:bg-gray-800 p-4 drop-shadow-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-slate-200">
+              Jadwal Hari Ini
+            </p>
+
+            <p class="text-xl font-medium text-gray-900 dark:text-slate-200">
+              {{sum_of_schedule_today.count}} Jadwal (Kelas & Jam)
+            </p>
+          </div>
+
+          <span class="rounded-full bg-blue-100 p-3 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+            </svg>            
+          </span>
+        </div>
+
+        <div class="mt-1 flex gap-1 text-green-600 items-center">
+          <p class="flex gap-2 text-sm">
+            <span class="font-bold">{{sum_of_schedule_teacher}}</span>
+            <span class="text-gray-500 dark:text-slate-200">Guru</span>
+          </p>
+          <p class="flex gap-2 text-sm">
+            <span class="font-medium">{{sum_of_schedule_teacher_syari}}</span>
+            <span class="text-gray-500 dark:text-slate-200">Mapel Syari</span>
+          </p>
+          <p class="flex gap-2 text-sm">
+            <span class="font-medium">{{sum_of_schedule_teacher_ashri}}</span>
+            <span class="text-gray-500 dark:text-slate-200">Mapel Ashri</span>
+          </p>
+        </div>
+      </article>
+      <article class="rounded-lg border border-gray-100 bg-white dark:bg-gray-800 p-4 drop-shadow-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-slate-200">
+              Laporan Piket Hari Ini
+            </p>
+
+            <p class="text-2xl font-medium text-gray-900 dark:text-slate-200">
+              {{sum_of_report_today.count}} Laporan
+            </p>
+          </div>
+
+          <span class="rounded-full bg-blue-100 p-3 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+            </svg>            
+          </span>
+        </div>
+
+        <div class="mt-1 flex gap-1 text-green-600">
+          {% for object in sum_of_report_today_status %}
+          <p class="flex gap-2 text-sm">
+            <span class="font-medium">{{object.dcount}}</span>
+            <span class="text-gray-500 dark:text-slate-200">{{object.status}}</span>
+          </p>
+          {% endfor %}
+        </div>
+      </article>
+      <article class="rounded-lg border border-gray-100 bg-white dark:bg-gray-800 p-4 drop-shadow-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-slate-200">
+              Jumlah Jam KBM
+            </p>
+
+            <p class="text-2xl font-medium text-gray-900 dark:text-slate-200">
+              {{object_list.count}} Jam
+            </p>
+          </div>
+
+          <span class="rounded-full bg-blue-100 p-3 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+            </svg>            
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2">
+          {% for object in sum_of_report_status %}
+          <div class="mt-1 flex gap-1 text-green-600">
+            <p class="flex gap-2 text-sm">
+              <span class="font-medium">{{object.dcount}}</span>
+              <span class="text-gray-500 dark:text-slate-200">Jam {{object.status}}</span>
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3">
+      <div class="col-span-2">
+        <!-- Analytics Charts -->
+        <div class="px-4 pb-16 mx-2 my-2 pt-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto">
+          <div class="flex justify-center m-2 gap-2 text-balance text-center">
+            <a href="{% url 'dashboard-teachers' %}"><p class="p-1 px-2 bg-green-500 text-white rounded-md font-semibold">&#128196; Rekap Kehadiran Guru</p></a>
+          </div>
+          {% if object_list %}
+          <table class="table-auto border-collapse w-full">
+            <caption class="my-2 font-bold">10 Data Piket Terakhir</caption>
+              <thead>
+                <th class="p-2 border border-gray-400 bg-blue-100 text-black">No</th>
+                <th class="p-2 border border-gray-400 bg-blue-100 text-black">Hari</th>
+                <th class="p-2 border border-gray-400 bg-blue-100 text-black">Kelas</th>
+                <th class="p-2 border border-gray-400 bg-blue-100 text-black">Jam ke-</th>
+                <th class="p-2 border border-gray-400 bg-blue-100 text-black">Pengajar</th>
+                <th class="p-2 border border-gray-400 bg-blue-100 text-black">Status</th>
+              </thead>
+              <tbody>
+                {% for object in report_latest %}
+                <tr>
+                  <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
+                  <td class="p-2 border border-gray-400 text-center">{{object.report_day}}</td>
+                  <td class="p-2 border border-gray-400 text-center">{{object.schedule.schedule_class}}</td>
+                  <td class="p-2 border border-gray-400 text-center">{{object.schedule.schedule_time}}</td>
+                  <td class="p-2 border border-gray-400 text-center">{{object.schedule.schedule_course.teacher.first_name}}</td>
+                  <td class="p-2 border border-gray-400 text-center">{{object.status}}</td>
+                </tr>
+                {% empty %}
+                  <p class="text-red-500 text-center font-bold">Maaf, belum ada data tersedia</p>
+                {% endfor %}
+              </tbody>
+          </table>
+          {% endif %}
+        </div>
+        
+      </div>
+      <div class="px-4 pb-16 mx-2 my-2 pt-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">
+        <p class="text-center pb-4">Aktivitas Terbaru</p>
+        {% for log in logs %}
+        <div class="">
+          <p class="text-xs w-1/2">&bullet; {{log.created_at|timesince}} ago</p>
+          <div class="p-2 border-l-2">
+            <p class="text-xs">{{log.user}} {{log.message}}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </main>
+
+{% endblock content %}

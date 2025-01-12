@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<!-- Breadcrumb -->
+<div class="flex items-center gap-2 mx-4 pl-2 my-4">
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <p class="text-2xl">
+    &triangleright;
+    </p>
+    <a href="{% url 'menu' %}">Menu</a>
+</div>
+    <main class="p-4 sm:ml-64 overflow-auto mt-6">
+        <div class="flex gap-4 gap-y-8 flex-wrap justify-evenly items-center">
+            <h1 class="font-bold text-xl">{{site_title}}</h1>
+            <a class="mx-2" href="{% url 'class-list' %}"><p class="w-32 px-4 py-2 text-4xl {{home}} rounded-lg flex items-center flex-col">&#127968;<span class="text-xs text-black font-semibold text-balance">Data Kelas</span></p></a>
+            <a class="mx-2" href="{% url 'course-list' %}"><p class="w-32 px-4 py-2 text-4xl {{home}} rounded-lg flex items-center flex-col">&#127968;<span class="text-xs text-black font-semibold text-balance">Data Pelajaran</span></p></a>
+            <a class="mx-2" href="{% url 'schedule-list' %}"><p class="w-32 px-4 py-2 text-4xl {{home}} rounded-lg flex items-center flex-col">&#127968;<span class="text-xs text-black font-semibold text-balance">Jadwal Guru</span></p></a>
+            <a class="mx-2" href="{% url 'report-list' %}"><p class="w-32 px-4 py-2 text-4xl {{home}} rounded-lg flex items-center flex-col">&#127968;<span class="text-xs text-black font-semibold text-balance">Data Piket</span></p></a>
+            <a class="mx-2" href="{% url 'user-list' %}"><p class="w-32 px-4 py-2 text-4xl {{home}} rounded-lg flex items-center flex-col">&#127968;<span class="text-xs text-black font-semibold text-balance">Data Guru</span></p></a>
+            <a class="mx-2" href="#rekap"><p class="w-32 px-4 py-2 text-4xl {{home}} rounded-lg flex items-center flex-col">&#127968;<span class="text-xs text-black font-semibold text-balance">Rekap Data</span></p></a>
+        </div>
+    </main>
+
+{% endblock content %}

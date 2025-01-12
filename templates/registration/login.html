@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOGIN - PMBP SMAS IT AL BINAA</title>
+  <meta content="PMBP SMAS IT Al Binaa" name="description" />
+  <meta
+    content="SMA IT AL Binaa, SMAS IT AL Binaa, PMBP SMA IT AL Binaa, PMBP SMAS IT AL Binaa, Ekskul SMA IT AL Binaa, Ekskul"
+    name="keywords" />
+  <link rel="canonical" href="https://humas.smasitalbinaa.com/" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="PMBP SMAS IT AL BINAA" />
+  <meta property="og:url" content="https://humas.smasitalbinaa.com/" />
+  <meta property="og:site_name" content="SMAS IT AL BINAA IBS" />
+  <link href="{% static 'img/favicon.png' %}" rel="icon" />
+  <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon" />
+  <link rel="stylesheet" href="{% static 'css/build.css' %}">
+</head>
+
+<body class="bg-gray-100 dark:bg-black dark:text-gray-200">
+  <main class="p-6 flex justify-center items-center h-screen">
+    <section class="flex flex-col justify-center items-center bg-white dark:bg-gray-800 w-full md:w-1/2 rounded-lg shadow-lg">
+      <div class="p-6 flex flex-col justify-center items-center">
+
+          {% if messages %}
+          {% for message in messages %}
+          <div class="p-4 m-2 text-red-800 border border-red-300 rounded-lg bg-red-50 text-center" role="alert">
+                      {{ message }}
+          <button type="button" data-bs-dismiss="alert" aria-label="Close">&Cross;</button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          
+          
+          <label for="AcceptConditions"
+            class="relative inline-block h-6 w-12 mx-4 cursor-pointer rounded-full bg-gray-300 transition [-webkit-tap-highlight-color:_transparent] has-[:checked]:bg-green-500">
+            <label for="AcceptConditions"></label><input type="checkbox" id="AcceptConditions"
+              class="peer sr-only [&:checked_+_span_svg[data-checked-icon]]:block [&:checked_+_span_svg[data-unchecked-icon]]:hidden" />
+
+            <span
+              class="absolute inset-y-0 start-0 z-10 m-1 inline-flex size-4 items-center justify-center rounded-full bg-white dark:bg-green-300 p-0.5 text-black transition-all peer-checked:start-6 peer-checked:text-black">
+              <svg data-unchecked-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" fill-rule="evenodd" clip-rule="evenodd"
+                  d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+              </svg>
+              <svg data-checked-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="size-6 hidden">
+                <path stroke-linecap="round" stroke-linejoin="round" fill-rule="evenodd" clip-rule="evenodd"
+                  d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+              </svg>
+            </span>
+          </label>
+
+          
+        <div>
+          <a href="{% url 'home' %}" class="flex justify-center items-center py-4 gap-2">
+            <img src="{% static '/images/Binaaul-Mustaqbal.png' %}" alt="PMBP Logo" class="w-12">
+            <span class="text-2xl font-bold text-blue-500 dark:text-black">PMBP Login</span>
+          </a>
+        </div>
+
+        <form class="flex flex-col gap-4" method="post" action="">
+          {% csrf_token %}
+
+          <div class="flex flex-col">
+            <label for="yourUsername">Username</label>
+            <input type="text" name="username" class="rounded-md text-black py-1 px-2 border-2 border-blue-500" id="yourUsername" placeholder="Username" required>
+          </div>
+
+          <div class="flex flex-col">
+            <label for="yourPassword">Password</label>
+            <input type="password" name="password" class="rounded-md text-black py-1 px-2 border-2 border-blue-500" id="yourPassword" placeholder="Password" required>
+          </div>
+
+          <div class="flex gap-2 items-center">
+            <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe" checked>
+            <label class="form-check-label" for="rememberMe">Remember me</label>
+          </div>
+
+          <div class="text-center flex flex-col gap-4 justify-center">
+            <button class="py-2 px-2 bg-blue-500 text-white rounded-md" type="submit" id="submit">Login</button>
+            <a href="{% url 'home' %}" id="back" class="py-1 px-2 bg-red-500 text-white rounded-md">&leftarrow; Home</a>
+          </div>
+          <div id="loading" class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
+            <div class="loader"></div>
+            <p>Loading ...</p>
+          </div>
+        </form>
+
+      </div>
+    </section>
+  </main>
+  <!-- End #main -->
+  
+  <script src="{% static 'js/login.js' %}"></script>
+  {% include 'loader.html' %}
+
+  <script>
+    const back = document.getElementById("back");
+    document.addEventListener("submit", ()=>{
+      back.classList.add("hidden");
+    })
+  </script>
+
+</body>
+
+
+
+</html>
