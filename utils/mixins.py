@@ -133,8 +133,8 @@ class BaseModelUploadView(BaseModelView, FormView):
                 case "User":
                     obj, is_created = model_name.objects.update_or_create(
                         pk = df.iloc[i, 0],
-                        username = df.iloc[i, 1],
                         defaults={
+                            "username": df.iloc[i, 1],
                             "first_name": df.iloc[i, 3],
                             "last_name": df.iloc[i, 4],
                             "email": df.iloc[i, 5],
