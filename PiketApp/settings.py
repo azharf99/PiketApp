@@ -32,6 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+LOCAL = False
 
 if not DEBUG:
     ALLOWED_HOSTS = ['piket.pythonanywhere.com', '127.0.0.1', 'piket.albinaa.sch.id']
@@ -106,7 +107,7 @@ WSGI_APPLICATION = 'PiketApp.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-if not DEBUG:
+if not DEBUG and not LOCAL:
     DATABASES = {
             'default':{
                 'ENGINE': 'django.db.backends.mysql',
@@ -115,6 +116,23 @@ if not DEBUG:
                 'PASSWORD' : os.getenv('MYSQL_DB_PASSWORD'),
                 'HOST' : os.getenv('MYSQL_DB_HOST'),
                 'PORT' : os.getenv('MYSQL_DB_PORT'),
+                "OPTIONS": {
+                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                    'charset': 'utf8mb4',
+                    "autocommit": True,
+                }
+
+            }
+        }
+if DEBUG and LOCAL:
+    DATABASES = {
+            'default':{
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME' : os.getenv('LOCAL_MYSQL_DB_NAME'),
+                'USER' : os.getenv('LOCAL_MYSQL_DB_USER'),
+                'PASSWORD' : os.getenv('LOCAL_MYSQL_DB_PASSWORD'),
+                'HOST' : os.getenv('LOCAL_MYSQL_DB_HOST'),
+                'PORT' : os.getenv('LOCAL_MYSQL_DB_PORT'),
                 "OPTIONS": {
                     'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
                     'charset': 'utf8mb4',
@@ -190,44 +208,55 @@ if DEBUG:
         # ...
     ]
 
-
-CORS_ALLOWED_ORIGINS = [
-    "https://piket.pythonanywhere.com",
-    "https://pythonanywhere.com",
-    "https://piket.albinaa.sch.id",
-    "http://localhost:8080",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:9000",
-]
-
-CORS_ALLOW_METHODS = (
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-)
-
-CORS_ALLOW_HEADERS = (
-    "accept",
-    "authorization",
-    "content-type",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-)
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://piket.pythonanywhere.com",
-    "https://pythonanywhere.com",
-    "https://piket.albinaa.sch.id",
-    "http://localhost:8080",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:9000",
-]
+# EMAIL FOR SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / "tmp/app-messages"
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
+EMAIL_PORT = 587
+EMAIL_USE_LOCALTIME = True
+EMAIL_USE_TLS = True
 
 if not DEBUG:
+
+    CORS_ALLOWED_ORIGINS = [
+        "https://piket.pythonanywhere.com",
+        "https://pythonanywhere.com",
+        "https://piket.albinaa.sch.id",
+        "http://localhost:8080",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:9000",
+    ]
+
+    CORS_ALLOW_METHODS = (
+        "DELETE",
+        "GET",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT",
+    )
+
+    CORS_ALLOW_HEADERS = (
+        "accept",
+        "authorization",
+        "content-type",
+        "user-agent",
+        "x-csrftoken",
+        "x-requested-with",
+    )
+
+    CSRF_TRUSTED_ORIGINS = [
+        "https://piket.pythonanywhere.com",
+        "https://pythonanywhere.com",
+        "https://piket.albinaa.sch.id",
+        "http://localhost:8080",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:9000",
+    ]
+
+if not DEBUG and not LOCAL:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_SSL_REDIRECT = True
