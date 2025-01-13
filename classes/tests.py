@@ -11,6 +11,8 @@ class ClassModelTest(TestCase):
             short_class_name="Math"
         )
 
+
+
     def test_class_creation(self):
         """Test that a Class instance is created successfully."""
         self.assertIsInstance(self.class_instance, Class)
