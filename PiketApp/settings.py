@@ -13,13 +13,15 @@ import sys
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-project_folder = os.path.expanduser('~/PiketApp')  # adjust as appropriate
-load_dotenv(os.path.join(project_folder, '.env'))
+# project_folder = os.path.expanduser('~/PiketApp')  # adjust as appropriate
+# load_dotenv(os.path.join(project_folder, '.env'))
 
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -31,7 +33,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
 
-if DEBUG:
+if not DEBUG:
     ALLOWED_HOSTS = ['piket.pythonanywhere.com', '127.0.0.1', 'piket.albinaa.sch.id']
 else:
     ALLOWED_HOSTS = ['*']
