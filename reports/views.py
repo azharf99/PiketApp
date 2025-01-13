@@ -89,9 +89,10 @@ class ReportCreateView(BaseFormView, CreateView):
     error_message = "Input data ditolak!"
 
 
-class ReportQuickCreateViewV2(BaseFormView, FormView):
+class ReportQuickCreateViewV2(BaseFormView, CreateView):
+    model = Report
     menu_name = 'report'
-    form_class = QuickReportForm
+    form_class = ReportForm
     template_name = 'reports/report_quick_form-v2.html'
     permission_required = 'reports.add_report'
     success_message = "Input data berhasil!"
@@ -100,7 +101,16 @@ class ReportQuickCreateViewV2(BaseFormView, FormView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
+        report_date = self.request.GET.get('report_date', datetime.now().date())
+
+        grouped_data = []
+        for i in range(1, 10):
+            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                        .filter(report_date=report_date, schedule__schedule_time=i)
+            grouped_data.append(data)
+
         context["class"] = Class.objects.all()
+        context["grouped_data"] = grouped_data
         context["schedule_time"] = [x for x in range(1, 10)]
         return context
 
