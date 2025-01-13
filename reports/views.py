@@ -88,6 +88,24 @@ class ReportCreateView(BaseFormView, CreateView):
     success_message = "Input data berhasil!"
     error_message = "Input data ditolak!"
 
+
+class ReportQuickCreateViewV2(BaseFormView, FormView):
+    menu_name = 'report'
+    form_class = QuickReportForm
+    template_name = 'reports/report_quick_form-v2.html'
+    permission_required = 'reports.add_report'
+    success_message = "Input data berhasil!"
+    error_message = "Input data ditolak!"
+    success_url = reverse_lazy("report-list")
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["class"] = Class.objects.all()
+        context["schedule_time"] = [x for x in range(1, 10)]
+        return context
+
+
+
 class ReportQuickCreateView(BaseFormView, FormView):
     menu_name = 'report'
     form_class = QuickReportForm

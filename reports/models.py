@@ -12,7 +12,8 @@ class Report(models.Model):
     report_day = models.CharField(_("Hari"), max_length=20, blank=True, help_text=_("Opsional. Auto-generated"))
     schedule = models.ForeignKey(Schedule, on_delete=models.SET_NULL, null=True, verbose_name=_("Jadwal"))
     status = models.CharField(_("Status"), max_length=20, choices=STATUS_CHOICES, default=STATUS_CHOICES[1][0])
-    subtitute_teacher = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Guru Pengganti"))
+    subtitute_teacher = models.ForeignKey(User, related_name="subtitute_teacher", on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Guru Pengganti"))
+    reporter = models.ForeignKey(User, related_name="reporter", on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Petugas Piket"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

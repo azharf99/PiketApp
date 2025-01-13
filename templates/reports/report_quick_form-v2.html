@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="p-4 sm:ml-64 overflow-auto">
+  <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Report Quick Input View</h1>
+  <!-- Breadcrumb -->
+  <div class="flex items-center gap-2">
+    <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
+    <p class="text-2xl">
+      &triangleright;
+    </p>
+    <a href="{% url 'report-list' %}">Report List</a>
+    <p class="text-2xl">
+      &triangleright;
+    </p>
+    <a href="{% url 'report-view' %}">Report Quick Input View</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+    <div class="m-2 flex justify-center">
+      <div
+        class="flex items-center p-4 mb-4 mx-2 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800"
+        role="alert">
+        <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor" viewBox="0 0 20 20">
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+        </svg>
+        <span class="sr-only">Info</span>
+        <div>
+          <span class="font-medium">Success! {{message.message}}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+
+  <div class="flex justify-center m-2 gap-2 text-balance text-center">
+    <a href="{% url 'report-download' %}"><p class="p-1 px-2 bg-green-500 text-white rounded-md font-semibold">&#128196; Export to Excel</p></a>
+  </div>
+
+  <div class="grid grid-cols-1">
+    <!-- Analytics Table -->
+    <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">      
+      <div class="p-2 flex justify-center items-center">
+        <form action="" method="get" class="flex justify-start items-center flex-wrap">
+          <label for="query_date"></label>
+          <input type="date" name="query_date" id="query_date" {% if query_date %} value="{{query_date}}" {% endif %} class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+          <input type="submit" value="Cari Data" class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
+        </form>
+      </div>
+      
+      <table class="table-auto border-collapse w-full">
+        <caption class="my-2 font-bold">Daftar Laporan</caption>
+        <thead>
+          <th class="p-2 border border-gray-400">Jam Ke</th>
+          {% for object in class %}
+          <th class="p-2 border border-gray-400">{{object.short_class_name}}</th>
+          {% endfor %}
+        </thead>
+        <tbody>
+          {% for time in schedule_time %}
+          <tr>
+              <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
+              {% for object in class %}
+              <td class="p-2 border border-gray-400 text-center">
+                <span class="bg-green-500 p-1 rounded-md">{{object.short_class_name}}</span>
+              </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+
+</main>
+{% endblock content %}
