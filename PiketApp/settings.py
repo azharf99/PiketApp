@@ -32,7 +32,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-LOCAL = False
 
 if not DEBUG:
     ALLOWED_HOSTS = ['piket.pythonanywhere.com', '127.0.0.1', 'piket.albinaa.sch.id']
@@ -107,7 +106,7 @@ WSGI_APPLICATION = 'PiketApp.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-if not DEBUG and not LOCAL:
+if not DEBUG:
     DATABASES = {
             'default':{
                 'ENGINE': 'django.db.backends.mysql',
@@ -124,7 +123,7 @@ if not DEBUG and not LOCAL:
 
             }
         }
-if DEBUG and LOCAL:
+else:
     DATABASES = {
             'default':{
                 'ENGINE': 'django.db.backends.mysql',
@@ -141,13 +140,6 @@ if DEBUG and LOCAL:
 
             }
         }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 
 # Password validation
@@ -256,7 +248,7 @@ if not DEBUG:
         "http://127.0.0.1:9000",
     ]
 
-if not DEBUG and not LOCAL:
+if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_SSL_REDIRECT = True
