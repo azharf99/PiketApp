@@ -236,11 +236,11 @@
       </div>
       <div class="px-4 pb-16 mx-2 my-2 pt-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">
         <p class="text-center pb-4">Aktivitas Terbaru</p>
-        {% for log in logs %}
+        {% for log in userlogs %}
         <div class="">
           <p class="text-xs w-1/2">&bullet; {{log.created_at|timesince}} ago</p>
           <div class="p-2 border-l-2">
-            <p class="text-xs">{{log.user}} {{log.message}}</p>
+            <p class="text-xs">{{log}}</p>
           </div>
         </div>
         {% endfor %}

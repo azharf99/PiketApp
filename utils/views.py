@@ -9,6 +9,7 @@ from django.db.models import Count
 from datetime import datetime
 from schedules.models import Schedule
 from reports.models import Report
+from userlogs.models import UserLog
 from utils.mixins import BaseModelView, BaseModelListView
 from utils.constants import WEEKDAYS
 from xlsxwriter import Workbook
@@ -65,6 +66,9 @@ class DashboardListView(BaseModelView, BaseModelListView):
         data["sum_of_report_today_status"] = today_reports.values('status').annotate(dcount=Count('status'))
         data["report_latest"] = self.queryset[:10]
 
+        # Userlogs
+
+        data["userlogs"] = UserLog.objects.all()[:50]
         return data
 
     

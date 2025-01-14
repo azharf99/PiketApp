@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
-{% load static %}
+
 {% block content %}
   <main class="p-4 sm:ml-64 overflow-auto">
-    <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">{{form_name}} Form</h1>
+    <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">User Log {{form_name}} Form</h1>
     <!-- Breadcrumb -->
     <div class="flex items-center gap-2">
       <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
       <p class="text-2xl">
         &triangleright;
       </p>
-      <a href="{% url 'report-list' %}">Report List</a>
+      <a href="{% url 'userlog-list' %}">User Log List</a>
       <p class="text-2xl">
         &triangleright;
       </p>
       {% if form_name == "Create" %}
-      <a href="{% url 'report-create' %}">{{form_name}} Form</a>
+      <a href="{% url 'userlog-create' %}">User Log {{form_name}} Form</a>
       {% else %}
-      <a href="">{{form_name}} Form</a>
+      <a href="#">User Log {{form_name}} Form</a>
       {% endif %}
     </div>
     <!-- Analytics Card -->
@@ -32,7 +32,7 @@
             <span class="sr-only">Info</span>
             <div>
               <span class="font-medium">Success!</span> {{message.message}}
-              <p class="m-2">Silahkan lihat hasilnya <a href="{% url 'report-quick-create-v2' %}" class="p-1 rounded-md bg-green-500 text-white font-bold">di sini</a></p>
+              <p class="m-2">Silahkan lihat hasilnya <a href="{% url 'userlog-list' %}" class="p-1 rounded-md bg-green-500 text-white font-bold">di sini</a></p>
             </div>
           </div>
           {% else %}
@@ -48,18 +48,15 @@
           {% endif %}
           {% endfor %}
           {% endif %}
-          <h2 class="font-semibold text-xl">{{form_name}} Data Laporan</h2>
+          <h2 class="font-semibold text-xl">{{form_name}} Data User Log</h2>
           <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 md:w-3/4 w-full">
               {% csrf_token %}
               {% for field in form %}
                   <div class="flex flex-col">
                       {{ field.errors }}
-                      {% if not field.is_hidden %}
-                          {{ field.label_tag }} 
-                      {% endif %}
-                      {{ field }}
+                      {{ field.label_tag }} {{ field }}
                       {% if field.help_text %}
-                        <p class="p-2 italic text-xs" id="{{ field.auto_id }}_helptext">
+                        <p class="help text-xs" id="{{ field.auto_id }}_helptext">
                           {{ field.help_text|safe }}
                         </p>
                       {% endif %}
@@ -71,36 +68,13 @@
                 <div class="loader"></div>
                 <p>Loading ...</p>
               </div>
-            </form>
+          </form>
         </div>
     </div>
 
   </main>
 
+  
   {% include 'loader.html' %}
-
-  <script src="{% static 'js/jquery.min.js' %}"></script>
-  <script src="{% static 'js/selectize.min.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'css/selectize.bootstrap3.min.css' %}"/>
-  <script>
-      $(document).ready(function () {
-          $('#id_extracurricular').selectize({
-              sortField: 'text',
-              maxItems: 1,
-          });
-      });
-      $(document).ready(function () {
-          $('#id_student').selectize({
-              sortField: 'text',
-              maxItems: 1,
-          });
-      });
-      $(document).ready(function () {
-          $('#id_score').selectize({
-              sortField: 'text',
-              maxItems: 1,
-          });
-      });
-  </script>
   
 {% endblock content %}

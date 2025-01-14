@@ -13,7 +13,7 @@ class UserLog(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user} | {self.action_flag} | {self.app} | {self.message}"
+        return f"{self.user} {self.action_flag} {self.message}"
 
     def get_absolute_url(self):
         return reverse("userlog-list")

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <main class="p-4 sm:ml-64 overflow-auto">
+    <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">User Log Detail</h1>
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2">
+      <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
+      <p class="text-2xl">
+        &triangleright;
+      </p>
+      <a href="{% url 'userlog-list' %}">User Log List</a>
+      <p class="text-2xl">
+        &triangleright;
+      </p>
+      <a href="#">User Log Detail</a>
+    </div>
+
+
+    <div class="grid grid-cols-1">
+      <!-- Analytics Table -->
+      <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg">
+        <h2 class="my-2 text-center text-xl font-semibold">Detail Data User Log</h2>
+        <div class="grid grid-cols-2">
+          <p class="p-1 border-b text-green-500 font-bold">USER</p>
+          <p class="p-1 border-b">: {{object.user|default:"-"}}</p>
+          <p class="p-1 border-b text-green-500 font-bold">ACTION FLAG</p>
+          <p class="p-1 border-b">: {{object.action_flag|default:"-"}}</p>
+          <p class="p-1 border-b text-green-500 font-bold">APPLICATION TARGET</p>
+          <p class="p-1 border-b">: {{object.app|default:"-"}}</p>
+          <p class="p-1 border-b text-green-500 font-bold">MESSAGES</p>
+          <p class="p-1 border-b">: {{object.message|default:"-"}}</p>
+          <p class="p-1 border-b text-green-500 font-bold">CREATED</p>
+          <p class="p-1 border-b">: {{object.created_at|date:"l j F Y H:i"|default:"-"}}</p>
+          <p class="p-1 border-b text-green-500 font-bold">UPDATED</p>
+          <p class="p-1 border-b">: {{object.updated_at|date:"l j F Y H:i"|default:"-"}}</p>
+      </div>
+    </div>
+
+  </main>
+{% endblock content %}

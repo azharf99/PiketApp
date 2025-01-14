@@ -15,34 +15,11 @@ from reports.forms import ReportForm, QuickReportForm, ReportFormV2
 from reports.models import Report
 from typing import Any
 from schedules.models import Schedule
+from userlogs.models import UserLog
 from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
 from utils.validate_datetime import validate_date, validate_time, get_day, parse_to_date
 from xlsxwriter import Workbook
 # Create your views here.
-
-class ReportView(BaseModelView, BaseModelListView):
-    model = Report
-    menu_name = 'report'
-    permission_required = 'reports.view_report'
-    raise_exception = False
-
-    def get_queryset(self) -> QuerySet[Any]:
-        query_date = self.request.GET.get('query_date', datetime.now().date())
-
-        groupped_qs = []
-        for i in range(1, 10):
-            qs = super().get_queryset().filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=i)\
-                        .values('schedule__schedule_class__short_class_name', 
-                                'schedule__schedule_course__teacher__first_name', 
-                                'status')\
-                        .order_by('schedule__schedule_class__short_class_name')
-            groupped_qs.append(qs)
-        return groupped_qs
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["class"] = Class.objects.all()
-        return context
     
 class ReportListView(BaseModelView, BaseModelListView):
     model = Report
@@ -205,8 +182,15 @@ class ReportUpdateViewV2(BaseFormView, UpdateView):
     error_message = "Update data ditolak!"
     success_url = reverse_lazy("report-quick-create-v2")
 
-    def get_queryset(self) -> QuerySet[Any]:
-        return super().get_queryset()
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        object = self.get_object()
+        UserLog.objects.create(
+            user = form.cleaned_data["reporter"] or self.request.user.first_name,
+            action_flag = "mengubah",
+            app = "QUICK REPORT V2",
+            message = f"laporan piket {object.report_day} {object.report_date} Jam ke-{object.schedule.schedule_time} {object.schedule.schedule_course} dengan status {form.cleaned_data['status']}",
+        )
+        return super().form_valid(form)
 
 class ReportDeleteView(BaseModelView, DeleteView):
     model = Report

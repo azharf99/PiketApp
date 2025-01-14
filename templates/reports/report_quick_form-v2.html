@@ -13,7 +13,7 @@
     <p class="text-2xl">
       &triangleright;
     </p>
-    <a href="{% url 'report-view' %}">Report Quick Input View</a>
+    <a href="{% url 'report-quick-create-v2' %}">Report Quick Input View</a>
   </div>
 
   {% if messages %}
@@ -73,17 +73,17 @@
             <td class="p-2 border border-gray-400 text-center">
               <a href="{% url 'report-update-v2' object.id %}" id="{{object.id}}">
                 {% if object.status == "Hadir" %}
-                <span class="bg-green-500 p-1 rounded-md text-sm">{{object.status}}</span>
+                <span class="bg-green-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">{{object.status}}</span>
                 {% elif object.status == "Sakit" %}
-                <span class="bg-yellow-600 p-1 rounded-md text-sm">{{object.status}}</span>
+                <span class="bg-yellow-600 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">{{object.status}}</span>
                 {% elif object.status == "Izin" %}
-                <span class="bg-lime-500 py-1 px-2 rounded-md text-sm">{{object.status}}</span>
+                <span class="bg-lime-500 py-1 px-2 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">{{object.status}}</span>
                 {% elif object.status == "Tanpa Keterangan" %}
-                <span class="bg-red-500 py-1 px-2 rounded-md text-sm">Alpha</span>
+                <span class="bg-red-500 py-1 px-2 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">Alpha</span>
                 {% endif %}
               </a>
               {% if object.status == "No data" %}
-              <span class="bg-red-500 py-1 px-2 rounded-md text-sm">Belum</span>
+              <span class="bg-red-500 py-1 px-2 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">Belum</span>
               {% endif %}
             </td>
             {% endfor %}
