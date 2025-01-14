@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.db import IntegrityError
 from django.forms import BaseModelForm
-from django.http import FileResponse, HttpRequest, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse, Http404
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, FormView
 from django.urls import reverse_lazy
 from reports.forms import ReportForm, QuickReportForm, ReportFormV2
@@ -78,6 +78,7 @@ class ReportQuickCreateViewV2(BaseFormView, CreateView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         query_date = self.request.GET.get('query_date', datetime.now().date())
+        
         if query_date:
             context["schedule_time"] = [x for x in range(1, 10)]
             grouped_data = []
@@ -86,6 +87,20 @@ class ReportQuickCreateViewV2(BaseFormView, CreateView):
                             .filter(report_date=query_date, schedule__schedule_time=i).values("id", "schedule__schedule_class", "status").order_by()
                 if data.exists():
                     grouped_data.append(data)
+                elif parse_to_date(query_date) >= datetime.now().date():
+                    for i in range(1, 10):
+                        schedule_list = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class") \
+                                                .filter(schedule_day=get_day(query_date), schedule_time=str(i))
+                        if not schedule_list.exists(): raise Http404("Data Schedule tidak ditemukan!")
+                        for schedule in schedule_list:
+                            obj, is_created = Report.objects.get_or_create(
+                                report_date = parse_to_date(query_date),
+                                schedule = schedule,
+                                defaults={
+                                    'status': "Hadir"
+                                }
+                            )
+                            print(obj, is_created)
                 else:
                     grouped_data.append([{"id": f"{i}{j}", "status": "No data"} for j in range(15)])
             context["class"] = Class.objects.all()

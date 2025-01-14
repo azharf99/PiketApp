@@ -3,20 +3,20 @@ from django.core.exceptions import BadRequest
 from utils.constants import WEEKDAYS, SCHEDULE_TIME_DICT
 
 def get_day(date: str) -> str | bool:
+    data = ''
     try:
         data = WEEKDAYS.get(datetime.strptime(str(date), "%Y-%m-%d").weekday(), False)
-        return data
     except Exception as e:
-        print(f"Data tidak valid! Error:{e}")
-        return False
+        data = "Error"
+    return data
         
 def parse_to_date(date: str):
+    data = ''
     try:
-        data = datetime.strptime(str(date), "%Y-%m-%d").date()
-        return data
+        data = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.now().date()
     except Exception as e:
-        print(f"Data tidak valid! Error:{e}")
-        return BadRequest("Data tidak Valid!")
+        data = datetime.now().date()
+    return data
 
 def validate_date(value: str | None):
     if value is not None:
