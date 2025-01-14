@@ -1,10 +1,11 @@
 from django.urls import path
-from reports.views import ReportListView, ReportDetailView, ReportCreateView, ReportUpdateView, ReportDeleteView,\
-                         ReportDownloadExcelView, ReportUploadView, ReportQuickCreateView, ReportQuickCreateViewV2, ReportView, ReportUpdateViewV2
+from reports.views import ReportListView, ReportDetailView, ReportUpdateView, ReportDeleteView, \
+                         ReportDownloadExcelView, ReportUploadView, ReportQuickCreateView, ReportQuickCreateViewV2, ReportView, ReportUpdateViewV2 \
+                        # ,ReportCreateView
 
 urlpatterns = [
     path('', ReportListView.as_view(),  {"site_title": "REPORT LIST - PIKET SMA IT AL BINAA"}, "report-list"),
-    path("create/", ReportCreateView.as_view(),  {"site_title": "CREATE REPORT - PIKET SMA IT AL BINAA"}, "report-create"),
+    # path("create/", ReportCreateView.as_view(),  {"site_title": "CREATE REPORT - PIKET SMA IT AL BINAA"}, "report-create"),
     path("download/", ReportDownloadExcelView.as_view(),  {"site_title": "DOWNLOAD REPORT - PIKET SMA IT AL BINAA"}, "report-download"),
     path("quick-create/", ReportQuickCreateView.as_view(),  {"site_title": "QUICK CREATE REPORT - PIKET SMA IT AL BINAA"}, "report-quick-create"),
     path("quick-create-v2/", ReportQuickCreateViewV2.as_view(),  {"site_title": "QUICK CREATE REPORT V2 - PIKET SMA IT AL BINAA"}, "report-quick-create-v2"),

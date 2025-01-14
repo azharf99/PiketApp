@@ -48,7 +48,7 @@
     <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">
       <div class="p-2 flex justify-center items-center">
         <form action="" method="get" class="flex justify-start items-center flex-wrap">
-          <label for="query_date"></label>
+          <label for="query_date">Tanggal</label>
           <input type="date" name="query_date" id="query_date" {% if query_date %} value="{{query_date}}" {% endif %}
             class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
           <input type="submit" value="Cari Data"
@@ -71,7 +71,7 @@
             <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
             {% for object in data %}
             <td class="p-2 border border-gray-400 text-center">
-              <a href="{% url 'report-update-v2' object.id %}" id="{{object.schedule.id}}">
+              <a href="{% url 'report-update-v2' object.id %}" id="{{object.id}}">
                 {% if object.status == "Hadir" %}
                 <span class="bg-green-500 p-1 rounded-md text-sm">{{object.status}}</span>
                 {% elif object.status == "Sakit" %}
@@ -82,6 +82,9 @@
                 <span class="bg-red-500 py-1 px-2 rounded-md text-sm">Alpha</span>
                 {% endif %}
               </a>
+              {% if object.status == "No data" %}
+              <span class="bg-red-500 py-1 px-2 rounded-md text-sm">Belum</span>
+              {% endif %}
             </td>
             {% endfor %}
             {% else %}

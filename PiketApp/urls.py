@@ -36,6 +36,7 @@ urlpatterns = [
     path('course/', include('courses.urls')),
     path('report/', include('reports.urls')),
     path('schedule/', include('schedules.urls')),
+    path('userlogs/', include('userlogs.urls')),
 ]
 
 if not settings.TESTING:

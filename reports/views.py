@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.db import IntegrityError
 from django.forms import BaseModelForm
-from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
+from django.http import FileResponse, HttpRequest, HttpResponse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, FormView
 from django.urls import reverse_lazy
 from reports.forms import ReportForm, QuickReportForm, ReportFormV2
@@ -80,13 +80,13 @@ class ReportDetailView(BaseModelView, DetailView):
     permission_required = 'reports.view_report'
 
 
-class ReportCreateView(BaseFormView, CreateView):
-    model = Report
-    menu_name = 'report'
-    form_class = ReportForm
-    permission_required = 'reports.add_report'
-    success_message = "Input data berhasil!"
-    error_message = "Input data ditolak!"
+# class ReportCreateView(BaseFormView, CreateView):
+#     model = Report
+#     menu_name = 'report'
+#     form_class = ReportForm
+#     permission_required = 'reports.add_report'
+#     success_message = "Input data berhasil!"
+#     error_message = "Input data ditolak!"
 
 class ReportQuickCreateViewV2(BaseFormView, CreateView):
     model = Report
@@ -107,7 +107,10 @@ class ReportQuickCreateViewV2(BaseFormView, CreateView):
             for i in context["schedule_time"]:
                 data = Report.objects.select_related("schedule")\
                             .filter(report_date=query_date, schedule__schedule_time=i).values("id", "schedule__schedule_class", "status").order_by()
-                grouped_data.append(data)
+                if data.exists():
+                    grouped_data.append(data)
+                else:
+                    grouped_data.append([{"id": f"{i}{j}", "status": "No data"} for j in range(15)])
             context["class"] = Class.objects.all()
             context["grouped_data"] = grouped_data
             context["query_date"] = query_date
