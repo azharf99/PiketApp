@@ -8,10 +8,10 @@ from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.db import IntegrityError
 from django.forms import BaseModelForm
-from django.http import FileResponse, HttpRequest, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, FormView
 from django.urls import reverse_lazy
-from reports.forms import ReportForm, QuickReportForm
+from reports.forms import ReportForm, QuickReportForm, ReportFormV2
 from reports.models import Report
 from typing import Any
 from schedules.models import Schedule
@@ -59,13 +59,13 @@ class ReportListView(BaseModelView, BaseModelListView):
         is_valid_date = validate_date(query_date)
 
         if is_valid_date and query_class and query_time:
-            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher").filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class, schedule__schedule_time=query_time)
+            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", ).filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class, schedule__schedule_time=query_time)
         elif is_valid_date and query_time:
-            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher").filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=query_time)
+            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", ).filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_time=query_time)
         elif is_valid_date and query_class:
-            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher").filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class)
+            return Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", ).filter(report_date=query_date if isinstance(query_date, date) else parse_to_date(query_date), schedule__schedule_class__class_name=query_class)
             
-        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", )
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -88,7 +88,6 @@ class ReportCreateView(BaseFormView, CreateView):
     success_message = "Input data berhasil!"
     error_message = "Input data ditolak!"
 
-
 class ReportQuickCreateViewV2(BaseFormView, CreateView):
     model = Report
     menu_name = 'report'
@@ -101,17 +100,17 @@ class ReportQuickCreateViewV2(BaseFormView, CreateView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        report_date = self.request.GET.get('report_date', datetime.now().date())
-
-        grouped_data = []
-        for i in range(1, 10):
-            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
-                        .filter(report_date=report_date, schedule__schedule_time=i)
-            grouped_data.append(data)
-
-        context["class"] = Class.objects.all()
-        context["grouped_data"] = grouped_data
-        context["schedule_time"] = [x for x in range(1, 10)]
+        query_date = self.request.GET.get('query_date', datetime.now().date())
+        if query_date:
+            context["schedule_time"] = [x for x in range(1, 10)]
+            grouped_data = []
+            for i in context["schedule_time"]:
+                data = Report.objects.select_related("schedule")\
+                            .filter(report_date=query_date, schedule__schedule_time=i).values("id", "schedule__schedule_class", "status").order_by()
+                grouped_data.append(data)
+            context["class"] = Class.objects.all()
+            context["grouped_data"] = grouped_data
+            context["query_date"] = query_date
         return context
 
 
@@ -143,10 +142,10 @@ class ReportQuickCreateView(BaseFormView, FormView):
             raise BadRequest("Invalid Date and Time")
         
         if isinstance(report_date, date):
-            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", )\
                         .filter(report_date=report_date, schedule__schedule_time=schedule_time)
         else:
-            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+            data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", )\
                         .filter(report_date=parse_to_date(report_date), schedule__schedule_time=schedule_time)
 
         if data.exists():
@@ -194,6 +193,17 @@ class ReportUpdateView(BaseFormView, UpdateView):
     success_message = "Update data berhasil!"
     error_message = "Update data ditolak!"
 
+class ReportUpdateViewV2(BaseFormView, UpdateView):
+    model = Report
+    menu_name = 'report'
+    form_class = ReportFormV2
+    permission_required = 'reports.change_report'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
+    success_url = reverse_lazy("report-quick-create-v2")
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return super().get_queryset()
 
 class ReportDeleteView(BaseModelView, DeleteView):
     model = Report

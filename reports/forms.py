@@ -24,17 +24,23 @@ class ReportForm(forms.ModelForm):
         # Optimize related queries
         self.fields['schedule'].queryset = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class")
 
+class ReportFormV2(forms.ModelForm):
+        
+    class Meta:
+        model = Report
+        fields = ['status', 'subtitute_teacher', 'reporter']
+        widgets = {
+            'status': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
+            'subtitute_teacher': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
+            'reporter': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
+        }
+        
 
 class QuickReportForm(forms.Form):
     def __init__(self, *args, **kwargs):
         # Extract additional parameters from kwargs
         report_date = kwargs.pop('report_date', None)
         schedule_time = kwargs.pop('schedule_time', None)
-
-        time_now = datetime.now().time()
-
-        if time_now > datetime.strptime("07:30:00", "%H:%M:%S").time():
-            print("Kelewat")
 
         valid_report_date = validate_date(report_date)
         valid_schedule_time = validate_time(schedule_time)

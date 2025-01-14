@@ -54,7 +54,10 @@
               {% for field in form %}
                   <div class="flex flex-col">
                       {{ field.errors }}
-                      {{ field.label_tag }} {{ field }}
+                      {% if not field.is_hidden %}
+                          {{ field.label_tag }} 
+                      {% endif %}
+                      {{ field }}
                       {% if field.help_text %}
                         <p class="p-2 italic text-xs" id="{{ field.auto_id }}_helptext">
                           {{ field.help_text|safe }}

@@ -71,7 +71,7 @@
             <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
             {% for object in data %}
             <td class="p-2 border border-gray-400 text-center">
-              <button id="{{object.schedule.id}}">
+              <a href="{% url 'report-update-v2' object.id %}" id="{{object.schedule.id}}">
                 {% if object.status == "Hadir" %}
                 <span class="bg-green-500 p-1 rounded-md text-sm">{{object.status}}</span>
                 {% elif object.status == "Sakit" %}
@@ -81,7 +81,7 @@
                 {% elif object.status == "Tanpa Keterangan" %}
                 <span class="bg-red-500 py-1 px-2 rounded-md text-sm">Alpha</span>
                 {% endif %}
-              </button>
+              </a>
             </td>
             {% endfor %}
             {% else %}
