@@ -1,4 +1,3 @@
-from io import BytesIO
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,43 +5,26 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import IntegrityError
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
-from django.http import FileResponse, HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, TemplateView
+from django.views.generic import CreateView, UpdateView, DetailView, TemplateView
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 from utils.menu_link import export_menu_link
-from utils.mixins import BaseFormView, BaseModelUploadView, BaseModelView, BaseModelListView
-from xlsxwriter import Workbook
+from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, BaseModelListView, ModelDownloadExcelView
 
 
 # Create your views here.
 class UserListView(BaseModelView, BaseModelListView):
     model = User
+    queryset = User.objects.all()
     menu_name = 'user'
     permission_required = 'users.view_user'
-
-    def get_queryset(self) -> QuerySet[Any]:
-        query = self.request.GET.get('query')
-
-        if query :
-            return User.objects.filter(Q(username__icontains=query) | 
-                                         Q(first_name__icontains=query) |
-                                         Q(email__icontains=query)
-                                         )
-            
-        return super().get_queryset()
-    
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["query"] = self.request.GET.get('query')
-        return context
-    
+        
 
 class UserDetailView(BaseModelView, DetailView):
     model = User
@@ -70,15 +52,11 @@ class UserUpdateView(BaseFormView, UpdateView):
     error_message = 'Update data ditolak!'
 
 
-class UserDeleteView(BaseModelView, DeleteView):
+class UserDeleteView(BaseModelDeleteView):
     model = User
     menu_name = 'user'
     permission_required = 'users.delete_user'
     success_url = reverse_lazy("user-list")
-
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        messages.success(self.request, "User berhasil dihapus!")
-        return super().post(request, *args, **kwargs)
 
 
 class MyLoginView(LoginView):
@@ -153,37 +131,13 @@ class UserUploadView(BaseModelUploadView):
     menu_name = "user"
     permission_required = 'users.create_user'
     success_url = reverse_lazy("user-list")
-
-    
-    def form_valid(self, form: Any) -> HttpResponse:
-        try:
-            self.process_excel_data(User, form.cleaned_data["file"])
-            return super().form_valid(form)
-        except IntegrityError as e:
-            self.success_message = f"Upload data sudah terbaru! Note: {str(e)}"
-            return super().form_valid(form)
-        except Exception as e:
-            self.error_message = f"Upload data ditolak! Error: {str(e)}"
-            return super().form_invalid(form)
+    model_class = User
 
 
-class UserDownloadExcelView(BaseModelView, BaseModelListView):
-    model = User
+class UserDownloadExcelView(ModelDownloadExcelView):
     menu_name = 'user'
     permission_required = 'users.view_user'
     template_name = 'auth/download.html'
-    
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        buffer = BytesIO()
-        workbook = Workbook(buffer)
-        worksheet = workbook.add_worksheet()
-        worksheet.write_row(0, 0, ['No', 'USERNAME', 'PASSWORD', 'PASSWORD', 'EMAIL', 'IS STAFF', 'IS ACTIVE', 'IS ADMIN', 'TANGGAL GABUNG', 'TERAKHIR LOGIN'])
-        row = 1
-        for data in self.get_queryset():
-            worksheet.write_row(row, 0, [row, data.username, 'Albinaa2004', data.password, data.email, f"{data.is_staff}", f"{data.is_active}",
-                                         f'{data.is_superuser}', f"{data.date_joined}", f"{data.last_login}"])
-            row += 1
-        worksheet.autofit()
-        workbook.close()
-        buffer.seek(0)
-        return FileResponse(buffer, as_attachment=True, filename=f'USERS PIKET SMA IT Al Binaa.xlsx')
+    header_names = ['No', 'USERNAME', 'PASSWORD', 'PASSWORD', 'EMAIL', 'IS STAFF', 'IS ACTIVE', 'IS ADMIN', 'TANGGAL GABUNG', 'TERAKHIR LOGIN']
+    filename = 'USERS PIKET SMA IT Al Binaa.xlsx'
+    queryset = User.objects.all()

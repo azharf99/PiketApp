@@ -1,5 +1,7 @@
 from datetime import datetime
 from django import forms
+from django.contrib.auth.models import User
+from django.forms import ModelChoiceField, ModelForm
 from reports.models import Report
 from schedules.models import Schedule
 from utils.constants import SCHEDULE_TIME
@@ -24,7 +26,20 @@ class ReportForm(forms.ModelForm):
         # Optimize related queries
         self.fields['schedule'].queryset = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class")
 
+
+class UserModelChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.first_name if obj.first_name else obj.username
+    
 class ReportFormV2(forms.ModelForm):
+    subtitute_teacher = UserModelChoiceField(
+        queryset=User.objects.all().order_by('first_name'),
+        widget=forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"})
+        )
+    reporter = UserModelChoiceField(
+        queryset=User.objects.all().order_by('first_name'),
+        widget=forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"})
+        )
         
     class Meta:
         model = Report

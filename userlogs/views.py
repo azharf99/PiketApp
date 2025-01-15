@@ -1,11 +1,8 @@
-from typing import Any
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, UpdateView, CreateView, DeleteView, DetailView
-from django.contrib import messages
+from django.views.generic import ListView, UpdateView, CreateView, DetailView
 from userlogs.models import UserLog
 from userlogs.forms import UserlogForm
-from utils.mixins import BaseFormView, BaseModelView
+from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelView
 
 
 # Create your views here.
@@ -42,15 +39,8 @@ class UserLogUpdateView(BaseFormView, UpdateView):
     success_message = "Update data berhasil!"
     error_message = "Update data ditolak!"
     
-class UserLogDeleteView(BaseModelView, DeleteView):
+class UserLogDeleteView(BaseModelDeleteView):
     model = UserLog
     success_url = reverse_lazy("userlog:userlog-index")
     menu_name = 'userlog'
     permission_required = 'userlogs.add_userlog'
-    
-    def delete(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        self.object = self.get_object()
-        success_url = self.get_success_url()
-        self.object.delete()
-        messages.success(self.request, "Data Berhasil Dihapus! :)")
-        return HttpResponseRedirect(success_url)

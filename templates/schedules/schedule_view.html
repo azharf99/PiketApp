@@ -37,36 +37,37 @@
   {% endif %}
 
 
-  <div class="flex justify-center m-2 gap-2 text-balance text-center">
-    <a href="{% url 'report-quick-create-v2' %}"><p class="p-1 px-2 bg-blue-500 text-white rounded-md font-semibold">&#128195; Lihat Laporan</p></a>
-    <a href="{% url 'schedule-upload' %}"><p class="p-1 px-2 bg-lime-500 text-white rounded-md font-semibold">&#128229; Import Excel</p></a>
-    <a href="{% url 'schedule-download' %}"><p class="p-1 px-2 bg-green-500 text-white rounded-md font-semibold">&#128196; Export to Excel</p></a>
+  <div class="block md:flex justify-center m-2 gap-2 text-balance text-center">
+    <a href="{% url 'report-quick-create-v2' %}"><p class="p-1 px-2 my-2 bg-blue-500 text-white rounded-md font-semibold">&#128195; Lihat Laporan</p></a>
+    <a href="{% url 'schedule-upload' %}"><p class="p-1 px-2 my-2 bg-lime-500 text-white rounded-md font-semibold">&#128229; Import Excel</p></a>
+    <a href="{% url 'schedule-download' %}"><p class="p-1 px-2 my-2 bg-green-500 text-white rounded-md font-semibold">&#128196; Export to Excel</p></a>
+    <a href="{% url 'dashboard-teachers' %}"><p class="p-1 px-2 my-2 bg-blue-500 text-white rounded-md font-semibold">&#128195; Rekap Kehadiran Guru</p></a>
   </div>
-
+  
+  <div class="p-2 flex justify-center items-center">
+    <form action="" method="get" class="flex justify-center items-center flex-wrap">
+      <label for="query_type"></label>
+      <select name="query_type" id="query_type" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+        <option value="code" {% if query_type == "code" %} selected {% endif %}>Tampilkan menurut Kode</option>
+        <option value="mapel" {% if query_type == "mapel" %} selected {% endif %}>Tampilkan menurut Mapel</option>
+        <option value="pengajar" {% if query_type == "pengajar" %} selected {% endif %}>Tampilkan menurut Guru</option>
+      </select>
+      <label for="query_day"></label>
+      <select name="query_day" id="query_day" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+        <option value="Senin" {% if query_day == "Senin" %} selected {% endif %}>Senin</option>
+        <option value="Selasa" {% if query_day == "Selasa" %} selected {% endif %}>Selasa</option>
+        <option value="Rabu" {% if query_day == "Rabu" %} selected {% endif %}>Rabu</option>
+        <option value="Kamis" {% if query_day == "Kamis" %} selected {% endif %}>Kamis</option>
+        <option value="Jumat" {% if query_day == "Jumat" %} selected {% endif %}>Jumat</option>
+        <option value="Sabtu" {% if query_day == "Sabtu" %} selected {% endif %}>Sabtu</option>
+      </select>
+      <input type="submit" value="Cari Data" class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
+    </form>
+  </div>
   <div class="grid grid-cols-1">
     <!-- Analytics Table -->
     <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">
       
-      <div class="p-2 flex justify-center items-center">
-        <form action="" method="get" class="flex justify-start items-center flex-wrap">
-          <label for="query_type"></label>
-          <select name="query_type" id="query_type" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
-            <option value="code" {% if query_type == "code" %} selected {% endif %}>Tampilkan menurut Kode</option>
-            <option value="mapel" {% if query_type == "mapel" %} selected {% endif %}>Tampilkan menurut Mapel</option>
-            <option value="pengajar" {% if query_type == "pengajar" %} selected {% endif %}>Tampilkan menurut Guru</option>
-          </select>
-          <label for="query_day"></label>
-          <select name="query_day" id="query_day" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
-            <option value="Senin" {% if query_day == "Senin" %} selected {% endif %}>Senin</option>
-            <option value="Selasa" {% if query_day == "Selasa" %} selected {% endif %}>Selasa</option>
-            <option value="Rabu" {% if query_day == "Rabu" %} selected {% endif %}>Rabu</option>
-            <option value="Kamis" {% if query_day == "Kamis" %} selected {% endif %}>Kamis</option>
-            <option value="Jumat" {% if query_day == "Jumat" %} selected {% endif %}>Jumat</option>
-            <option value="Sabtu" {% if query_day == "Sabtu" %} selected {% endif %}>Sabtu</option>
-          </select>
-          <input type="submit" value="Cari Data" class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
-        </form>
-      </div>
       {% if object_list %}
 
       <table class="table-auto border-collapse w-full">

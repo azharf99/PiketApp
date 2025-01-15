@@ -48,7 +48,8 @@
           {% endif %}
           {% endfor %}
           {% endif %}
-          <h2 class="font-semibold text-xl">{{form_name}} Data Laporan</h2>
+          <h2 class="font-semibold text-xl">{{form_name}}</h2>
+          <p class="text-balance text-center">{{object}}</p>
           <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 md:w-3/4 w-full">
               {% csrf_token %}
               {% for field in form %}
@@ -67,11 +68,11 @@
               {% endfor %}
               
               <input type="submit" id="submit" value="Input Data" class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 mt-4">
-              <a class="text-white text-center p-2 bg-red-500 rounded-md cursor-pointer hover:bg-fuchsia-500 my-2" href="{{ request.META.HTTP_REFERER }}">Back</a>
               <div id="loading" class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
                 <div class="loader"></div>
                 <p>Loading ...</p>
               </div>
+              <a class="text-white text-center p-2 bg-red-500 rounded-md cursor-pointer hover:bg-fuchsia-500 my-2" href="{% url 'report-quick-create-v2' %}">Back</a>
             </form>
         </div>
     </div>

@@ -57,6 +57,14 @@
     <a href="{% url 'class-upload' %}"><p class="p-1 px-2 bg-lime-500 text-white rounded-md font-semibold">&#128229; Import Excel</p></a>
     <a href="{% url 'class-download' %}"><p class="p-1 px-2 bg-green-500 text-white rounded-md font-semibold">&#128196; Export to Excel</p></a>
   </div>
+
+  <div class="p-2 flex justify-center items-center">
+    <form action="" method="get" class="flex justify-start items-center flex-wrap">
+      <input type="search" name="query" id="query" placeholder="Cari disini ..." {% if query %} value="{{query}}" {% endif %} class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+      <input type="submit" value="Cari Data" class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
+    </form>
+  </div>
+  
     <div class="grid grid-cols-1 md:grid-cols-3">
       <!-- Analytics Table -->
       {% for object in object_list %}
