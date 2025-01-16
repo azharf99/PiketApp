@@ -33,10 +33,12 @@ class UserModelChoiceField(ModelChoiceField):
     
 class ReportFormV2(forms.ModelForm):
     subtitute_teacher = UserModelChoiceField(
+        required=False,
         queryset=User.objects.all().order_by('first_name'),
         widget=forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"})
         )
     reporter = UserModelChoiceField(
+        required=False,
         queryset=User.objects.all().order_by('first_name'),
         widget=forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"})
         )

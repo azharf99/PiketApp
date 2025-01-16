@@ -1,5 +1,5 @@
 from django.urls import path
-from reports.views import ReportListView, ReportDetailView, ReportDeleteView, \
+from reports.views import ReportListView, ReportDetailView, ReportDeleteView, ReportDeleteAllView,\
                          ReportDownloadExcelView, ReportUploadView, ReportQuickCreateViewV2, ReportUpdateViewV2
 from reports.legacy_views import ReportUpdateView
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path("detail/<int:pk>/", ReportDetailView.as_view(),  {"site_title": "REPORT DETAIL - PIKET SMA IT AL BINAA"}, "report-detail"),
     path("update-v2/<int:pk>/", ReportUpdateViewV2.as_view(),  {"site_title": "UPDATE REPORT - PIKET SMA IT AL BINAA"}, "report-update-v2"),
     path("delete/<int:pk>/", ReportDeleteView.as_view(),  {"site_title": "DELETE REPORT - PIKET SMA IT AL BINAA"}, "report-delete"),
+    path("delete-all/", ReportDeleteAllView.as_view(),  {"site_title": "DELETE REPORT - PIKET SMA IT AL BINAA"}, "report-delete-all"),
 ]

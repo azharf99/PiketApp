@@ -1,3 +1,5 @@
+from typing import Any
+from django.http import HttpRequest, HttpResponse
 from classes.models import Class
 from classes.forms import ClassForm
 from django.views.generic import CreateView, UpdateView, DetailView
