@@ -42,7 +42,7 @@
         <p class="text-xl text-balance text-center font-semibold">{{object.first_name|default:"-"}}</p>
         <div class="mt-6 flex justify-center gap-2">
           <a href="{% url 'user-update' object.id %}" class="p-2 my-2 bg-lime-300 hover:bg-fuchsia-400 dark:bg-slate-900 border text-center rounded-md">Ubah profil</a>
-          <a href="{% url 'user-change-password' object.id %}" class="p-2 my-2 bg-lime-300 hover:bg-fuchsia-400 dark:bg-slate-900 border text-center rounded-md">Ubah Password</a>
+          <a href="{% url 'user-change-password' %}" class="p-2 my-2 bg-lime-300 hover:bg-fuchsia-400 dark:bg-slate-900 border text-center rounded-md">Ubah Password</a>
         </div>
       </div>
       <div class="m-2 p-4 col-span-2 border bg-white dark:bg-gray-800 rounded-md shadow-lg">

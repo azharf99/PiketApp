@@ -3,12 +3,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
-from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Q
-from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView, TemplateView
@@ -41,7 +38,6 @@ class UserCreateView(BaseFormView, CreateView):
     success_message = 'Input data berhasil!'
     error_message = 'Input data ditolak!'
 
-
 class UserUpdateView(BaseFormView, UpdateView):
     model = User
     menu_name = 'user'
@@ -73,6 +69,11 @@ class MyLoginView(LoginView):
            self.request.session.set_expiry(0)
         return super().form_valid(form)
     
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['site_title'] = "LOGIN PIKET"
+        return context
+    
 class MyLogoutView(LogoutView):
 
     def post(self, request: WSGIRequest, *args: Any, **kwargs: Any) -> TemplateResponse:
@@ -95,12 +96,6 @@ class MyProfileView(LoginRequiredMixin, TemplateView):
 
 class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     form_class = UserPasswordUpdateForm
-    success_url = reverse_lazy("user-change-password-done")
-
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        if request.user.id == self.kwargs.get("pk") or request.user.is_superuser:
-            return super().get(request, *args, **kwargs)
-        raise PermissionDenied
     
     def form_invalid(self, form: BaseModelForm) -> HttpResponse:
         messages.error(self.request, "Update Password Ditolak! :( Ada kesalahan input!")
@@ -123,7 +118,6 @@ class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
         context = super().get_context_data(**kwargs)
         context.update(export_menu_link("profile"))
         return context
-    
 
 
 class UserUploadView(BaseModelUploadView):
