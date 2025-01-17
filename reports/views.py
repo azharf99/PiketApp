@@ -100,7 +100,7 @@ class ReportQuickCreateViewV2(BaseFormView, CreateView):
         temp_data = []
         temp_index = 0
         for index in range(0, 15):
-            if class_name[index] != data[temp_index]["schedule__schedule_class__short_class_name"]:
+            if class_name[index] != data[temp_index].schedule.schedule_class.short_class_name:
                 temp_data.append({"id": f"{parent_index}{index}", "status": "No data"})
             else:
                 temp_data.append(data[temp_index])
