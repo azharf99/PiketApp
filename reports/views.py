@@ -12,6 +12,7 @@ from schedules.models import Schedule
 from userlogs.models import UserLog
 from utils.mixins import BaseFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, ModelDownloadExcelView
 from utils.validate_datetime import get_day, parse_to_date
+from utils.whatsapp_albinaa import send_whatsapp_action
 # Create your views here.
     
 class ReportListView(BaseModelView, BaseModelDateBasedListView):
@@ -130,14 +131,18 @@ class ReportUpdateViewV2(BaseFormView, UpdateView):
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         object = self.get_object()
         reporter = form.cleaned_data["reporter"]
+        status = form.cleaned_data["status"]
         if reporter:
             reporter = reporter.first_name
+
+        message = f"laporan piket {object.report_day} {object.report_date} Jam ke-{object.schedule.schedule_time} {object.schedule.schedule_course} dengan status {status}"
         UserLog.objects.create(
             user = reporter or self.request.user.first_name,
             action_flag = "mengubah",
             app = "QUICK REPORT V2",
-            message = f"laporan piket {object.report_day} {object.report_date} Jam ke-{object.schedule.schedule_time} {object.schedule.schedule_course} dengan status {form.cleaned_data['status']}",
+            message = message,
         )
+        send_whatsapp_action(user=reporter or self.request.user.first_name, action="update", messages=message, type="report/", slug="quick-create-v2/")
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
