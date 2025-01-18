@@ -1,6 +1,6 @@
 from django.urls import path
 from reports.views import ReportListView, ReportDetailView, ReportDeleteView, ReportDeleteAllView,\
-                         ReportDownloadExcelView, ReportUploadView, ReportQuickCreateViewV2, ReportUpdateViewV2, ReportQuickDashboardView
+                         ReportDownloadExcelView, ReportUploadView, ReportQuickCreateViewV2, ReportUpdateViewV2, ReportQuickDashboardView, ReportUpdatePetugasView
 from reports.legacy_views import ReportUpdateView
 
 urlpatterns = [
@@ -10,6 +10,7 @@ urlpatterns = [
     path("quick-dashboard/", ReportQuickDashboardView.as_view(),  {"site_title": "QUICK DASHBOARD - PIKET SMA IT AL BINAA"}, "report-quick-dashboard"),
     path("upload/", ReportUploadView.as_view(),  {"site_title": "UPLOAD REPORT - PIKET SMA IT AL BINAA"}, "report-upload"),
     path("update/<int:pk>/", ReportUpdateView.as_view(),  {"site_title": "UPDATE REPORT - PIKET SMA IT AL BINAA"}, "report-update"),
+    path("update/reporter/<str:date>/<int:pk>/", ReportUpdatePetugasView.as_view(),  {"site_title": "UPDATE PETUGAS PIKET - PIKET SMA IT AL BINAA"}, "report-update-reporter"),
     path("detail/<int:pk>/", ReportDetailView.as_view(),  {"site_title": "REPORT DETAIL - PIKET SMA IT AL BINAA"}, "report-detail"),
     path("update-v2/<int:pk>/", ReportUpdateViewV2.as_view(),  {"site_title": "UPDATE REPORT - PIKET SMA IT AL BINAA"}, "report-update-v2"),
     path("delete/<int:pk>/", ReportDeleteView.as_view(),  {"site_title": "DELETE REPORT - PIKET SMA IT AL BINAA"}, "report-delete"),

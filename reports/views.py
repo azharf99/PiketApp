@@ -1,8 +1,10 @@
 from datetime import datetime
+from django.contrib import messages
 from django.forms import BaseModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.views.generic import CreateView, UpdateView, DetailView
-from reports.forms import ReportFormV2
+from reports.forms import ReportFormV2, ReportUpdatePetugasForm
 from reports.models import Report
 from typing import Any
 from django.urls import reverse, reverse_lazy
@@ -92,25 +94,58 @@ class ReportUpdateViewV2(BaseFormView, UpdateView):
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         object = self.get_object()
-        reporter = form.cleaned_data["reporter"]
         status = form.cleaned_data["status"]
-        if reporter:
-            reporter = reporter.first_name
+        reporter = ''
+        if object.reporter:
+            reporter = object.reporter.first_name
 
         message = f"laporan piket {object.report_day} {object.report_date} Jam ke-{object.schedule.schedule_time} {object.schedule.schedule_course} dengan status {status}"
         UserLog.objects.create(
-            user = reporter or self.request.user.first_name,
+            user = reporter or  self.request.user.first_name,
             action_flag = "mengubah",
             app = "QUICK REPORT V2",
             message = message,
         )
+        redirect_url = reverse("report-quick-create-v2")
+        query_params = f'?query_date={object.report_date}'
+        messages.success(self.request, self.success_message)
         send_whatsapp_action(user=reporter or self.request.user.first_name, action="update", messages=message, type="report/", slug="quick-create-v2/")
-        return super().form_valid(form)
+        self.object = form.save()
+        return redirect(redirect_url + query_params)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_object()
         return context
+    
+
+class ReportUpdatePetugasView(BaseFormView, UpdateView):
+    model = Report
+    menu_name = 'report'
+    form_class = ReportUpdatePetugasForm
+    permission_required = 'reports.change_report'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
+    success_url = reverse_lazy("report-quick-create-v2")
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        reporter_name = form.cleaned_data["reporter"]
+        report_date = self.kwargs.get("date")
+        schedule_time = self.kwargs.get("pk")
+        reports = Report.objects.filter(report_date=report_date, schedule__schedule_time=schedule_time)
+        reports.update(reporter=reporter_name.id)
+        redirect_url = reverse("report-quick-create-v2")
+        query_params = f'?query_date={report_date}'
+        messages.success(self.request, self.success_message)
+        return redirect(redirect_url + query_params)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["reporter"] = True
+        context["date"] = self.kwargs.get("date")
+        context["time"] = self.kwargs.get("pk")
+        return context
+
 
 class ReportDeleteView(BaseModelDeleteView):
     model = Report

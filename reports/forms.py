@@ -37,6 +37,16 @@ class ReportFormV2(forms.ModelForm):
         queryset=User.objects.all().order_by('first_name'),
         widget=forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"})
         )
+        
+    class Meta:
+        model = Report
+        fields = ['status', 'subtitute_teacher']
+        widgets = {
+            'status': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
+            'subtitute_teacher': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
+        }
+
+class ReportUpdatePetugasForm(forms.ModelForm):
     reporter = UserModelChoiceField(
         required=False,
         queryset=User.objects.all().order_by('first_name'),
@@ -45,10 +55,8 @@ class ReportFormV2(forms.ModelForm):
         
     class Meta:
         model = Report
-        fields = ['status', 'subtitute_teacher', 'reporter']
+        fields = ['reporter']
         widgets = {
-            'status': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
-            'subtitute_teacher': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
             'reporter': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
         }
         

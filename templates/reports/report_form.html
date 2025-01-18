@@ -49,7 +49,11 @@
           {% endfor %}
           {% endif %}
           <h2 class="font-semibold text-xl">{{form_name}}</h2>
+          {% if reporter %}
+          <h2 class="font-semibold text-md">Tanggal: {{date}} Jam ke-{{time}}</h2>
+          {% else %}
           <p class="text-balance text-center">{{object}}</p>
+          {% endif %}
           <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 md:w-3/4 w-full">
               {% csrf_token %}
               {% for field in form %}
@@ -72,7 +76,7 @@
                 <div class="loader"></div>
                 <p>Loading ...</p>
               </div>
-              <a class="text-white text-center p-2 bg-red-500 rounded-md cursor-pointer hover:bg-fuchsia-500 my-2" href="{% url 'report-quick-create-v2' %}">Back</a>
+              <a id="back" class="text-white text-center p-2 bg-red-500 rounded-md cursor-pointer hover:bg-fuchsia-500 my-2" href="{% url 'report-quick-create-v2' %}">Back</a>
             </form>
         </div>
     </div>
@@ -80,29 +84,11 @@
   </main>
 
   {% include 'loader.html' %}
-
-  <script src="{% static 'js/jquery.min.js' %}"></script>
-  <script src="{% static 'js/selectize.min.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'css/selectize.bootstrap3.min.css' %}"/>
   <script>
-      $(document).ready(function () {
-          $('#id_extracurricular').selectize({
-              sortField: 'text',
-              maxItems: 1,
-          });
-      });
-      $(document).ready(function () {
-          $('#id_student').selectize({
-              sortField: 'text',
-              maxItems: 1,
-          });
-      });
-      $(document).ready(function () {
-          $('#id_score').selectize({
-              sortField: 'text',
-              maxItems: 1,
-          });
-      });
+    const back = document.getElementById("back");
+    document.addEventListener("submit", ()=>{
+      back.classList.add("hidden");
+    })
   </script>
   
 {% endblock content %}

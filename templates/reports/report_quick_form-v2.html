@@ -66,33 +66,57 @@
           {% for object in class %}
           <th class="p-2 border border-gray-400">{{object.short_class_name}}</th>
           {% endfor %}
+          <th class="p-2 border border-gray-400">Petugas Piket</th>
         </thead>
         <tbody>
           {% for data in grouped_data %}
+          {% if forloop.counter == 6 or forloop.counter == 8 %}
           <tr>
-            {% if data|length %}
+            <td class="p-2 border border-gray-400 text-center font-bold" colspan="17">Istirahat</td>
+          </tr>
+          {% endif %}
+          <tr>
             <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
             {% for object in data %}
             <td class="p-2 border border-gray-400 text-center">
               <a href="{% url 'report-update-v2' object.id %}" id="{{object.id}}">
                 {% if object.status == "Hadir" %}
-                <span class="bg-green-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">{{object.status}}</span>
+                <p class="bg-green-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">{{object.status}} <span class="text-md p-1 bg-green-500 border-2 border-white rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                </svg></span>
+                </p>
                 {% elif object.status == "Sakit" %}
-                <span class="bg-yellow-600 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">{{object.status}}</span>
+                <p class="bg-yellow-600 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">{{object.status}} <span class="text-md p-1 bg-yellow-600 border-2 border-white rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                </svg></span></p>
                 {% elif object.status == "Izin" %}
-                <span class="bg-lime-500 py-1 px-2 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">{{object.status}}</span>
+                <p class="bg-lime-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">{{object.status}} <span class="text-md p-1 bg-lime-500 border-2 border-white rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                </svg></span></p>
                 {% elif object.status == "Tanpa Keterangan" %}
-                <span class="bg-red-500 py-1 px-2 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">Alpha</span>
+                <p class="bg-red-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">Alpha <span class="text-md p-1 bg-red-500 border-2 border-white rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                </svg></span></p>
                 {% endif %}
               </a>
               {% if object.status == "No data" %}
-              <span class="bg-red-500 py-1 px-2 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700">Kosong</span>
+              <span class="bg-red-500 py-1 px-2 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32">Kosong</span>
               {% endif %}
+              <p class="text-xs">{{object.schedule.schedule_course.teacher.last_name}}</p>
+              <p class="text-xs">{{object.schedule.schedule_course.course_short_name}}</p>
             </td>
             {% endfor %}
-            {% else %}
-            <td>Tidak ada data</td>
-            {% endif %}
+            <td class="p-2 border border-gray-400 text-center">
+              <a href="{% url 'report-update-reporter' query_date forloop.counter %}">
+                <p class="bg-yellow-600 p-1 rounded-md text-xs text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">Petugas Piket<span class="text-md p-1 bg-yellow-600 border-2 border-white rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                </svg></span>
+                </p>
+              </a>
+              <p class="text-xs">{{data.first.reporter.last_name|default:"Belum input"}}</p>
+            </td>
+              
           </tr>
           {% endfor %}
         </tbody>
