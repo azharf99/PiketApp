@@ -2,6 +2,7 @@ from datetime import datetime
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelChoiceField, ModelForm
+from django.http import Http404
 from reports.models import Report
 from schedules.models import Schedule
 from utils.constants import SCHEDULE_TIME
@@ -58,8 +59,11 @@ class ReportUpdatePetugasForm(forms.ModelForm):
         reports = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
                                 .filter(report_date=report_date, schedule__schedule_time=schedule_time)
         
-        if reports.first().reporter:
+        
+        if reports.exists() and reports.first().reporter:
             self.fields['reporter'].initial = reports.first().reporter.id
+        else:
+            raise Http404("No report found!")
 
     reporter = UserModelChoiceField(
         required=False,

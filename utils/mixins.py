@@ -301,7 +301,7 @@ class QuickReportMixin(BaseAuthorizedModelView, ListView):
                 # Jika data tidak ada dan tanggal query kurang dari dari hari ini, maka
                 else:
                     # Tampilkan no data
-                    self.grouped_report_data.append([{"id": f"{i}{j}", "status": "No data"} for j in range(15)])
+                    self.grouped_report_data.append([{"id": f"{i}{j}", "no_status": "No data"} for j in range(15)])
         return super().get(request, *args, **kwargs)
 
     def create_report_objects(self, valid_query_date: Any, schedule_time: Any) -> bool:
@@ -326,7 +326,7 @@ class QuickReportMixin(BaseAuthorizedModelView, ListView):
         temp_index = 0
         for index in range(0, 15):
             if class_name[index] != data[temp_index].schedule.schedule_class.short_class_name:
-                temp_data.append({"id": f"{parent_index}{index}", "status": "No data"})
+                temp_data.append({"id": f"{parent_index}{index}", "no_status": "No data"})
             else:
                 temp_data.append(data[temp_index])
                 temp_index += 1
@@ -336,7 +336,7 @@ class QuickReportMixin(BaseAuthorizedModelView, ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         query_date = self.request.GET.get('query_date', datetime.now().date())
-        context["class"] = Class.objects.all()
+        context["class"] = ['10A', '10B', '10C', '10D', '10E', '11A', '11B', '11C', '11D', '11E', '12A', '12B', '12C', '12D', '12E']
         context["grouped_data"] = self.grouped_report_data
         context["query_date"] = query_date
         return context

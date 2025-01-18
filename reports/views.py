@@ -70,11 +70,11 @@ class ReportQuickCreateViewV2(QuickReportMixin):
                     is_now_or_future = True
                     # Buat data laporan baru dari jam 1 sampai jam 9
                     # Jika ada jadwal yang dipilih untuk laporan kosong, maka tampilkan No data
-                    if not self.create_report_objects(valid_date, i): self.grouped_report_data.append([{"id": f"{i}{j}", "status": "No data"} for j in range(15)])
+                    if not self.create_report_objects(valid_date, i): self.grouped_report_data.append([{"id": f"{i}{j}", "no_status": "No data"} for j in range(15)])
                 # Jika data tidak ada dan tanggal query kurang dari dari hari ini, maka
                 else:
                     # Tampilkan no data
-                    self.grouped_report_data.append([{"id": f"{i}{j}", "status": "No data"} for j in range(15)])
+                    self.grouped_report_data.append([{"id": f"{i}{j}", "no_status": "No data"} for j in range(15)])
             
             if is_now_or_future:
                 param = f"?query_date={query_date}"
