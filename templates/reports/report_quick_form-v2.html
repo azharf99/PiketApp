@@ -49,10 +49,13 @@
     <form action="{% url 'report-quick-create-v2' %}" method="get" class="flex justify-start items-center flex-wrap">
       <label for="query_date">Tanggal</label>
       <input type="date" name="query_date" id="query_date" {% if query_date %} value="{{query_date}}" {% endif %}
-        class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+      class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
       <input type="submit" value="Cari Data"
-        class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
+      class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
     </form>
+  </div>
+  <div class="p-2 flex justify-center items-center">
+  <p class="my-2 font-bold">Daftar Piket {{query_date|date:"l, d F Y"}}</p>
   </div>
 
   <div class="grid grid-cols-1">
@@ -60,7 +63,7 @@
     <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">
 
       <table class="table-auto border-collapse w-full">
-        <caption class="my-2 font-bold">Daftar Laporan</caption>
+        <caption class="my-2 font-bold">Daftar Laporan {{query_date|date:"l, d F Y"}}</caption>
         <thead>
           <th class="p-2 border border-gray-400">Jam Ke</th>
           {% for object in class %}
