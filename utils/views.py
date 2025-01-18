@@ -68,7 +68,7 @@ class DashboardListView(BaseModelView, BaseModelQueryListView):
 
         # Userlogs
 
-        data["userlogs"] = UserLog.objects.all()[:50]
+        data["userlogs"] = UserLog.objects.all()[:8]
         return data
 
     
