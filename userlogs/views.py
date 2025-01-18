@@ -2,11 +2,11 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, UpdateView, CreateView, DetailView
 from userlogs.models import UserLog
 from userlogs.forms import UserlogForm
-from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelView
+from utils.mixins import BaseAuthorizedFormView, BaseModelDeleteView, BaseAuthorizedModelView
 
 
 # Create your views here.
-class UserLogListView(BaseModelView, ListView):
+class UserLogListView(BaseAuthorizedModelView, ListView):
     model = UserLog
     paginate_by = 50
     menu_name = 'userlog'
@@ -14,7 +14,7 @@ class UserLogListView(BaseModelView, ListView):
     success_message = "Input data berhasil!"
     error_message = "Input data ditolak!"
 
-class UserLogCreateView(BaseModelView, CreateView):
+class UserLogCreateView(BaseAuthorizedModelView, CreateView):
     model = UserLog
     form_class = UserlogForm
     menu_name = 'userlog'
@@ -23,7 +23,7 @@ class UserLogCreateView(BaseModelView, CreateView):
     error_message = "Input data ditolak!"
 
 
-class UserLogDetailView(BaseFormView, DetailView):
+class UserLogDetailView(BaseAuthorizedFormView, DetailView):
     model = UserLog
     menu_name = 'userlog'
     permission_required = 'userlogs.add_userlog'
@@ -31,7 +31,7 @@ class UserLogDetailView(BaseFormView, DetailView):
     error_message = "Input data ditolak!"
 
 
-class UserLogUpdateView(BaseFormView, UpdateView):
+class UserLogUpdateView(BaseAuthorizedFormView, UpdateView):
     model = UserLog
     form_class = UserlogForm
     menu_name = 'userlog'

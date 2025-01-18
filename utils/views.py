@@ -10,11 +10,11 @@ from datetime import datetime
 from schedules.models import Schedule
 from reports.models import Report
 from userlogs.models import UserLog
-from utils.mixins import BaseModelView, BaseModelQueryListView
+from utils.mixins import BaseAuthorizedModelView, BaseModelQueryListView
 from utils.constants import WEEKDAYS
 from xlsxwriter import Workbook
 
-class DashboardListView(BaseModelView, BaseModelQueryListView):
+class DashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     queryset = Report.objects.all()
     menu_name = "report"
@@ -72,7 +72,7 @@ class DashboardListView(BaseModelView, BaseModelQueryListView):
         return data
 
     
-class TeacherDashboardListView(BaseModelView, BaseModelQueryListView):
+class TeacherDashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = "report"
     permission_required = 'reports.view_report'
@@ -94,7 +94,7 @@ class TeacherDashboardListView(BaseModelView, BaseModelQueryListView):
     
 
 
-class TeacherReportDownloadExcelView(BaseModelView, BaseModelQueryListView):
+class TeacherReportDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'

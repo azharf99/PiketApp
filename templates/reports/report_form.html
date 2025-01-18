@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'reports/base-report.html' %}
 {% load static %}
 {% block content %}
-  <main class="p-4 sm:ml-64 overflow-auto">
+  <main class="p-4 overflow-auto w-full">
     <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">{{form_name}} Form</h1>
     <!-- Breadcrumb -->
     <div class="flex items-center gap-2">
@@ -20,8 +20,8 @@
       {% endif %}
     </div>
     <!-- Analytics Card -->
-    <div class="mx-2 my-4 flex justify-center mb-20 ">
-        <div class="px-4 py-6 flex flex-col justify-center items-center gap-4 bg-white dark:bg-gray-700 shadow-lg md:w-3/4 w-full rounded-md">
+    <div class="mx-2 my-4 flex justify-center mb-20">
+        <div class="px-4 py-6 flex flex-col justify-center items-center gap-4 bg-white dark:bg-gray-700 shadow-lg md:w-1/2 w-full rounded-md">
           {% if messages %}
           {% for message in messages %}
           {% if message.tags == "success" %}
@@ -52,9 +52,9 @@
           {% if reporter %}
           <h2 class="font-semibold text-md">Tanggal: {{date}} Jam ke-{{time}}</h2>
           {% else %}
-          <p class="text-balance text-center">{{object}}</p>
+          <p class="text-balance text-center px-6">{{object}}</p>
           {% endif %}
-          <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 md:w-3/4 w-full">
+          <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 w-full p-6">
               {% csrf_token %}
               {% for field in form %}
                   <div class="flex flex-col">

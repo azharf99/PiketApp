@@ -25,10 +25,11 @@ from utils.validate_datetime import get_day, parse_to_date, validate_date
 
 
 # KELAS DEFAULT UNTUK HALAMAN WAJIB LOGIN DAN PERMISSION
-class BaseModelView(LoginRequiredMixin, PermissionRequiredMixin, View):
+class BaseAuthorizedModelView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Base view for generic model views with shared functionality."""
     raise_exception = False  # Raise PermissionDenied for unauthorized users
     menu_name = ''
+    
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         """Shared method to enrich context data."""
@@ -40,7 +41,7 @@ class BaseModelView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return data
 
 # KELAS DEFAULT UNTUK HALAMAN FORM CREATE DAN UPDATE
-class BaseFormView(BaseModelView):
+class BaseAuthorizedFormView(BaseAuthorizedModelView):
     """Base view for form-based views like CreateView and UpdateView."""
     success_message: str = "Input data berhasil!"
     error_message: str = "Gagal input. Ada sesuatu yang salah!"
@@ -55,7 +56,7 @@ class BaseFormView(BaseModelView):
 
 
 # KELAS DEFAULT UNTUK HALAMAN FORM DELETE
-class BaseModelDeleteView(BaseModelView, DeleteView):
+class BaseModelDeleteView(BaseAuthorizedModelView, DeleteView):
     """Base view for DeleteView."""
     success_message: str = "Data berhasil dihapus!"
 
@@ -146,7 +147,7 @@ class BaseModelDateBasedListView(ListView):
 
 
 # KELAS DEFAULT UNTUK HALAMAN UPLOAD EXCEL KE DATABASE
-class BaseModelUploadView(BaseModelView, FormView):
+class BaseModelUploadView(BaseAuthorizedModelView, FormView):
     """Base view for generic model views with shared functionality."""
     form_class = UploadModelForm
     success_message: str = "Upload completed successfully!"
@@ -238,7 +239,7 @@ class BaseModelUploadView(BaseModelView, FormView):
 
 
 
-class ModelDownloadExcelView(BaseModelView):
+class ModelDownloadExcelView(BaseAuthorizedModelView):
     header_names = []
     filename = ''
     queryset = None
@@ -271,7 +272,7 @@ class ModelDownloadExcelView(BaseModelView):
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=True, filename=self.filename)
 
-class QuickReportMixin(BaseModelView, ListView):
+class QuickReportMixin(BaseAuthorizedModelView, ListView):
 
     grouped_report_data = []
 

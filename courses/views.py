@@ -2,10 +2,10 @@ from courses.forms import CourseForm
 from courses.models import Course
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
-from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, BaseModelQueryListView, ModelDownloadExcelView
+from utils.mixins import BaseAuthorizedFormView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, BaseModelQueryListView, ModelDownloadExcelView
 
 # Create your views here.
-class CourseListView(BaseModelView, BaseModelQueryListView):
+class CourseListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Course
     menu_name = 'course'
     queryset = Course.objects.select_related("teacher").all()
@@ -13,13 +13,13 @@ class CourseListView(BaseModelView, BaseModelQueryListView):
     raise_exception = False
 
 
-class CourseDetailView(BaseModelView, DetailView):
+class CourseDetailView(BaseAuthorizedModelView, DetailView):
     model = Course
     menu_name = 'course'
     permission_required = 'courses.view_course'
 
 
-class CourseCreateView(BaseFormView, CreateView):
+class CourseCreateView(BaseAuthorizedFormView, CreateView):
     model = Course
     form_class = CourseForm
     menu_name = 'course'
@@ -28,7 +28,7 @@ class CourseCreateView(BaseFormView, CreateView):
     error_message = "Input data ditolak!"
 
 
-class CourseUpdateView(BaseFormView, UpdateView):
+class CourseUpdateView(BaseAuthorizedFormView, UpdateView):
     model = Course
     form_class = CourseForm
     menu_name = 'course'

@@ -3,18 +3,18 @@ from django.contrib import messages
 from django.forms import BaseModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.views.generic import CreateView, UpdateView, DetailView
+from django.views.generic import CreateView, UpdateView, DetailView, FormView
 from reports.forms import ReportFormV2, ReportUpdatePetugasForm
 from reports.models import Report
 from typing import Any
 from django.urls import reverse, reverse_lazy
 from userlogs.models import UserLog
-from utils.mixins import BaseFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, ModelDownloadExcelView, BaseModelQueryListView, QuickReportMixin
+from utils.mixins import BaseAuthorizedFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, ModelDownloadExcelView, BaseModelQueryListView, QuickReportMixin
 from utils.validate_datetime import parse_to_date
 from utils.whatsapp_albinaa import send_whatsapp_action
 # Create your views here.
     
-class ReportListView(BaseModelView, BaseModelDateBasedListView):
+class ReportListView(BaseAuthorizedModelView, BaseModelDateBasedListView):
     model = Report
     queryset = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter").all()
     menu_name = 'report'
@@ -22,7 +22,7 @@ class ReportListView(BaseModelView, BaseModelDateBasedListView):
     raise_exception = False
     paginate_by = 105
 
-class ReportDetailView(BaseModelView, DetailView):
+class ReportDetailView(BaseAuthorizedModelView, DetailView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
@@ -83,7 +83,7 @@ class ReportQuickCreateViewV2(QuickReportMixin):
         return HttpResponseRedirect(reverse('report-quick-dashboard'))
 
 
-class ReportUpdateViewV2(BaseFormView, UpdateView):
+class ReportUpdateViewV2(BaseAuthorizedFormView, UpdateView):
     model = Report
     menu_name = 'report'
     form_class = ReportFormV2
@@ -119,20 +119,27 @@ class ReportUpdateViewV2(BaseFormView, UpdateView):
         return context
     
 
-class ReportUpdatePetugasView(BaseFormView, UpdateView):
+class ReportUpdatePetugasView(BaseAuthorizedFormView, FormView):
     model = Report
     menu_name = 'report'
     form_class = ReportUpdatePetugasForm
+    template_name = 'reports/report_form.html'
     permission_required = 'reports.change_report'
     success_message = "Update data berhasil!"
     error_message = "Update data ditolak!"
-    success_url = reverse_lazy("report-quick-create-v2")
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        data = super().get_form_kwargs()
+        data["report_date"] = self.kwargs.get("date")
+        data["schedule_time"] = self.kwargs.get("pk")
+        return data
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         reporter_name = form.cleaned_data["reporter"]
         report_date = self.kwargs.get("date")
         schedule_time = self.kwargs.get("pk")
-        reports = Report.objects.filter(report_date=report_date, schedule__schedule_time=schedule_time)
+        reports = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                                    .filter(report_date=report_date, schedule__schedule_time=schedule_time)
         reports.update(reporter=reporter_name.id)
         redirect_url = reverse("report-quick-create-v2")
         query_params = f'?query_date={report_date}'
@@ -154,7 +161,7 @@ class ReportDeleteView(BaseModelDeleteView):
     success_url = reverse_lazy("report-list")
 
 
-class ReportDeleteAllView(BaseFormView, CreateView):
+class ReportDeleteAllView(BaseAuthorizedFormView, CreateView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.delete_report'

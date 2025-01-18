@@ -12,24 +12,24 @@ from django.views.generic import CreateView, UpdateView, DetailView, TemplateVie
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 from utils.menu_link import export_menu_link
-from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, BaseModelQueryListView, ModelDownloadExcelView
+from utils.mixins import BaseAuthorizedFormView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, BaseModelQueryListView, ModelDownloadExcelView
 
 
 # Create your views here.
-class UserListView(BaseModelView, BaseModelQueryListView):
+class UserListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = User
     queryset = User.objects.all()
     menu_name = 'user'
     permission_required = 'users.view_user'
         
 
-class UserDetailView(BaseModelView, DetailView):
+class UserDetailView(BaseAuthorizedModelView, DetailView):
     model = User
     menu_name = 'user'
     permission_required = 'users.view_user'
 
 
-class UserCreateView(BaseFormView, CreateView):
+class UserCreateView(BaseAuthorizedFormView, CreateView):
     model = User
     menu_name = 'user'
     form_class = UserCreateForm
@@ -38,7 +38,7 @@ class UserCreateView(BaseFormView, CreateView):
     success_message = 'Input data berhasil!'
     error_message = 'Input data ditolak!'
 
-class UserUpdateView(BaseFormView, UpdateView):
+class UserUpdateView(BaseAuthorizedFormView, UpdateView):
     model = User
     menu_name = 'user'
     form_class = UserForm

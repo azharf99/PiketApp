@@ -4,12 +4,12 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
-from utils.mixins import BaseModelView, BaseModelQueryListView
+from utils.mixins import BaseAuthorizedModelView, BaseModelQueryListView
 from utils.validate_datetime import validate_date, validate_time, get_day
 
 
 # DEPRECATED
-class ScheduleAPIView(BaseModelView, BaseModelQueryListView):
+class ScheduleAPIView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Schedule
     menu_name = 'schedule'
     form_class = ScheduleForm

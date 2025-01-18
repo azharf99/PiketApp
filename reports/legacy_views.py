@@ -10,13 +10,13 @@ from reports.forms import ReportForm, QuickReportForm
 from reports.models import Report
 from typing import Any
 from schedules.models import Schedule
-from utils.mixins import BaseFormView
+from utils.mixins import BaseAuthorizedFormView
 from utils.validate_datetime import validate_date, validate_time, get_day, parse_to_date
 
 
 
 
-class ReportCreateView(BaseFormView, CreateView):
+class ReportCreateView(BaseAuthorizedFormView, CreateView):
     model = Report
     menu_name = 'report'
     form_class = ReportForm
@@ -25,7 +25,7 @@ class ReportCreateView(BaseFormView, CreateView):
     error_message = "Input data ditolak!"
 
 
-class ReportQuickCreateView(BaseFormView, FormView):
+class ReportQuickCreateView(BaseAuthorizedFormView, FormView):
     menu_name = 'report'
     form_class = QuickReportForm
     template_name = 'reports/report_quick_form.html'
@@ -97,7 +97,7 @@ class ReportQuickCreateView(BaseFormView, FormView):
 
 
 
-class ReportUpdateView(BaseFormView, UpdateView):
+class ReportUpdateView(BaseAuthorizedFormView, UpdateView):
     model = Report
     menu_name = 'report'
     form_class = ReportForm

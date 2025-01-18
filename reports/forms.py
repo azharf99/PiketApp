@@ -49,6 +49,18 @@ class ReportFormV2(forms.ModelForm):
         }
 
 class ReportUpdatePetugasForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        # Extract additional parameters from kwargs
+        report_date = kwargs.pop('report_date', None)
+        schedule_time = kwargs.pop('schedule_time', None)
+        # Call the superclass initializer
+        super().__init__(*args, **kwargs)
+        reports = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                                .filter(report_date=report_date, schedule__schedule_time=schedule_time)
+        
+        if reports.first().reporter:
+            self.fields['reporter'].initial = reports.first().reporter.id
+
     reporter = UserModelChoiceField(
         required=False,
         queryset=User.objects.all().order_by('first_name'),

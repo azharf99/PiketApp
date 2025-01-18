@@ -6,12 +6,12 @@ from classes.models import Class
 from schedules.forms import ScheduleForm
 from schedules.models import Schedule
 from typing import Any
-from utils.mixins import BaseFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, ModelDownloadExcelView
+from utils.mixins import BaseAuthorizedFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, ModelDownloadExcelView
 from utils.constants import WEEKDAYS
 
 # Create your views here.
 
-class ScheduleView(BaseModelView, ListView):
+class ScheduleView(BaseAuthorizedModelView, ListView):
     model = Schedule
     menu_name = 'schedule'
     queryset = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class")
@@ -51,7 +51,7 @@ class ScheduleView(BaseModelView, ListView):
         return context
     
     
-class ScheduleListView(BaseModelView, BaseModelDateBasedListView):
+class ScheduleListView(BaseAuthorizedModelView, BaseModelDateBasedListView):
     model = Schedule
     queryset = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class")
     menu_name = 'schedule'
@@ -59,14 +59,14 @@ class ScheduleListView(BaseModelView, BaseModelDateBasedListView):
     paginate_by = 50
 
 
-class ScheduleDetailView(BaseModelView, DetailView):
+class ScheduleDetailView(BaseAuthorizedModelView, DetailView):
     model = Schedule
     menu_name = 'schedule'
     permission_required = 'schedules.view_schedule'
     raise_exception = False
 
 
-class ScheduleCreateView(BaseFormView, CreateView):
+class ScheduleCreateView(BaseAuthorizedFormView, CreateView):
     model = Schedule
     menu_name = 'schedule'
     form_class = ScheduleForm
@@ -75,7 +75,7 @@ class ScheduleCreateView(BaseFormView, CreateView):
     error_message = "Input data ditolak!"
 
 
-class ScheduleUpdateView(BaseFormView, UpdateView):
+class ScheduleUpdateView(BaseAuthorizedFormView, UpdateView):
     model = Schedule
     menu_name = 'schedule'
     form_class = ScheduleForm

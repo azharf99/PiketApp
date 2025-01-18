@@ -4,9 +4,9 @@ from classes.models import Class
 from classes.forms import ClassForm
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
-from utils.mixins import BaseModelDeleteView, BaseModelView, BaseFormView, BaseModelQueryListView, BaseModelUploadView, ModelDownloadExcelView
+from utils.mixins import BaseModelDeleteView, BaseAuthorizedModelView, BaseAuthorizedFormView, BaseModelQueryListView, BaseModelUploadView, ModelDownloadExcelView
 
-class ClassListView(BaseModelView, BaseModelQueryListView):
+class ClassListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Class
     queryset = Class.objects.all()
     menu_name = "class"
@@ -14,20 +14,20 @@ class ClassListView(BaseModelView, BaseModelQueryListView):
     raise_exception = False
 
 
-class ClassDetailView(BaseModelView, DetailView):
+class ClassDetailView(BaseAuthorizedModelView, DetailView):
     model = Class
     menu_name = "class"
     permission_required = 'classes.view_class'
 
 
-class ClassCreateView(BaseFormView, CreateView):
+class ClassCreateView(BaseAuthorizedFormView, CreateView):
     model = Class
     form_class = ClassForm
     menu_name = "class"
     permission_required = 'classes.add_class'
 
 
-class ClassUpdateView(BaseFormView, UpdateView):
+class ClassUpdateView(BaseAuthorizedFormView, UpdateView):
     model = Class
     form_class = ClassForm
     menu_name = "class"
