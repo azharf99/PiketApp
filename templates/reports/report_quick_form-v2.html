@@ -46,7 +46,7 @@
     </a>
   </div>
   <div class="p-2 flex justify-center items-center">
-    <form action="" method="get" class="flex justify-start items-center flex-wrap">
+    <form action="{% url 'report-quick-create-v2' %}" method="get" class="flex justify-start items-center flex-wrap">
       <label for="query_date">Tanggal</label>
       <input type="date" name="query_date" id="query_date" {% if query_date %} value="{{query_date}}" {% endif %}
         class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">

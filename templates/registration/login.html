@@ -24,7 +24,7 @@
           <div class="text-center flex flex-col gap-4 justify-center">
             <button class="py-2 px-2 bg-blue-500 text-white rounded-md" type="submit" id="submit">Login</button>
             <a href="{% url 'home' %}" id="back" class="py-1 px-2 bg-red-500 text-white rounded-md">&leftarrow; Home</a>
-            <p>Lupa password? <a href="{% url 'password_reset' %}" id="back" class="py-1 px-2 bg-yellow-600 text-white rounded-md">Reset aja!</a></p>
+            <p id="forgotPassword">Lupa password? <a href="{% url 'password_reset' %}" id="back" class="py-1 px-2 bg-yellow-600 text-white rounded-md">Reset aja!</a></p>
           </div>
           <div id="loading" class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
             <div class="loader"></div>
@@ -43,6 +43,10 @@
     const back = document.getElementById("back");
     document.addEventListener("submit", ()=>{
       back.classList.add("hidden");
+    })
+    const forgotPassword = document.getElementById("forgotPassword");
+    document.addEventListener("submit", ()=>{
+      forgotPassword.classList.add("hidden");
     })
   </script>
 

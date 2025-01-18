@@ -12,11 +12,11 @@ from django.views.generic import CreateView, UpdateView, DetailView, TemplateVie
 from typing import Any
 from users.forms import UserForm, UserCreateForm, UserPasswordUpdateForm
 from utils.menu_link import export_menu_link
-from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, BaseModelListView, ModelDownloadExcelView
+from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, BaseModelQueryListView, ModelDownloadExcelView
 
 
 # Create your views here.
-class UserListView(BaseModelView, BaseModelListView):
+class UserListView(BaseModelView, BaseModelQueryListView):
     model = User
     queryset = User.objects.all()
     menu_name = 'user'

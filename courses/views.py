@@ -2,10 +2,10 @@ from courses.forms import CourseForm
 from courses.models import Course
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
-from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, BaseModelListView, ModelDownloadExcelView
+from utils.mixins import BaseFormView, BaseModelDeleteView, BaseModelUploadView, BaseModelView, BaseModelQueryListView, ModelDownloadExcelView
 
 # Create your views here.
-class CourseListView(BaseModelView, BaseModelListView):
+class CourseListView(BaseModelView, BaseModelQueryListView):
     model = Course
     menu_name = 'course'
     queryset = Course.objects.select_related("teacher").all()

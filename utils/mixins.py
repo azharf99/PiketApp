@@ -16,10 +16,12 @@ from pandas import read_excel
 from typing import Any
 from classes.models import Class
 from courses.models import Course
+from reports.models import Report
+from schedules.models import Schedule
 from utils.forms import UploadModelForm
 from utils.menu_link import export_menu_link
 from xlsxwriter import Workbook
-from utils.validate_datetime import parse_to_date, validate_date
+from utils.validate_datetime import get_day, parse_to_date, validate_date
 
 
 # KELAS DEFAULT UNTUK HALAMAN WAJIB LOGIN DAN PERMISSION
@@ -63,7 +65,7 @@ class BaseModelDeleteView(BaseModelView, DeleteView):
 
 
 # KELAS DEFAULT UNTUK HALAMAN YANG MENGGUNAKAN QUERY DI LISTVIEW
-class BaseModelListView(ListView):
+class BaseModelQueryListView(ListView):
     """Base view for generic model views with shared functionality."""
     model = None
     
@@ -268,3 +270,72 @@ class ModelDownloadExcelView(BaseModelView):
         workbook.close()
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=True, filename=self.filename)
+
+class QuickReportMixin(BaseModelView, ListView):
+
+    grouped_report_data = []
+
+    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        self.grouped_report_data = []
+        query_date = request.GET.get('query_date', datetime.now().date())
+        valid_date = parse_to_date(query_date)
+        # Jika ada query date, maka 
+        if query_date:
+            # Buat variabel untuk menyimpan data gabungan laporan jam 1 - 9
+            class_name = ['10A', '10B', '10C', '10D', '10E', '11A', '11B', '11C', '11D', '11E', '12A', '12B', '12C', '12D', '12E']
+            # Mulai perulangan dari Jam 1 sampai Jam 9
+            for i in range(1, 10):
+                # Cari apakah ada data laporan pada tanggal/hari sesuai query dari jam 1 sampai 9
+                data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                            .filter(report_date=valid_date, schedule__schedule_time=i).order_by()
+                # Jika ada, maka
+                if data.exists():
+                    if data.count() == 15:
+                        # Masukan datanya ke variabel grouped_data
+                        self.grouped_report_data.append(data)
+                    else:
+                        copied_data = [*data]
+                        temp_data = self.fill_report_object_gaps(class_name, copied_data, i)
+                        self.grouped_report_data.append(temp_data)
+                # Jika data tidak ada dan tanggal query kurang dari dari hari ini, maka
+                else:
+                    # Tampilkan no data
+                    self.grouped_report_data.append([{"id": f"{i}{j}", "status": "No data"} for j in range(15)])
+        return super().get(request, *args, **kwargs)
+
+    def create_report_objects(self, valid_query_date: Any, schedule_time: Any) -> bool:
+        # Cari data jadwal di hari sesuai query dan di waktu jam 1 sampai  9
+        schedule_list = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class") \
+                                .filter(schedule_day=get_day(valid_query_date), schedule_time=schedule_time)
+        # Jika tidak ditemukan, maka nilai False
+        if not schedule_list.exists(): return False
+        # Jika ditemukan, maka buat laporan dengan jadwal dimasukkan satu per satu
+        for schedule in schedule_list:
+            obj, is_created = Report.objects.get_or_create(
+                report_date = valid_query_date,
+                schedule = schedule,
+                defaults={
+                    'status': "Hadir"
+                }
+            )
+        return True
+
+    def fill_report_object_gaps(self, class_name: list[str], data: Report, parent_index: int) -> bool:
+        temp_data = []
+        temp_index = 0
+        for index in range(0, 15):
+            if class_name[index] != data[temp_index].schedule.schedule_class.short_class_name:
+                temp_data.append({"id": f"{parent_index}{index}", "status": "No data"})
+            else:
+                temp_data.append(data[temp_index])
+                temp_index += 1
+        
+        return temp_data
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        query_date = self.request.GET.get('query_date', datetime.now().date())
+        context["class"] = Class.objects.all()
+        context["grouped_data"] = self.grouped_report_data
+        context["query_date"] = query_date
+        return context

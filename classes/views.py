@@ -4,9 +4,9 @@ from classes.models import Class
 from classes.forms import ClassForm
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
-from utils.mixins import BaseModelDeleteView, BaseModelView, BaseFormView, BaseModelListView, BaseModelUploadView, ModelDownloadExcelView
+from utils.mixins import BaseModelDeleteView, BaseModelView, BaseFormView, BaseModelQueryListView, BaseModelUploadView, ModelDownloadExcelView
 
-class ClassListView(BaseModelView, BaseModelListView):
+class ClassListView(BaseModelView, BaseModelQueryListView):
     model = Class
     queryset = Class.objects.all()
     menu_name = "class"
