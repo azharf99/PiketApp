@@ -33,6 +33,7 @@ class UserModelChoiceField(ModelChoiceField):
     
 class ReportFormV2(forms.ModelForm):
     subtitute_teacher = UserModelChoiceField(
+        label="Guru Pengganti",
         required=False,
         queryset=User.objects.all().order_by('first_name'),
         widget=forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"})
@@ -40,9 +41,10 @@ class ReportFormV2(forms.ModelForm):
         
     class Meta:
         model = Report
-        fields = ['status', 'subtitute_teacher']
+        fields = ['status', 'subtitute_teacher', 'duty']
         widgets = {
             'status': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
+            'duty': forms.Textarea(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
             'subtitute_teacher': forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"}),
         }
 
@@ -50,6 +52,7 @@ class ReportUpdatePetugasForm(forms.ModelForm):
     reporter = UserModelChoiceField(
         required=False,
         queryset=User.objects.all().order_by('first_name'),
+        label="Petugas Piket",
         widget=forms.Select(attrs={"class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"})
         )
         
