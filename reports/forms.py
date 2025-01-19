@@ -60,8 +60,8 @@ class ReportUpdatePetugasForm(forms.ModelForm):
                                 .filter(report_date=report_date, schedule__schedule_time=schedule_time)
         
         
-        if reports.exists() and reports.first().reporter:
-            self.fields['reporter'].initial = reports.first().reporter.id
+        if reports.exists():
+            self.fields['reporter'].initial = reports.first().reporter
         else:
             raise Http404("No report found!")
 

@@ -3,14 +3,14 @@ from django.contrib import messages
 from django.forms import BaseModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.views.generic import CreateView, UpdateView, DetailView, FormView
-from reports.forms import ReportFormV2, ReportUpdatePetugasForm
+from django.views.generic import CreateView, UpdateView, DetailView, FormView, ListView
+from reports.forms import ReportForm, ReportFormV2, ReportUpdatePetugasForm
 from reports.models import Report
 from typing import Any
 from django.urls import reverse, reverse_lazy
 from userlogs.models import UserLog
 from utils.mixins import BaseAuthorizedFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, ModelDownloadExcelView, BaseModelQueryListView, QuickReportMixin
-from utils.validate_datetime import parse_to_date
+from utils.validate_datetime import get_day, parse_to_date
 from utils.whatsapp_albinaa import send_whatsapp_action
 # Create your views here.
     
@@ -83,6 +83,51 @@ class ReportQuickCreateViewV2(QuickReportMixin):
         return HttpResponseRedirect(reverse('report-quick-dashboard'))
 
 
+
+class ReportQuickCreateViewV3(BaseAuthorizedModelView, CreateView):
+    model = Report
+    menu_name = 'report'
+    form_class = ReportFormV2
+    template_name = 'reports/report_quick_form-v3.html'
+    permission_required = 'reports.add_report'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        query_date = self.request.GET.get('query_date', datetime.now().date())
+        valid_date = parse_to_date(query_date)
+        day = get_day(valid_date)
+        grouped_report_data = []
+        if day == "Ahad":
+            for i in range(1, 8):
+                # data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                #                     .filter(report_date=valid_date, schedule__schedule_time=i)\
+                #                     .values("id", "status").order_by()
+                data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                                    .filter(report_date=valid_date, schedule__schedule_time=i)\
+                                    .values("id", "status", "reporter__last_name",
+                                            "schedule__schedule_course__teacher__last_name",
+                                            "schedule__schedule_course__course_short_name").order_by()
+                grouped_report_data.append(data)
+        elif day != "Jumat":
+            for i in range(1, 10):
+                data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                                    .filter(report_date=valid_date, schedule__schedule_time=i)\
+                                    .values("id").order_by()
+                # print(data)
+                # data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                #                     .filter(report_date=valid_date, schedule__schedule_time=i)\
+                #                     .values("id", "status", "subtitute_teacher__firstname", "reporter__last_name"
+                #                             "schedule__schedule_course__teacher__last_name",
+                #                             "schedule__schedule_course__course_short_name").order_by()
+                grouped_report_data.append(data)
+        else:
+            grouped_report_data.append([])
+        context = super().get_context_data(**kwargs)
+        context["grouped_report_data"] = grouped_report_data
+        context["class"] = ['10A', '10B', '10C', '10D', '10E', '11A', '11B', '11C', '11D', '11E', '12A', '12B', '12C', '12D', '12E']
+        query_date = self.request.GET.get('query_date', str(datetime.now().date()))
+        context["query_date"] = query_date
+        return context
+
 class ReportUpdateViewV2(BaseAuthorizedFormView, UpdateView):
     model = Report
     menu_name = 'report'
@@ -119,6 +164,41 @@ class ReportUpdateViewV2(BaseAuthorizedFormView, UpdateView):
         return context
     
 
+class ReportUpdateViewV3(BaseAuthorizedFormView, UpdateView):
+    model = Report
+    menu_name = 'report'
+    form_class = ReportFormV2
+    permission_required = 'reports.change_report'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
+    success_url = reverse_lazy("report-quick-create-v2")
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        object = self.get_object()
+        status = form.cleaned_data["status"]
+        reporter = ''
+        if object.reporter:
+            reporter = object.reporter.first_name
+
+        message = f"laporan piket {object.report_day} {object.report_date} Jam ke-{object.schedule.schedule_time} {object.schedule.schedule_course} dengan status {status}"
+        UserLog.objects.create(
+            user = reporter or  self.request.user.first_name,
+            action_flag = "mengubah",
+            app = "QUICK REPORT V3",
+            message = message,
+        )
+        redirect_url = reverse("report-quick-create-v3")
+        messages.success(self.request, self.success_message)
+        send_whatsapp_action(user=reporter or self.request.user.first_name, action="update", messages=message, type="report/", slug="quick-create-v2/")
+        self.object = form.save()
+        return redirect(redirect_url)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_object()
+        return context
+
+
 class ReportUpdatePetugasView(BaseAuthorizedFormView, FormView):
     model = Report
     menu_name = 'report'
@@ -140,11 +220,53 @@ class ReportUpdatePetugasView(BaseAuthorizedFormView, FormView):
         schedule_time = self.kwargs.get("pk")
         reports = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
                                     .filter(report_date=report_date, schedule__schedule_time=schedule_time)
-        reports.update(reporter=reporter_name.id)
+        if reporter_name:
+            reports.update(reporter=reporter_name.id)
+        else:
+            reports.update(reporter=None)
         redirect_url = reverse("report-quick-create-v2")
         query_params = f'?query_date={report_date}'
         messages.success(self.request, self.success_message)
         return redirect(redirect_url + query_params)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["reporter"] = True
+        context["date"] = self.kwargs.get("date")
+        context["time"] = self.kwargs.get("pk")
+        return context
+    
+
+class ReportUpdatePetugasViewV3(BaseAuthorizedFormView, FormView):
+    model = Report
+    menu_name = 'report'
+    form_class = ReportUpdatePetugasForm
+    template_name = 'reports/report_form.html'
+    permission_required = 'reports.change_report'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        data = super().get_form_kwargs()
+        data["report_date"] = self.kwargs.get("date")
+        data["schedule_time"] = self.kwargs.get("pk")
+        return data
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        reporter_name = form.cleaned_data["reporter"]
+        report_date = self.kwargs.get("date")
+        schedule_time = self.kwargs.get("pk")
+        reports = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                                    .filter(report_date=report_date, schedule__schedule_time=schedule_time)
+        
+        if reporter_name:
+            reports.update(reporter=reporter_name.id)
+        else:
+            reports.update(reporter=None)
+
+        redirect_url = reverse("report-quick-create-v3")
+        messages.success(self.request, self.success_message)
+        return redirect(redirect_url)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

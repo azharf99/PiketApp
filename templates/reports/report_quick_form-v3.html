@@ -1,0 +1,422 @@
+{% extends 'reports/base-report.html' %}
+
+{% block content %}
+<main class="p-4 overflow-auto mb-2">
+  <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Report Quick Input View</h1>
+  <!-- Breadcrumb -->
+  <div class="flex items-center gap-2">
+    <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
+    <p class="text-2xl">
+      &triangleright;
+    </p>
+    <a href="{% url 'report-list' %}">Report List</a>
+    <p class="text-2xl">
+      &triangleright;
+    </p>
+    <a href="{% url 'report-quick-create-v2' %}">Report Quick Input View</a>
+  </div>
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="m-2 flex justify-center">
+    <div
+      class="flex items-center p-4 mb-4 mx-2 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800"
+      role="alert">
+      <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor" viewBox="0 0 20 20">
+        <path
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+      </svg>
+      <span class="sr-only">Info</span>
+      <div>
+        <span class="font-medium">Success! {{message.message}}</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+
+  <div class="block md:flex justify-center m-2 gap-2 text-balance text-center">
+    <a href="{% url 'report-download' %}">
+      <p class="p-1 px-2 my-2 bg-green-500 text-white rounded-md font-semibold">&#128196; Export to Excel</p>
+    </a>
+    <a href="{% url 'dashboard-teachers' %}">
+      <p class="p-1 px-2 my-2 bg-blue-500 text-white rounded-md font-semibold">&#128196; Rekap Kehadiran Guru</p>
+    </a>
+  </div>
+  <div class="p-2 flex justify-center items-center">
+    <form action="{% url 'report-quick-create-v2' %}" method="get" class="flex justify-start items-center flex-wrap">
+      <label for="query_date">Tanggal</label>
+      <input type="date" name="query_date" id="query_date" {% if query_date %} value="{{query_date}}" {% endif %}
+        class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+      <input type="submit" value="Cari Data" class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
+    </form>
+  </div>
+  <div class="p-2 flex justify-center items-center">
+    <p class="my-2 font-bold">Daftar Piket {{query_date|date:"l, d F Y"}}</p>
+  </div>
+
+  <div class="grid grid-cols-1">
+    <!-- Analytics Table -->
+    <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">
+
+      <table class="table-auto border-collapse w-full">
+        <caption class="my-2 font-bold">Daftar Laporan {{query_date|date:"l, d F Y"}}</caption>
+        <thead>
+          <th class="p-2 border border-gray-400">Jam Ke</th>
+          {% for object in class %}
+          <th class="p-2 border border-gray-400">{{object}}</th>
+          {% endfor %}
+          <th class="p-2 border border-gray-400">Petugas Piket</th>
+        </thead>
+        <tbody>
+          {% for reports in grouped_report_data %}
+          <tr>
+            <td class="p-2 border border-gray-400">{{forloop.counter}}</td>
+            {% for report_data in reports %}
+            <td class="p-2 border border-gray-400">
+              {% if report_data.status == "Hadir" %}
+              <button type="button" id="{{report_data.id}}" class="report_id">
+                <p
+                id="p_{{report_data.id}}"
+                class="bg-green-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
+                {{report_data.status}} <span class="text-md p-1 bg-green-500 border-2 border-white rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      class="bi bi-chevron-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                    </svg></span>
+                  </p>
+                </button>
+                {% elif report_data.status == "Izin" %}
+                <button type="button" id="{{report_data.id}}" class="report_id">
+                  <p
+                  id="p_{{report_data.id}}"
+                  class="bg-yellow-600 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
+                  {{report_data.status}} <span class="text-md p-1 bg-yellow-600 border-2 border-white rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-chevron-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                          d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                      </svg></span>
+                    </p>
+                  </button>
+                {% elif report_data.status == "Sakit" %}
+                <button type="button" id="{{report_data.id}}" class="report_id">
+                  <p
+                  id="p_{{report_data.id}}"
+                  class="bg-indigo-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
+                  {{report_data.status}} <span class="text-md p-1 bg-indigo-500 border-2 border-white rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-chevron-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                          d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                      </svg></span>
+                    </p>
+                  </button>
+                {% elif report_data.status == "Tanpa Keterangan" %}
+                <button type="button" id="{{report_data.id}}" class="report_id">
+                  <p
+                  id="p_{{report_data.id}}"
+                  class="bg-red-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
+                  Alpha <span class="text-md p-1 bg-red-500 border-2 border-white rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-chevron-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                          d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                      </svg></span>
+                    </p>
+                  </button>
+              {% endif %}
+              <p class="text-xs text-center">{{report_data.schedule__schedule_course__teacher__last_name}}</p>
+              <p class="text-xs text-center">{{report_data.schedule__schedule_course__course_short_name}}</p>
+            </td>
+            {% endfor %}
+            <td class="p-2 border border-gray-400 text-center flex flex-col gap-2">
+              <a href="" class="bg-blue-600 p-2 rounded-md text-xs text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32">Submit</a>
+              <button type="button" class="reporters" id="{{query_date}}__{{forloop.counter}}">
+                <p
+                  class="bg-teal-500 p-1 rounded-md text-xs text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
+                  Petugas Piket<span class="text-md p-1 bg-teal-500 border-2 border-white rounded-full"><svg
+                      xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      class="bi bi-chevron-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                    </svg></span>
+                </p>
+              </button>
+              <p class="text-xs">{{reports.first.reporter__last_name|default:"Belum input"}}</p>
+            </td>
+          </tr>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<dialog>
+  <button autofocus class="absolute end-0 py-1 px-2 text-2xl">&Cross;</button>
+  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 w-full p-6" id="report_form">
+    {% csrf_token %}
+
+
+    <div class="flex flex-col mt-4">
+      <label for="id_status">Status:</label>
+      <select name="status" class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"
+        required id="id_status">
+        <option value="">----Pilih Status----</option>
+        <option value="Hadir" selected>Hadir</option>
+        <option value="Izin">Izin</option>
+        <option value="Sakit">Sakit</option>
+        <option value="Tanpa Keterangan">Tanpa Keterangan</option>
+      </select>
+    </div>
+
+    <div class="flex flex-col">
+      <label for="id_subtitute_teacher">Guru Pengganti:</label>
+      <select name="subtitute_teacher"
+        class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"
+        id="id_subtitute_teacher">
+        <option value="" selected>---------</option>
+        <option value="30">Aam Hamdani, S.Pd.</option>
+        <option value="2">Abdul Rachman, S.Si.</option>
+        <option value="38">Abdus Shomad, Lc., M.A.</option>
+        <option value="36">Agung Wahyu Adhy, Lc.</option>
+        <option value="11">Agus Setiawan, S.T.</option>
+        <option value="35">Ahmad Reza Febrianto</option>
+        <option value="52">Al Ghozali</option>
+        <option value="31">Alif Rezky, M.Pd.</option>
+        <option value="50">Anjasmara</option>
+        <option value="23">Arie Afriansyah, Lc.</option>
+        <option value="27">Azhar Fathurrahman, S.Pd.</option>
+        <option value="16">Bahtiar, S.Pd.</option>
+        <option value="13">Chevi Indrayadi, S.Si.</option>
+        <option value="10">Dadan Ridwanuloh, M.Si.</option>
+        <option value="8">Dany Wardhiman, S.Pd.</option>
+        <option value="9">Deden Anugerah, M.Pfis.</option>
+        <option value="29">Firyan Ramdhani, S.Pd.</option>
+        <option value="33">Hario Sadewo P, S.Pd.</option>
+        <option value="14">Harlan, S. Pd.</option>
+        <option value="49">Helmi Sukma Zain</option>
+        <option value="40">Herianto, Lc.</option>
+        <option value="25">Ilham Nurhakim, Lc.</option>
+        <option value="18">Irfan Halim, Lc.</option>
+        <option value="47">Irfan Zein, Lc.</option>
+        <option value="22">M.S. Haromain, S.I.Kom.</option>
+        <option value="12">Mohamad Alam Novian, M. Pd.</option>
+        <option value="51">Mufti Al Farizi</option>
+        <option value="6">Muh. Halidi, S.Si.</option>
+        <option value="3">Muh. Yunus, S.Pd.</option>
+        <option value="20">Muhammad Ikhsan, S. Pd.</option>
+        <option value="17">Muhammad Mukhtar, Lc., M.H.I.</option>
+        <option value="24">Mutholib, Lc.</option>
+        <option value="1">Nuralim, Lc.</option>
+        <option value="41">Nurmawan</option>
+        <option value="39">Panji Asmara</option>
+        <option value="5">Priyo Widodo, S.Pi.</option>
+        <option value="46">Radivan Tiravi</option>
+        <option value="7">Rayis Syamlan, S.T.</option>
+        <option value="34">Rifqi Aqwamuddin, Lc.</option>
+        <option value="28">Ruslan, S.Pd.</option>
+        <option value="32">Saeful Anshar, M.Pd.</option>
+        <option value="21">Suharyadi, M. Pd., Gr.</option>
+        <option value="45">Syafiq Muhammad Rwenky, B.A.</option>
+        <option value="42">Tri Setyo Mardi Utomo, S.Pd</option>
+        <option value="48">Umar Ahmad Ali</option>
+        <option value="4">Uus Rusytandi, M.Pd.</option>
+        <option value="19">Wawanto, S. Si.</option>
+        <option value="37">Zainal Abidin, Lc.</option>
+        <option value="15">Zainal Arifin, Lc.</option>
+      </select>
+    </div>
+
+    <div class="flex flex-col">
+      <label for="id_duty">Tugas:</label>
+      <textarea name="duty" cols="40" rows="10"
+        class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg" maxlength="250"
+        aria-describedby="id_duty_helptext" id="id_duty">
+      </textarea>
+      <p class="p-2 italic text-xs" id="id_duty_helptext">
+        Opsional. Jika ada
+      </p>
+    </div>
+
+    <input type="submit" id="submit" value="Input Data"
+      class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 mt-4">
+    <div id="loading"
+      class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
+      <div class="loader"></div>
+      <p>Loading ...</p>
+    </div>
+  </form>
+</dialog>
+
+
+<dialog id="petugas">
+  <button autofocus class="absolute end-0 py-1 px-2 text-2xl">&Cross;</button>
+  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 w-full p-6" id="reporter_form">
+    {% csrf_token %}
+
+    <div class="flex flex-col">
+      <label for="id_reporter">Petugas Piket:</label>
+      <select name="reporter"
+        class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"
+        id="id_reporter">
+        <option value="" selected>---------</option>
+        <option value="30">Aam Hamdani, S.Pd.</option>
+        <option value="2">Abdul Rachman, S.Si.</option>
+        <option value="38">Abdus Shomad, Lc., M.A.</option>
+        <option value="36">Agung Wahyu Adhy, Lc.</option>
+        <option value="11">Agus Setiawan, S.T.</option>
+        <option value="35">Ahmad Reza Febrianto</option>
+        <option value="52">Al Ghozali</option>
+        <option value="31">Alif Rezky, M.Pd.</option>
+        <option value="50">Anjasmara</option>
+        <option value="23">Arie Afriansyah, Lc.</option>
+        <option value="27">Azhar Fathurrahman, S.Pd.</option>
+        <option value="16">Bahtiar, S.Pd.</option>
+        <option value="13">Chevi Indrayadi, S.Si.</option>
+        <option value="10">Dadan Ridwanuloh, M.Si.</option>
+        <option value="8">Dany Wardhiman, S.Pd.</option>
+        <option value="9">Deden Anugerah, M.Pfis.</option>
+        <option value="29">Firyan Ramdhani, S.Pd.</option>
+        <option value="33">Hario Sadewo P, S.Pd.</option>
+        <option value="14">Harlan, S. Pd.</option>
+        <option value="49">Helmi Sukma Zain</option>
+        <option value="40">Herianto, Lc.</option>
+        <option value="25">Ilham Nurhakim, Lc.</option>
+        <option value="18">Irfan Halim, Lc.</option>
+        <option value="47">Irfan Zein, Lc.</option>
+        <option value="22">M.S. Haromain, S.I.Kom.</option>
+        <option value="12">Mohamad Alam Novian, M. Pd.</option>
+        <option value="51">Mufti Al Farizi</option>
+        <option value="6">Muh. Halidi, S.Si.</option>
+        <option value="3">Muh. Yunus, S.Pd.</option>
+        <option value="20">Muhammad Ikhsan, S. Pd.</option>
+        <option value="17">Muhammad Mukhtar, Lc., M.H.I.</option>
+        <option value="24">Mutholib, Lc.</option>
+        <option value="1">Nuralim, Lc.</option>
+        <option value="41">Nurmawan</option>
+        <option value="39">Panji Asmara</option>
+        <option value="5">Priyo Widodo, S.Pi.</option>
+        <option value="46">Radivan Tiravi</option>
+        <option value="7">Rayis Syamlan, S.T.</option>
+        <option value="34">Rifqi Aqwamuddin, Lc.</option>
+        <option value="28">Ruslan, S.Pd.</option>
+        <option value="32">Saeful Anshar, M.Pd.</option>
+        <option value="21">Suharyadi, M. Pd., Gr.</option>
+        <option value="45">Syafiq Muhammad Rwenky, B.A.</option>
+        <option value="42">Tri Setyo Mardi Utomo, S.Pd</option>
+        <option value="48">Umar Ahmad Ali</option>
+        <option value="4">Uus Rusytandi, M.Pd.</option>
+        <option value="19">Wawanto, S. Si.</option>
+        <option value="37">Zainal Abidin, Lc.</option>
+        <option value="15">Zainal Arifin, Lc.</option>
+      </select>
+    </div>
+
+    <input type="submit" id="submit" value="Input Data"
+      class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 mt-4">
+    <div id="loading"
+      class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
+      <div class="loader"></div>
+      <p>Loading ...</p>
+    </div>
+  </form>
+</dialog>
+
+
+<script>
+  let report_id = null;
+  let reporter_time_id = null;
+  let reporter_date = null;
+  report_ids = document.getElementsByClassName("report_id");
+  const reporters = document.getElementsByClassName("reporters");
+  const dialog = document.querySelector("dialog");
+  const dialogreporter = document.querySelector("dialog#petugas");
+  const report_form = document.getElementById("report_form");
+  const reporter_form = document.getElementById("reporter_form");
+  const closeButton = document.querySelector("dialog button");
+  const closeButtonReporter = document.querySelector("dialog#petugas button");
+  const submit = document.getElementById("submit");
+  const loading = document.getElementById("loading");
+
+
+  for (const element of report_ids) {
+    element.addEventListener('click', (e) => {
+      report_form.setAttribute("action", `/report/update-v2/${element.id}/`)
+      report_id = element.id
+      dialogreporter.close()
+      dialog.showModal()
+    })
+  }
+  
+  for (const reporter of reporters) {
+    reporter.addEventListener('click', (e) => {
+      [date, time] = reporter.id.split("__")
+      reporter_form.setAttribute("action", `/report/update/reporter-v3/${date}/${time}/`);
+      reporter_time_id = time;
+      reporter_date = date;
+      dialog.close();
+      dialogreporter.showModal();
+    })
+  }
+
+  // "Close" button closes the dialog
+  closeButton.addEventListener("click", () => {
+    dialog.close();
+  })
+  // "Close" button closes the dialog
+  closeButtonReporter.addEventListener("click", () => {
+    dialogreporter.close();
+  })
+
+
+  dialog.addEventListener('click', (event) => {
+    const rect = dialog.getBoundingClientRect();
+    if (
+      event.clientX < rect.left ||
+      event.clientX > rect.right ||
+      event.clientY < rect.top ||
+      event.clientY > rect.bottom
+    ) {
+      dialog.close();
+    }
+  })
+
+    document.getElementById('report_form').addEventListener("submit", (e)=>{
+      e.preventDefault()
+      p_id = document.getElementById(`p_${report_id}`)
+      // console.log(report_form)
+      const report_form_data = new FormData(report_form);
+      status = report_form_data.get("status")
+      p_id.classList.remove("bg-green-500", "bg-indigo-500", "bg-red-500", "bg-yellow-600")
+      p_id.innerText = status
+      fetch(`/report/update-v3/${report_id}/`, {
+        method: 'POST',
+        body: report_form_data
+      }).then(response => {
+        console.log('Forms submitted successfully:', response);
+        if(response.status == 200){
+          dialog.close()
+          loading.classList.add("hidden")
+          submit.classList.remove("hidden")
+        }
+      }).catch(error => {
+        console.error('Error submitting forms:', error);
+      });
+    })
+
+  submit.addEventListener("click", ()=>{
+    loading.classList.remove("hidden")
+    submit.classList.add("hidden")
+  })
+
+</script>
+
+{% endblock content %}
