@@ -122,32 +122,16 @@
         <thead>
           <th class="p-2 border border-gray-400 bg-blue-100 text-black">No</th>
           <th class="p-2 border border-gray-400 bg-blue-100 text-black">Pengajar</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Hadir (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Sakit (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Izin (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Alpha (Jam)</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Tanggal</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Status</th>
         </thead>
         <tbody>
           {% for object in object_list %}
           <tr>
             <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
             <td class="p-2 border border-gray-400">{{object.schedule__schedule_course__teacher__first_name}}</td>
-            <td class="p-2 border border-gray-400 text-center">{{object.hadir_count|default:"-"}}</td>
-            <td class="p-2 border border-gray-400 text-center">
-              <a href="{% url 'dashboard-teachers-detail' object.schedule__schedule_course__teacher %}" class="bg-indigo-500 rounded-md py-1 px-3 font-semibold">
-                {{object.izin_count|default:"0"}}
-              </a>
-            </td>
-            <td class="p-2 border border-gray-400 text-center">
-              <a href="{% url 'dashboard-teachers-detail' object.schedule__schedule_course__teacher %}" class="bg-yellow-600 rounded-md py-1 px-3 font-semibold">
-                {{object.sakit_count|default:"0"}}
-              </a>
-            </td>
-            <td class="p-2 border border-gray-400 text-center">
-              <a href="{% url 'dashboard-teachers-detail' object.schedule__schedule_course__teacher %}" class="bg-red-500 rounded-md py-1 px-3 font-semibold">
-                {{object.alpha_count|default:"0"}}
-              </a>
-            </td>
+            <td class="p-2 border border-gray-400 text-center">{{object.report_date|default:"-"}}</td>
+            <td class="p-2 border border-gray-400 text-center">{{object.status|default:"-"}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -178,5 +162,4 @@
   
 
 </main>
-
 {% endblock content %}
