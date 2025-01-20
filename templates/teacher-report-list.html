@@ -2,14 +2,18 @@
 
 {% block content %}
 <main class="p-4 sm:ml-64 overflow-auto">
-  <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Teacher Dashboard</h1>
+  <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Teacher Recap Detail</h1>
   <!-- Breadcrumb -->
   <div class="flex items-center gap-2">
     <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
     <p class="text-2xl">
       &triangleright;
     </p>
-    <a href="{% url 'dashboard-teachers' %}">Teacher Dashboard</a>
+    <a href="{% url 'dashboard-teachers' %}">Teacher Recap</a>
+    <p class="text-2xl">
+      &triangleright;
+    </p>
+    <a href="">Teacher Recap Detail</a>
   </div>
 
   {% if messages %}
@@ -116,6 +120,8 @@
         </span>
       </div>
       {% endif %}
+
+      
       {% if object_list %}
       <table class="table-auto border-collapse w-full">
         <caption class="my-2 font-semibold">Daftar Guru</caption>

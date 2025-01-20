@@ -60,7 +60,7 @@
       </div>
       <div class="hidden lg:flex lg:gap-x-12">
         <a href="{% url 'home' %}" class="text-sm font-semibold leading-6 text-gray-100">Beranda</a>
-        <a href="{% url 'report-quick-create-v2' %}" class="text-sm font-semibold leading-6 text-gray-100">Laporan</a>
+        <a href="{% url 'report-quick-create-v3' %}" class="text-sm font-semibold leading-6 text-gray-100">Laporan</a>
         <a href="{% url 'class-list' %}" class="text-sm font-semibold leading-6 text-gray-100">Kelas</a>
         <a href="{% url 'course-list' %}" class="text-sm font-semibold leading-6 text-gray-100">Pelajaran</a>
         <a href="{% url 'schedule-list' %}" class="text-sm font-semibold leading-6 text-gray-100">Jadwal</a>
@@ -127,7 +127,7 @@
             <div class="space-y-2 py-6">
               <a href="{% url 'home' %}"
                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 dark:text-white hover:bg-gray-50">Beranda</a>
-              <a href="{% url 'report-quick-create-v2' %}"
+              <a href="{% url 'report-quick-create-v3' %}"
                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 dark:text-white hover:bg-gray-50">Laporan</a>
                 <a href="{% url 'class-list' %}" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 dark:text-white hover:bg-gray-50">Kelas</a>
                 <a href="{% url 'course-list' %}" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 dark:text-white hover:bg-gray-50">Pelajaran</a>
@@ -206,7 +206,7 @@
           <a href="{% url 'home' %}" class="transition hover:text-gray-700/75">Beranda</a>
         </li>
         <li>
-          <a href="{% url 'report-quick-create-v2' %}" class="transition hover:text-gray-700/75">Laporan</a>
+          <a href="{% url 'report-quick-create-v3' %}" class="transition hover:text-gray-700/75">Laporan</a>
         </li>
         <li>
           <a href="{% url 'class-list' %}" class="transition hover:text-gray-700/75">Kelas</a>
@@ -255,7 +255,7 @@
   <div class="lg:hidden sticky bottom-0 left-0 text-center p-2" id="bottom-menu">
     <div class="flex justify-center p-2 px-6 dark:bg-gray-800 bg-blue-600 rounded-lg">
       <a href="{% url 'home' %}"><p class="px-4 py-2 mx-2 text-sm {{home}} rounded-lg flex flex-col">&#127968;<span class="text-xs text-black font-semibold">Home</span></p></a>
-      <a href="{% url 'report-quick-create-v2' %}"><p class="px-4 py-2 mx-2 text-sm {{report}} rounded-lg flex flex-col">&#128221;<span class="text-xs text-black font-semibold">Report</span></p></a>
+      <a href="{% url 'report-quick-create-v3' %}"><p class="px-4 py-2 mx-2 text-sm {{report}} rounded-lg flex flex-col">&#128221;<span class="text-xs text-black font-semibold">Report</span></p></a>
       <a href="{% url 'menu' %}"><p class="px-4 py-2 mx-2 text-sm bg-gray-300 rounded-lg {{menu}} flex flex-col">&#128241;<span class="text-xs text-black font-semibold">Menu</span></p></a>
       {% if request.user.is_authenticated %}
       <a href="{% url 'profile' %}"><p class="px-4 py-2 mx-2 text-sm bg-gray-300 {{profile}} rounded-lg flex flex-col">&#128100;<span class="text-xs text-black font-semibold">Profile</span></p></a>

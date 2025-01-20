@@ -82,7 +82,7 @@
             {% for object in data %}
             <td class="p-2 border border-gray-400 text-center">
               {% if object.status == "Hadir" %}
-              <a href="#" id="{{object.id}}" class="report_id">
+              <button type="button" id="{{object.id}}" class="report_id">
                 <p
                   class="bg-green-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
                   {{object.status}} <span class="text-md p-1 bg-green-500 border-2 border-white rounded-full">
@@ -92,9 +92,9 @@
                         d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
                     </svg></span>
                 </p>
-              </a>
+              </button>
               {% elif object.status == "Sakit" %}
-              <a href="#" id="{{object.id}}" class="report_id">
+              <button type="button" id="{{object.id}}" class="report_id">
                 <p
                   class="bg-yellow-600 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
                   {{object.status}} <span class="text-md p-1 bg-yellow-600 border-2 border-white rounded-full"><svg
@@ -103,9 +103,9 @@
                       <path fill-rule="evenodd"
                         d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
                     </svg></span></p>
-              </a>
+              </button>
               {% elif object.status == "Izin" %}
-              <a href="#" id="{{object.id}}" class="report_id">
+              <button type="button" id="{{object.id}}" class="report_id">
                 <p
                   class="bg-lime-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
                   {{object.status}} <span class="text-md p-1 bg-lime-500 border-2 border-white rounded-full"><svg
@@ -114,9 +114,9 @@
                       <path fill-rule="evenodd"
                         d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
                     </svg></span></p>
-              </a>
+              </button>
               {% elif object.status == "Tanpa Keterangan" %}
-              <a href="#" id="{{object.id}}" class="report_id">
+              <button type="button" id="{{object.id}}" class="report_id">
                 <p
                   class="bg-red-500 p-1 rounded-md text-sm text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
                   Alpha <span class="text-md p-1 bg-red-500 border-2 border-white rounded-full"><svg
@@ -125,7 +125,7 @@
                       <path fill-rule="evenodd"
                         d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
                     </svg></span></p>
-              </a>
+              </button>
               {% endif %}
               {% if object.no_status %}
               <span
@@ -136,7 +136,7 @@
             </td>
             {% endfor %}
             <td class="p-2 border border-gray-400 text-center">
-              <a href="{% url 'report-update-reporter' query_date forloop.counter %}">
+              <button type="button" class="reporters" id="{{query_date}}__{{forloop.counter}}">
                 <p
                   class="bg-yellow-600 p-1 rounded-md text-xs text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
                   Petugas Piket<span class="text-md p-1 bg-yellow-600 border-2 border-white rounded-full"><svg
@@ -146,7 +146,7 @@
                         d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
                     </svg></span>
                 </p>
-              </a>
+              </button>
               <p class="text-xs">{{data.first.reporter.last_name|default:"Belum input"}}</p>
             </td>
           </tr>
@@ -159,9 +159,9 @@
 
 </main>
 
-<dialog>
-  <button autofocus>Close</button>
-  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 w-full p-6" id="report_form">
+<dialog class="bg-gray-300 rounded-md">
+  <button autofocus class="absolute end-0 text-2xl p-2 me-3">&Cross;</button>
+  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 bg-gray-300 w-full p-6 my-2" id="report_form">
     {% csrf_token %}
 
     <div class="flex flex-col">
@@ -236,29 +236,127 @@
 
     <div class="flex flex-col">
       <label for="id_duty">Tugas:</label>
-      <textarea name="duty" cols="40" rows="10"
+      <textarea name="duty" cols="40" rows="4"
         class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg" maxlength="250"
-        aria-describedby="id_duty_helptext" id="id_duty">
-      </textarea>
+        aria-describedby="id_duty_helptext" id="id_duty"></textarea>
       <p class="p-2 italic text-xs" id="id_duty_helptext">
         Opsional. Jika ada
       </p>
+    </div>
+    <input type="submit" id="submit" value="Input Data"
+      class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 mt-4">
+    <div id="loading"
+      class="hidden flex gap-4 justify-center items-center text-black p-2 bg-gray-300 rounded-md cursor-pointer my-4">
+      <div class="loader"></div>
+      <p>Loading ...</p>
+    </div>
+  </form>
+</dialog>
+
+
+<dialog id="petugas" class="bg-gray-300 rounded-md">
+  <button autofocus class="absolute end-0 py-1 px-2 text-2xl">&Cross;</button>
+  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col bg-gray-300 gap-2 w-full p-6" id="reporter_form">
+    {% csrf_token %}
+
+    <div class="flex flex-col">
+      <label for="id_reporter">Petugas Piket:</label>
+      <select name="reporter"
+        class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg"
+        id="id_reporter">
+        <option value="" selected>---------</option>
+        <option value="30">Aam Hamdani, S.Pd.</option>
+        <option value="2">Abdul Rachman, S.Si.</option>
+        <option value="38">Abdus Shomad, Lc., M.A.</option>
+        <option value="36">Agung Wahyu Adhy, Lc.</option>
+        <option value="11">Agus Setiawan, S.T.</option>
+        <option value="35">Ahmad Reza Febrianto</option>
+        <option value="52">Al Ghozali</option>
+        <option value="31">Alif Rezky, M.Pd.</option>
+        <option value="50">Anjasmara</option>
+        <option value="23">Arie Afriansyah, Lc.</option>
+        <option value="27">Azhar Fathurrahman, S.Pd.</option>
+        <option value="16">Bahtiar, S.Pd.</option>
+        <option value="13">Chevi Indrayadi, S.Si.</option>
+        <option value="10">Dadan Ridwanuloh, M.Si.</option>
+        <option value="8">Dany Wardhiman, S.Pd.</option>
+        <option value="9">Deden Anugerah, M.Pfis.</option>
+        <option value="29">Firyan Ramdhani, S.Pd.</option>
+        <option value="33">Hario Sadewo P, S.Pd.</option>
+        <option value="14">Harlan, S. Pd.</option>
+        <option value="49">Helmi Sukma Zain</option>
+        <option value="40">Herianto, Lc.</option>
+        <option value="25">Ilham Nurhakim, Lc.</option>
+        <option value="18">Irfan Halim, Lc.</option>
+        <option value="47">Irfan Zein, Lc.</option>
+        <option value="22">M.S. Haromain, S.I.Kom.</option>
+        <option value="12">Mohamad Alam Novian, M. Pd.</option>
+        <option value="51">Mufti Al Farizi</option>
+        <option value="6">Muh. Halidi, S.Si.</option>
+        <option value="3">Muh. Yunus, S.Pd.</option>
+        <option value="20">Muhammad Ikhsan, S. Pd.</option>
+        <option value="17">Muhammad Mukhtar, Lc., M.H.I.</option>
+        <option value="24">Mutholib, Lc.</option>
+        <option value="1">Nuralim, Lc.</option>
+        <option value="41">Nurmawan</option>
+        <option value="39">Panji Asmara</option>
+        <option value="5">Priyo Widodo, S.Pi.</option>
+        <option value="46">Radivan Tiravi</option>
+        <option value="7">Rayis Syamlan, S.T.</option>
+        <option value="34">Rifqi Aqwamuddin, Lc.</option>
+        <option value="28">Ruslan, S.Pd.</option>
+        <option value="32">Saeful Anshar, M.Pd.</option>
+        <option value="21">Suharyadi, M. Pd., Gr.</option>
+        <option value="45">Syafiq Muhammad Rwenky, B.A.</option>
+        <option value="42">Tri Setyo Mardi Utomo, S.Pd</option>
+        <option value="48">Umar Ahmad Ali</option>
+        <option value="4">Uus Rusytandi, M.Pd.</option>
+        <option value="19">Wawanto, S. Si.</option>
+        <option value="37">Zainal Abidin, Lc.</option>
+        <option value="15">Zainal Arifin, Lc.</option>
+      </select>
+    </div>
+
+    <input type="submit" id="submit" value="Input Data"
+      class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 mt-4">
+    <div id="loading"
+      class="hidden flex gap-4 justify-center items-center text-black p-2 bg-gray-300 rounded-md cursor-pointer my-4">
+      <div class="loader"></div>
+      <p>Loading ...</p>
     </div>
   </form>
 </dialog>
 
 <script>
+  
+  let reporter_time_id = null;
+  let reporter_date = null;
   report_ids = document.getElementsByClassName("report_id");
+  const reporters = document.getElementsByClassName("reporters");
   const dialog = document.querySelector("dialog");
+  const dialogreporter = document.querySelector("dialog#petugas");
   const report_form = document.getElementById("report_form");
+  const reporter_form = document.getElementById("reporter_form");
   const closeButton = document.querySelector("dialog button");
+  const closeButtonReporter = document.querySelector("dialog#petugas button");
+  const submit = document.getElementById("submit");
+  const loading = document.getElementById("loading");
 
   for (const element of report_ids) {
     element.addEventListener('click', (e) => {
-      console.log(element.id)
-      console.log(e.target.innerText)
       report_form.setAttribute("action", `/report/update-v2/${element.id}/`)
       dialog.showModal()
+    })
+  }
+
+  for (const reporter of reporters) {
+    reporter.addEventListener('click', (e) => {
+      [date, time] = reporter.id.split("__")
+      reporter_form.setAttribute("action", `/report/update/reporter/${date}/${time}/`);
+      reporter_time_id = time;
+      reporter_date = date;
+      dialog.close();
+      dialogreporter.showModal();
     })
   }
 
@@ -266,6 +364,12 @@
   // "Close" button closes the dialog
   closeButton.addEventListener("click", () => {
     dialog.close();
+  })
+
+  
+  // "Close" button closes the dialog
+  closeButtonReporter.addEventListener("click", () => {
+    dialogreporter.close();
   })
   
   dialog.addEventListener('click', (event) => {
@@ -279,6 +383,13 @@
           dialog.close();
       }
   });
+
+  submit.addEventListener("click", ()=>{
+    loading.classList.remove("hidden")
+    submit.classList.add("hidden")
+  })
+
+
 
 </script>
 {% endblock content %}

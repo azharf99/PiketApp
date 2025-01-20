@@ -21,19 +21,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from utils.menu_link import export_home_kwargs
-from utils.views import DashboardListView, TeacherDashboardListView, TeacherDashboardDetailView, TeacherReportDownloadExcelView, \
-                        ReporterDashboardListView, ReporterReportDownloadExcelView
+from utils.views import DashboardListView, TeacherRecapListView, TeacherRecapDetailView, TeacherRecapDownloadExcelView, \
+                        ReporterRecapListView, ReporterRecapDownloadExcelView
 
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), export_home_kwargs("home", "PIKET"), "home"),
     path('menu/', TemplateView.as_view(template_name='menu.html'), export_home_kwargs("menu", "MENU PIKET"), "menu"),
     path('dashboard/', DashboardListView.as_view(template_name='dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD PIKET"), "dashboard"),
-    path('dashboard/teachers/', TeacherDashboardListView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD GURU"), "dashboard-teachers"),
-    path('dashboard/teachers/<int:teacher_id>/detail/', TeacherDashboardDetailView.as_view(template_name='teacher-report-list.html'), export_home_kwargs("dashboard", "DASHBOARD GURU"), "dashboard-teachers-detail"),
-    path('dashboard/teachers/download/', TeacherReportDownloadExcelView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DOWNLOAD TEACHER REPORT"), "dashboard-teachers-download"),
-    path('dashboard/reporters/', ReporterDashboardListView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD PETUGAS PIKET"), "dashboard-reporters"),
-    path('dashboard/reporters/download/', ReporterReportDownloadExcelView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DOWNLOAD PETUGAS PIKET"), "dashboard-reporters-download"),
+    path('dashboard/teachers/', TeacherRecapListView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD GURU"), "dashboard-teachers"),
+    path('dashboard/teachers/<int:teacher_id>/detail/', TeacherRecapDetailView.as_view(template_name='teacher-report-list.html'), export_home_kwargs("dashboard", "DASHBOARD GURU"), "dashboard-teachers-detail"),
+    path('dashboard/teachers/download/', TeacherRecapDownloadExcelView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DOWNLOAD TEACHER REPORT"), "dashboard-teachers-download"),
+    path('dashboard/reporters/', ReporterRecapListView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DASHBOARD PETUGAS PIKET"), "dashboard-reporters"),
+    path('dashboard/reporters/download/', ReporterRecapDownloadExcelView.as_view(template_name='teacher-dashboard.html'), export_home_kwargs("dashboard", "DOWNLOAD PETUGAS PIKET"), "dashboard-reporters-download"),
     path('accounts/', include('users.urls')),
     path('admin/', admin.site.urls),
     path('class/', include('classes.urls')),

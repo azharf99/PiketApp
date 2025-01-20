@@ -72,7 +72,7 @@ class DashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
         return data
 
     
-class TeacherDashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
+class TeacherRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = "report"
     permission_required = 'reports.view_report'
@@ -100,7 +100,7 @@ class TeacherDashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
         return context
     
 
-class TeacherDashboardDetailView(BaseAuthorizedModelView, BaseModelQueryListView):
+class TeacherRecapDetailView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = "report"
     permission_required = 'reports.view_report'
@@ -123,7 +123,7 @@ class TeacherDashboardDetailView(BaseAuthorizedModelView, BaseModelQueryListView
         return context
 
 
-class TeacherReportDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListView):
+class TeacherRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
@@ -161,29 +161,31 @@ class TeacherReportDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
     
 
 
-class ReporterDashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
+class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = "report"
     permission_required = 'reports.view_report'
     raise_exception = False
 
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
-        query_year = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
-
+        query_month = self.request.GET.get('query_month') or datetime.now().month
+        query_year = self.request.GET.get('query_year') or datetime.now().year
         return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
-                             .filter(report_date__month=query_month, report_date__year=query_year)\
-                             .values('schedule__schedule_course__teacher__first_name', 'status').annotate(dcount=Count('status')).distinct().order_by('status')
+                             .filter(report_date__month=query_month, report_date__year=query_year, reporter__isnull=False)\
+                             .values('reporter__first_name')\
+                             .annotate(hadir_count=Count('reporter__first_name')/15)\
+                             .order_by('-hadir_count')
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["query_month"] = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
-        context["query_year"] = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
+        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
+        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
+        context["reporters"] = True
         return context
     
 
 
-class ReporterReportDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListView):
+class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
@@ -194,20 +196,22 @@ class ReporterReportDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryLis
         query_year = self.request.GET.get('query_year') or datetime.now().year
 
         return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
-                             .filter(report_date__month=query_month, report_date__year=query_year)\
-                             .values('schedule__schedule_course__teacher__first_name', 'status').annotate(dcount=Count('status')).distinct().order_by('status')
+                             .filter(report_date__month=query_month, report_date__year=query_year, reporter__isnull=False)\
+                             .values('reporter__first_name')\
+                             .annotate(hadir_count=Count('reporter__first_name')/15)\
+                             .order_by('-hadir_count')
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         buffer = BytesIO()
         workbook = Workbook(buffer)
         worksheet = workbook.add_worksheet()
-        worksheet.write_row(0, 0, ['No', 'GURU', 'STATUS', 'JUMLAH JAM'])
+        worksheet.write_row(0, 0, ['No', 'PETUGAS PIKET', 'JUMLAH JAM'])
         row = 1
         
         for data in self.get_queryset():
-            worksheet.write_row(row, 0, [row, data.get("schedule__schedule_course__teacher__first_name"), data.get("status"), data.get("dcount")])
+            worksheet.write_row(row, 0, [row, data.get("reporter__first_name"), data.get("hadir_count")])
             row += 1
         worksheet.autofit()
         workbook.close()
         buffer.seek(0)
-        return FileResponse(buffer, as_attachment=True, filename=f'REKAP KEHADIRAN GURU SMA IT Al Binaa.xlsx')
+        return FileResponse(buffer, as_attachment=True, filename=f'REKAP KEHADIRAN PIKET SMA IT Al Binaa.xlsx')

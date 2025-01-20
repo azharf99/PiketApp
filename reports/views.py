@@ -2,7 +2,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.forms import BaseModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import get_list_or_404, redirect
 from django.views.generic import CreateView, UpdateView, DetailView, FormView, ListView
 from reports.forms import ReportForm, ReportFormV2, ReportUpdatePetugasForm
 from reports.models import Report
@@ -98,9 +98,6 @@ class ReportQuickCreateViewV3(BaseAuthorizedModelView, CreateView):
         grouped_report_data = []
         if day == "Ahad":
             for i in range(1, 8):
-                # data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
-                #                     .filter(report_date=valid_date, schedule__schedule_time=i)\
-                #                     .values("id", "status").order_by()
                 data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
                                     .filter(report_date=valid_date, schedule__schedule_time=i)\
                                     .values("id", "status", "reporter__last_name",
@@ -111,16 +108,12 @@ class ReportQuickCreateViewV3(BaseAuthorizedModelView, CreateView):
             for i in range(1, 10):
                 data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
                                     .filter(report_date=valid_date, schedule__schedule_time=i)\
-                                    .values("id").order_by()
-                # print(data)
-                # data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
-                #                     .filter(report_date=valid_date, schedule__schedule_time=i)\
-                #                     .values("id", "status", "subtitute_teacher__firstname", "reporter__last_name"
-                #                             "schedule__schedule_course__teacher__last_name",
-                #                             "schedule__schedule_course__course_short_name").order_by()
+                                    .values("id", "status", "reporter__last_name",
+                                            "schedule__schedule_course__teacher__last_name",
+                                            "schedule__schedule_course__course_short_name").order_by()
                 grouped_report_data.append(data)
-        else:
-            grouped_report_data.append([])
+
+        
         context = super().get_context_data(**kwargs)
         context["grouped_report_data"] = grouped_report_data
         context["class"] = ['10A', '10B', '10C', '10D', '10E', '11A', '11B', '11C', '11D', '11E', '12A', '12B', '12C', '12D', '12E']

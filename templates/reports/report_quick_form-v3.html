@@ -13,7 +13,7 @@
     <p class="text-2xl">
       &triangleright;
     </p>
-    <a href="{% url 'report-quick-create-v2' %}">Report Quick Input View</a>
+    <a href="{% url 'report-quick-create-v3' %}">Report Quick Input View</a>
   </div>
 
   {% if messages %}
@@ -46,7 +46,7 @@
     </a>
   </div>
   <div class="p-2 flex justify-center items-center">
-    <form action="{% url 'report-quick-create-v2' %}" method="get" class="flex justify-start items-center flex-wrap">
+    <form action="{% url 'report-quick-create-v3' %}" method="get" class="flex justify-start items-center flex-wrap">
       <label for="query_date">Tanggal</label>
       <input type="date" name="query_date" id="query_date" {% if query_date %} value="{{query_date}}" {% endif %}
         class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
@@ -237,10 +237,9 @@
 
     <div class="flex flex-col">
       <label for="id_duty">Tugas:</label>
-      <textarea name="duty" cols="40" rows="10"
+      <textarea name="duty" cols="40" rows="4"
         class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg" maxlength="250"
-        aria-describedby="id_duty_helptext" id="id_duty">
-      </textarea>
+        aria-describedby="id_duty_helptext" id="id_duty"></textarea>
       <p class="p-2 italic text-xs" id="id_duty_helptext">
         Opsional. Jika ada
       </p>
@@ -249,7 +248,7 @@
     <input type="submit" id="submit" value="Input Data"
       class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 mt-4">
     <div id="loading"
-      class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
+      class="hidden flex gap-4 justify-center items-center text-black p-2 bg-gray-300 rounded-md cursor-pointer my-4">
       <div class="loader"></div>
       <p>Loading ...</p>
     </div>
@@ -323,7 +322,7 @@
     <input type="submit" id="submit" value="Input Data"
       class="text-white p-2 bg-blue-500 rounded-md cursor-pointer hover:bg-fuchsia-500 mt-4">
     <div id="loading"
-      class="hidden flex gap-4 justify-center items-center text-white p-2 bg-blue-500 rounded-md cursor-pointer my-4">
+      class="hidden flex gap-4 justify-center items-center text-black p-2 bg-gray-300 rounded-md cursor-pointer my-4">
       <div class="loader"></div>
       <p>Loading ...</p>
     </div>
@@ -371,6 +370,8 @@
   closeButton.addEventListener("click", () => {
     dialog.close();
   })
+
+  
   // "Close" button closes the dialog
   closeButtonReporter.addEventListener("click", () => {
     dialogreporter.close();
