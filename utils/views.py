@@ -1,3 +1,4 @@
+import calendar
 from io import BytesIO
 from typing import Any
 from django.db.models.query import QuerySet
@@ -17,6 +18,7 @@ from xlsxwriter import Workbook
 class DashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     queryset = Report.objects.all()
+    template_name = 'dashboard.html'
     menu_name = "report"
     permission_required = 'reports.view_report'
     raise_exception = False
@@ -76,12 +78,12 @@ class TeacherRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = "report"
     permission_required = 'reports.view_report'
+    template_name = 'teacher-dashboard.html'
     raise_exception = False
 
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
-        query_year = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
-
+        query_month = self.request.GET.get('query_month') or datetime.now().month
+        query_year = self.request.GET.get('query_year') or datetime.now().year
         return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
                              .filter(report_date__month=query_month, report_date__year=query_year)\
                              .values('schedule__schedule_course__teacher','schedule__schedule_course__teacher__first_name')\
@@ -90,13 +92,43 @@ class TeacherRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
                                  izin_count=Count('status',  filter=Q(status="Izin")),
                                  sakit_count=Count('status',  filter=Q(status="Sakit")),
                                  alpha_count=Count('status',  filter=Q(status="Tanpa Keterangan")),
+                                 all_count=Count('status'),
                                  )\
                              .distinct().order_by()
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["query_month"] = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
-        context["query_year"] = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
+        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
+        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
+        
+        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
+        last_day_of_month = calendar.monthrange(int(context["query_year"]), int(context["query_month"]))[1]
+        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
+        return context
+    
+
+class TeacherAbsenceListView(BaseAuthorizedModelView, BaseModelQueryListView):
+    model = Report
+    menu_name = "report"
+    permission_required = 'reports.view_report'
+    template_name = 'teacher-report-list.html'
+    raise_exception = False
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query_month = self.request.GET.get('query_month') or datetime.now().month
+        query_year = self.request.GET.get('query_year') or datetime.now().year
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+                             .filter(report_date__month=query_month, report_date__year=query_year, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
+        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
+        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
+        last_day_of_month = calendar.monthrange(context["query_year"], context["query_month"])[1]
+        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
         return context
     
 
@@ -105,21 +137,24 @@ class TeacherRecapDetailView(BaseAuthorizedModelView, BaseModelQueryListView):
     menu_name = "report"
     permission_required = 'reports.view_report'
     raise_exception = False
+    template_name = 'teacher-report-list.html'
 
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
-        query_year = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
+        query_month = self.request.GET.get('query_month') or datetime.now().month
+        query_year = self.request.GET.get('query_year') or datetime.now().year
         teacher_id = self.kwargs.get("teacher_id")
-        data = super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
                              .filter(report_date__month=query_month, report_date__year=query_year, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
-                             .values('report_date','schedule__schedule_course__teacher__first_name', "status")\
-                             .distinct().order_by("-report_date", "status")
-        return data
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["query_month"] = self.request.GET.get('query_month', datetime.now().month) if self.request.GET.get('query_month') else datetime.now().month
-        context["query_year"] = self.request.GET.get('query_year', datetime.now().year) if self.request.GET.get('query_year') else datetime.now().year
+        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
+        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
+        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
+        last_day_of_month = calendar.monthrange(context["query_year"], context["query_month"])[1]
+        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
         return context
 
 
@@ -127,7 +162,7 @@ class TeacherRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListV
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
-    template_name = 'reports/download.html'
+    template_name='teacher-dashboard.html'
     
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -141,6 +176,7 @@ class TeacherRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListV
                                  izin_count=Count('status',  filter=Q(status="Izin")),
                                  sakit_count=Count('status',  filter=Q(status="Sakit")),
                                  alpha_count=Count('status',  filter=Q(status="Tanpa Keterangan")),
+                                 all_count=Count('status'),
                                  )\
                              .distinct().order_by()
     
@@ -148,16 +184,80 @@ class TeacherRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListV
         buffer = BytesIO()
         workbook = Workbook(buffer)
         worksheet = workbook.add_worksheet()
-        worksheet.write_row(0, 0, ['No', 'GURU', 'HADIR', 'IZIN', 'SAKIT', 'ALPHA'])
+        worksheet.write_row(0, 0, ['No', 'GURU', 'HADIR', 'IZIN', 'SAKIT', 'ALPHA', 'PERSENTASE'])
         row = 1
         
         for data in self.get_queryset():
-            worksheet.write_row(row, 0, [row, data.get("schedule__schedule_course__teacher__first_name"), data.get("hadir_count"), data.get("izin_count"), data.get("sakit_count"), data.get("alpha_count")])
+            percentage = "{:.2f}".format(data.get("hadir_count")/data.get("all_count")*100)
+            worksheet.write_row(row, 0, [row, data.get("schedule__schedule_course__teacher__first_name"), data.get("hadir_count"), data.get("izin_count"), data.get("sakit_count"), data.get("alpha_count"), f"{percentage}%"])
             row += 1
         worksheet.autofit()
         workbook.close()
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=True, filename=f'REKAP KEHADIRAN GURU SMA IT Al Binaa.xlsx')
+    
+
+class TeacherAbsenceDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListView):
+    model = Report
+    menu_name = 'report'
+    permission_required = 'reports.view_report'
+    template_name='teacher-dashboard.html'
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        query_month = self.request.GET.get('query_month') or datetime.now().month
+        query_year = self.request.GET.get('query_year') or datetime.now().year
+
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+                             .filter(report_date__month=query_month, report_date__year=query_year, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        buffer = BytesIO()
+        workbook = Workbook(buffer)
+        worksheet = workbook.add_worksheet()
+        worksheet.write_row(0, 0, ['No', 'TANGGAL', 'GURU', 'KELAS', 'JAM KE', 'STATUS', 'KETERANGAN'])
+        row = 1
+        
+        for data in self.get_queryset():
+            worksheet.write_row(row, 0, [row, str(data.get("report_date")), data.get("schedule__schedule_course__teacher__first_name"), data.get("schedule__schedule_class__short_class_name"), data.get("schedule__schedule_time"), data.get("status")])
+            row += 1
+        worksheet.autofit()
+        workbook.close()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=f'REKAP KETIDAKHADIRAN GURU SMA IT Al Binaa.xlsx')
+    
+
+class TeacherAbsenceDetailDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListView):
+    model = Report
+    menu_name = 'report'
+    permission_required = 'reports.view_report'
+    template_name='teacher-dashboard.html'
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        query_month = self.request.GET.get('query_month') or datetime.now().month
+        query_year = self.request.GET.get('query_year') or datetime.now().year
+        teacher_id = self.kwargs.get("teacher_id")
+
+        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+                             .filter(report_date__month=query_month, report_date__year=query_year, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        buffer = BytesIO()
+        workbook = Workbook(buffer)
+        worksheet = workbook.add_worksheet()
+        worksheet.write_row(0, 0, ['No', 'TANGGAL', 'GURU', 'KELAS', 'JAM KE', 'STATUS', 'KETERANGAN'])
+        row = 1
+        
+        for data in self.get_queryset():
+            worksheet.write_row(row, 0, [row, str(data.get("report_date")), data.get("schedule__schedule_course__teacher__first_name"), data.get("schedule__schedule_class__short_class_name"), data.get("schedule__schedule_time"), data.get("status")])
+            row += 1
+        worksheet.autofit()
+        workbook.close()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=f'DETAIL KETIDAKHADIRAN GURU SMA IT Al Binaa.xlsx')
     
 
 
@@ -166,6 +266,7 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     menu_name = "report"
     permission_required = 'reports.view_report'
     raise_exception = False
+    template_name = 'teacher-dashboard.html'
 
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -181,6 +282,9 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
         context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
         context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
         context["reporters"] = True
+        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
+        last_day_of_month = calendar.monthrange(context["query_year"], context["query_month"])[1]
+        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
         return context
     
 
@@ -189,7 +293,7 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
-    template_name = 'reports/download.html'
+    template_name='teacher-dashboard.html'
     
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month

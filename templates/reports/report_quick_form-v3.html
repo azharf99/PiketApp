@@ -239,6 +239,16 @@
     </div>
 
     <div class="flex flex-col">
+      <label for="id_notes">Keterangan:</label>
+      <textarea name="notes" cols="40" rows="4"
+        class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg" maxlength="250"
+        aria-describedby="id_notes_helptext" id="id_notes"></textarea>
+      <p class="p-2 italic text-xs" id="id_notes_helptext">
+        Opsional. Jika ada
+      </p>
+    </div>
+
+    <div class="flex flex-col">
       <label for="id_duty">Tugas:</label>
       <textarea name="duty" cols="40" rows="4"
         class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg" maxlength="250"

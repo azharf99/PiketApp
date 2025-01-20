@@ -11,6 +11,7 @@ class Report(models.Model):
     report_date = models.DateField(_("Tanggal"))
     report_day = models.CharField(_("Hari"), max_length=20, blank=True, help_text=_("Opsional. Auto-generated"))
     duty = models.TextField(_("Tugas"), max_length=250, blank=True, null=True, help_text=_("Opsional. Jika ada"))
+    notes = models.TextField(_("Keterangan"), max_length=250, blank=True, null=True, help_text=_("Opsional. Jika ada"))
     schedule = models.ForeignKey(Schedule, on_delete=models.SET_NULL, null=True, verbose_name=_("Jadwal"))
     status = models.CharField(_("Status"), max_length=20, choices=STATUS_CHOICES, default=STATUS_CHOICES[1][0])
     subtitute_teacher = models.ForeignKey(User, related_name="subtitute_teacher", on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Guru Pengganti"))
