@@ -204,6 +204,17 @@ class BaseModelUploadView(BaseAuthorizedModelView, FormView):
                             "time_end": df.iloc[i, 6],
                         },
                     )
+                case "ReporterSchedule":
+                    model_name.objects.update_or_create(
+                        pk = df.iloc[i, 0],
+                        defaults={
+                            "schedule_day": df.iloc[i, 1],
+                            "schedule_time": df.iloc[i, 2],
+                            "reporter_id": df.iloc[i, 3] or None,
+                            "time_start": df.iloc[i, 4],
+                            "time_end": df.iloc[i, 5],
+                        },
+                    )
                 case "User":
                     group = get_object_or_404(Group, pk=df.iloc[i, 8])
                     obj, is_created = User.objects.update_or_create(

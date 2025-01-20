@@ -14,6 +14,7 @@ from utils.constants import WEEKDAYS
 class ScheduleView(BaseAuthorizedModelView, ListView):
     model = Schedule
     menu_name = 'schedule'
+    template_name = 'schedules/schedule_view.html'
     queryset = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class")
     permission_required = 'schedules.view_schedule'
     raise_exception = False
