@@ -44,6 +44,9 @@
     <a href="{% url 'dashboard-teachers' %}">
       <p class="p-1 px-2 my-2 bg-blue-500 text-white rounded-md font-semibold">&#128196; Rekap Kehadiran Guru</p>
     </a>
+    <a href="{% url 'dashboard-reporters' %}">
+      <p class="p-1 px-2 my-2 bg-indigo-500 text-white rounded-md font-semibold">&#128196; Rekap Tim Piket</p>
+    </a>
   </div>
   <div class="p-2 flex justify-center items-center">
     <form action="{% url 'report-quick-create-v3' %}" method="get" class="flex justify-start items-center flex-wrap">
@@ -397,7 +400,7 @@
       const report_form_data = new FormData(report_form);
       status = report_form_data.get("status")
       p_id.classList.remove("bg-green-500", "bg-indigo-500", "bg-red-500", "bg-yellow-600")
-      p_id.innerText = status
+      p_id.innerText = `Berubah menjadi: ${status}`
       fetch(`/report/update-v3/${report_id}/`, {
         method: 'POST',
         body: report_form_data

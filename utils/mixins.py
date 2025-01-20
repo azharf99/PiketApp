@@ -1,5 +1,5 @@
 # utils/mixins.py
-from datetime import datetime, date
+from datetime import datetime
 from io import BytesIO
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -8,20 +8,23 @@ from django.db import IntegrityError
 from django.db.models import Q, Model
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
-from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.http import FileResponse, HttpRequest, HttpResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import View, ListView, FormView, DeleteView
+from django.views.generic import View, ListView, FormView, DeleteView, UpdateView
 from pandas import read_excel
 from typing import Any
 from classes.models import Class
 from courses.models import Course
+from reports.forms import ReportFormV2, ReportUpdatePetugasForm
 from reports.models import Report
 from schedules.models import Schedule
+from userlogs.models import UserLog
 from utils.forms import UploadModelForm
 from utils.menu_link import export_menu_link
 from xlsxwriter import Workbook
-from utils.validate_datetime import get_day, parse_to_date, validate_date
+from utils.validate_datetime import get_day, parse_to_date
+from utils.whatsapp_albinaa import send_whatsapp_action
 
 
 # KELAS DEFAULT UNTUK HALAMAN WAJIB LOGIN DAN PERMISSION
@@ -273,70 +276,133 @@ class ModelDownloadExcelView(BaseAuthorizedModelView):
         return FileResponse(buffer, as_attachment=True, filename=self.filename)
 
 class QuickReportMixin(BaseAuthorizedModelView, ListView):
-
+    class_name = ['10A', '10B', '10C', '10D', '10E', '11A', '11B', '11C', '11D', '11E', '12A', '12B', '12C', '12D', '12E']
     grouped_report_data = []
 
-    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        self.grouped_report_data = []
-        query_date = request.GET.get('query_date', datetime.now().date())
-        valid_date = parse_to_date(query_date)
-        # Jika ada query date, maka 
-        if query_date:
-            # Buat variabel untuk menyimpan data gabungan laporan jam 1 - 9
-            class_name = ['10A', '10B', '10C', '10D', '10E', '11A', '11B', '11C', '11D', '11E', '12A', '12B', '12C', '12D', '12E']
-            # Mulai perulangan dari Jam 1 sampai Jam 9
-            for i in range(1, 10):
-                # Cari apakah ada data laporan pada tanggal/hari sesuai query dari jam 1 sampai 9
-                data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
-                            .filter(report_date=valid_date, schedule__schedule_time=i).order_by()
-                # Jika ada, maka
-                if data.exists():
-                    if data.count() == 15:
-                        # Masukan datanya ke variabel grouped_data
-                        self.grouped_report_data.append(data)
-                    else:
-                        copied_data = [*data]
-                        temp_data = self.fill_report_object_gaps(class_name, copied_data, i)
-                        self.grouped_report_data.append(temp_data)
-                # Jika data tidak ada dan tanggal query kurang dari dari hari ini, maka
-                else:
-                    # Tampilkan no data
-                    self.grouped_report_data.append([{"id": f"{i}{j}", "no_status": "No data"} for j in range(15)])
-        return super().get(request, *args, **kwargs)
-
+    def find_and_create_reports(self, valid_date_query: Any, time: Any) -> QuerySet[Any]:
+        data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                                    .filter(report_date=valid_date_query, schedule__schedule_time=time)\
+                                    .values("id", "status", "reporter__last_name", "schedule__schedule_class",
+                                            "schedule__schedule_course__teacher__last_name",
+                                            "schedule__schedule_course__course_short_name").order_by('schedule__schedule_class')
+        if len(data) == 15:
+            self.grouped_report_data.append(data)
+        else:
+            self.create_report_objects(valid_date_query, time)
+    
     def create_report_objects(self, valid_query_date: Any, schedule_time: Any) -> bool:
         # Cari data jadwal di hari sesuai query dan di waktu jam 1 sampai  9
         schedule_list = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class") \
                                 .filter(schedule_day=get_day(valid_query_date), schedule_time=schedule_time)
         # Jika tidak ditemukan, maka nilai False
-        if not schedule_list.exists(): return False
-        # Jika ditemukan, maka buat laporan dengan jadwal dimasukkan satu per satu
-        for schedule in schedule_list:
-            obj, is_created = Report.objects.get_or_create(
-                report_date = valid_query_date,
-                schedule = schedule,
-                defaults={
-                    'status': "Hadir"
-                }
-            )
-        return True
-
-    def fill_report_object_gaps(self, class_name: list[str], data: Report, parent_index: int) -> bool:
-        temp_data = []
-        temp_index = 0
-        for index in range(0, 15):
-            if class_name[index] != data[temp_index].schedule.schedule_class.short_class_name:
-                temp_data.append({"id": f"{parent_index}{index}", "no_status": "No data"})
-            else:
-                temp_data.append(data[temp_index])
-                temp_index += 1
-        
-        return temp_data
+        if len(schedule_list) == 15:
+            # Jika ditemukan, maka buat laporan dengan jadwal dimasukkan satu per satu
+            for schedule in schedule_list:
+                obj, is_created = Report.objects.get_or_create(
+                    report_date = valid_query_date,
+                    schedule = schedule,
+                    defaults={
+                        'status': "Hadir"
+                    }
+                )
+            return True
+        return False
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
         query_date = self.request.GET.get('query_date', datetime.now().date())
-        context["class"] = ['10A', '10B', '10C', '10D', '10E', '11A', '11B', '11C', '11D', '11E', '12A', '12B', '12C', '12D', '12E']
-        context["grouped_data"] = self.grouped_report_data
+        valid_date = parse_to_date(query_date)
+        day = get_day(valid_date)
+        self.grouped_report_data = []
+        if day == "Ahad":
+            for i in range(1, 8):
+                self.find_and_create_reports(valid_date, i)
+
+                
+        elif day != "Jumat":
+            for i in range(1, 10):
+                self.find_and_create_reports(valid_date, i)
+
+        
+        context = super().get_context_data(**kwargs)
+        context["grouped_report_data"] = self.grouped_report_data
+        context["class"] = self.class_name
+        query_date = self.request.GET.get('query_date', str(datetime.now().date()))
         context["query_date"] = query_date
+        return context
+    
+
+class ReportUpdateReporterMixin(BaseAuthorizedFormView, FormView):
+    model = Report
+    menu_name = 'report'
+    form_class = ReportUpdatePetugasForm
+    template_name = 'reports/report_form.html'
+    permission_required = 'reports.change_report'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
+    redirect_url = "report-quick-create-v2"
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        data = super().get_form_kwargs()
+        data["report_date"] = self.kwargs.get("date")
+        data["schedule_time"] = self.kwargs.get("pk")
+        return data
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        reporter_name = form.cleaned_data["reporter"]
+        report_date = self.kwargs.get("date")
+        schedule_time = self.kwargs.get("pk")
+        reports = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
+                                    .filter(report_date=report_date, schedule__schedule_time=schedule_time)
+        if reporter_name:
+            reports.update(reporter=reporter_name.id)
+        else:
+            reports.update(reporter=None)
+        redirect_url = reverse(self.redirect_url)
+        query_params = f'?query_date={report_date}'
+        messages.success(self.request, self.success_message)
+        return redirect(redirect_url + query_params)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["reporter"] = True
+        context["date"] = self.kwargs.get("date")
+        context["time"] = self.kwargs.get("pk")
+        return context
+    
+
+class ReportUpdateQuickViewMixin(BaseAuthorizedFormView, UpdateView):
+    model = Report
+    menu_name = 'report'
+    form_class = ReportFormV2
+    permission_required = 'reports.change_report'
+    success_message = "Update data berhasil!"
+    error_message = "Update data ditolak!"
+    redirect_url = "report-quick-create-v2"
+    app_name = "QUICK REPORT V2"
+
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        object = self.get_object()
+        status = form.cleaned_data["status"]
+        reporter = ''
+        if object.reporter:
+            reporter = object.reporter.first_name
+
+        message = f"laporan piket {object.report_day} {object.report_date} Jam ke-{object.schedule.schedule_time} {object.schedule.schedule_course} dengan status {status}"
+        UserLog.objects.create(
+            user = reporter or  self.request.user.first_name,
+            action_flag = "mengubah",
+            app = self.app_name,
+            message = message,
+        )
+        redirect_url = reverse(self.redirect_url)
+        query_params = f'?query_date={object.report_date}'
+        messages.success(self.request, self.success_message)
+        send_whatsapp_action(user=reporter or self.request.user.first_name, action="update", messages=message, type="report/", slug="quick-create-v2/")
+        self.object = form.save()
+        return redirect(redirect_url + query_params)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_object()
         return context

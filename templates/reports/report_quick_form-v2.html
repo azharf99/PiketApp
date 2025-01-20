@@ -44,6 +44,9 @@
     <a href="{% url 'dashboard-teachers' %}">
       <p class="p-1 px-2 my-2 bg-blue-500 text-white rounded-md font-semibold">&#128196; Rekap Kehadiran Guru</p>
     </a>
+    <a href="{% url 'dashboard-reporters' %}">
+      <p class="p-1 px-2 my-2 bg-indigo-500 text-white rounded-md font-semibold">&#128196; Rekap Tim Piket</p>
+    </a>
   </div>
   <div class="p-2 flex justify-center items-center">
     <form action="{% url 'report-quick-create-v2' %}" method="get" class="flex justify-start items-center flex-wrap">
@@ -71,7 +74,7 @@
           <th class="p-2 border border-gray-400">Petugas Piket</th>
         </thead>
         <tbody>
-          {% for data in grouped_data %}
+          {% for data in grouped_report_data %}
           {% if forloop.counter == 6 or forloop.counter == 8 %}
           <tr>
             <td class="p-2 border border-gray-400 text-center font-bold" colspan="17">Istirahat</td>
@@ -147,7 +150,7 @@
                     </svg></span>
                 </p>
               </button>
-              <p class="text-xs">{{data.first.reporter.last_name|default:"Belum input"}}</p>
+              <p class="text-xs">{{data.first.reporter__last_name|default:"Belum input"}}</p>
             </td>
           </tr>
           {% endfor %}
