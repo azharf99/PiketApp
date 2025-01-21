@@ -297,7 +297,7 @@ class QuickReportMixin(BaseAuthorizedModelView, ListView):
     def find_and_create_reports(self, valid_date_query: Any, time: Any) -> QuerySet[Any]:
         data = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter")\
                                     .filter(report_date=valid_date_query, schedule__schedule_time=time)\
-                                    .values("id", "status", "reporter__last_name", "schedule__schedule_class",
+                                    .values("id", "status", "reporter__last_name", "schedule__schedule_class", "schedule__time_start", "schedule__time_end",
                                             "schedule__schedule_course__teacher__last_name",
                                             "schedule__schedule_course__course_short_name").order_by('schedule__schedule_class')
         if len(data) == 15:

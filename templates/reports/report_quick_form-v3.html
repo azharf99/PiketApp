@@ -68,6 +68,7 @@
         <caption class="my-2 font-bold">Daftar Laporan {{query_date|date:"l, d F Y"}}</caption>
         <thead>
           <th class="p-2 border border-gray-400">Jam Ke</th>
+          <th class="p-2 border border-gray-400">Waktu</th>
           {% for object in class %}
           <th class="p-2 border border-gray-400">{{object}}</th>
           {% endfor %}
@@ -75,8 +76,14 @@
         </thead>
         <tbody>
           {% for reports in grouped_report_data %}
+            {% if forloop.counter == 6 or forloop.counter == 8 %}
+              <tr>
+                <td class="border border-gray-400 text-center" colspan="18">Istirahat</td>
+              </tr>
+            {% endif %}
           <tr>
-            <td class="p-2 border border-gray-400">{{forloop.counter}}</td>
+            <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
+            <td class="p-2 border border-gray-400 text-xs text-center">{{reports.first.schedule__time_start|date:"H:i"}}<br> - <br>{{reports.first.schedule__time_end|date:"H:i"}}</td>
             {% for report_data in reports %}
             <td class="p-2 border border-gray-400">
               {% if report_data.status == "Hadir" %}
@@ -136,7 +143,7 @@
               <p class="text-xs text-center">{{report_data.schedule__schedule_course__course_short_name}}</p>
             </td>
             {% endfor %}
-            <td class="p-2 border border-gray-400 text-center flex flex-col gap-2">
+            <td class="p-2 border border-gray-400 text-center flex flex-col gap-2 flex">
               <a href="" class="bg-blue-600 p-2 rounded-md text-xs text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32">Submit</a>
               <button type="button" class="reporters" id="{{query_date}}__{{forloop.counter}}">
                 <p
@@ -152,10 +159,8 @@
               <p class="text-xs">{{reports.first.reporter__last_name|default:"Belum input"}}</p>
             </td>
           </tr>
-          </tr>
           {% endfor %}
         </tbody>
-
       </table>
     </div>
   </div>

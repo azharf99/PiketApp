@@ -54,14 +54,27 @@
         <caption class="my-2 font-bold">Daftar Jadwal Piket</caption>
         <thead>
           <th class="p-2 border border-gray-400">Jam Ke</th>
+          <th class="p-2 border border-gray-400">Waktu</th>
           {% for object in class %}
           <th class="p-2 border border-gray-400">{{object}}</th>
           {% endfor %}
         </thead>
         <tbody>
           {% for group in object_list %}
+            {% if forloop.counter == 6 or forloop.counter == 8 %}
+            <tr>
+              <td class="border border-gray-400 text-center" colspan="8">Istirahat</td>
+            </tr>
+            {% endif %}
             <tr>
               <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
+              <td class="p-2 border border-gray-400 text-center text-xs">
+                {{group.first.time_start|date:"H:i:s"}}
+                <br>
+                -
+                <br>
+                {{group.first.time_end|date:"H:i:s"}}
+              </td>
               {% for object in group %}
               <td class="p-2 border border-gray-400 text-center text-xs">
                 <span class="py-1 px-2 rounded-md font-semibold">{{object.reporter__first_name|default:"-"}}</span>

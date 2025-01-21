@@ -23,7 +23,7 @@ class ReporterScheduleView(BaseAuthorizedModelView, ListView):
         groupped_qs = []
         for i in range(1, 10):
             qs = ReporterSchedule.objects.select_related("reporter").filter(schedule_time=i)\
-                        .values('schedule_day', 'schedule_time', 'reporter__first_name')\
+                        .values('schedule_day', 'schedule_time', 'reporter__first_name', 'time_start', 'time_end')\
                         .order_by()
             if len(qs) > 0:
                 groupped_qs.append(qs)
@@ -31,7 +31,7 @@ class ReporterScheduleView(BaseAuthorizedModelView, ListView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["class"] = ['Sabtu', 'Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis']
+        context["class"] = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Sabtu', 'Ahad']
         return context
     
     
