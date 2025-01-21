@@ -79,7 +79,7 @@ class TeacherRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = "report"
     permission_required = 'reports.view_report'
-    template_name = 'teacher-dashboard.html'
+    template_name = 'teacher-reporter-recap.html'
     raise_exception = False
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -113,7 +113,7 @@ class TeacherAbsenceListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
     menu_name = "report"
     permission_required = 'reports.view_report'
-    template_name = 'teacher-report-list.html'
+    template_name = 'teacher-reporter-detail.html'
     raise_exception = False
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -140,7 +140,7 @@ class TeacherRecapDetailView(BaseAuthorizedModelView, BaseModelQueryListView):
     menu_name = "report"
     permission_required = 'reports.view_report'
     raise_exception = False
-    template_name = 'teacher-report-list.html'
+    template_name = 'teacher-reporter-detail.html'
 
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -166,7 +166,7 @@ class TeacherRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListV
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
-    template_name='teacher-dashboard.html'
+    template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -206,7 +206,7 @@ class TeacherAbsenceDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryLis
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
-    template_name='teacher-dashboard.html'
+    template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -238,7 +238,7 @@ class TeacherAbsenceDetailDownloadExcelView(BaseAuthorizedModelView, BaseModelQu
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
-    template_name='teacher-dashboard.html'
+    template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -273,7 +273,7 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     menu_name = "report"
     permission_required = 'reports.view_report'
     raise_exception = False
-    template_name = 'teacher-dashboard.html'
+    template_name = 'teacher-reporter-recap.html'
 
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -383,7 +383,7 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
     model = Report
     menu_name = 'report'
     permission_required = 'reports.view_report'
-    template_name='teacher-dashboard.html'
+    template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
         query_month = self.request.GET.get('query_month') or datetime.now().month
@@ -478,4 +478,4 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
         worksheet.autofit()
         workbook.close()
         buffer.seek(0)
-        return FileResponse(buffer, as_attachment=True, filename=f'REKAP KEHADIRAN PIKET SMA IT Al Binaa.xlsx')
+        return FileResponse(buffer, as_attachment=True, filename=f'REKAP KEHADIRAN TIM PIKET SMA IT Al Binaa.xlsx')

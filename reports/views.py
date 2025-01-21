@@ -1,19 +1,10 @@
-from datetime import datetime
-from django.contrib import messages
-from django.forms import BaseModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.db.models.query import QuerySet
-from django.shortcuts import redirect
-from django.views.generic import CreateView, UpdateView, DetailView, FormView
-from reports.forms import ReportFormV2, ReportUpdatePetugasForm
+from django.views.generic import CreateView, DetailView
+from reports.forms import ReportFormV2
 from reports.models import Report
 from typing import Any
 from django.urls import reverse, reverse_lazy
-from schedules.models import Schedule
-from userlogs.models import UserLog
 from utils.mixins import BaseAuthorizedFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, ModelDownloadExcelView, BaseModelQueryListView, QuickReportMixin, ReportUpdateQuickViewMixin, ReportUpdateReporterMixin
-from utils.validate_datetime import get_day, parse_to_date
-from utils.whatsapp_albinaa import send_whatsapp_action
 # Create your views here.
     
 class ReportListView(BaseAuthorizedModelView, BaseModelDateBasedListView):

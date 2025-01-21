@@ -32,7 +32,7 @@
             <span class="sr-only">Info</span>
             <div>
               <span class="font-medium">Success!</span> {{message.message}}
-              <p class="m-2">Silahkan lihat hasilnya <a href="{% url 'report-quick-create-v2' %}" class="p-1 rounded-md bg-green-500 text-white font-bold">di sini</a></p>
+              <p class="m-2">Silahkan lihat hasilnya <a href="{% url 'report-quick-create-v3' %}" class="p-1 rounded-md bg-green-500 text-white font-bold">di sini</a></p>
             </div>
           </div>
           {% else %}
@@ -76,7 +76,7 @@
                 <div class="loader"></div>
                 <p>Loading ...</p>
               </div>
-              <a id="back" class="text-white text-center p-2 bg-red-500 rounded-md cursor-pointer hover:bg-fuchsia-500 my-2" href="{% url 'report-quick-create-v2' %}">Back</a>
+              <a id="back" class="text-white text-center p-2 bg-red-500 rounded-md cursor-pointer hover:bg-fuchsia-500 my-2" href="{% url 'report-quick-create-v3' %}">Back</a>
             </form>
         </div>
     </div>

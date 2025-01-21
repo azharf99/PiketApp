@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load static %}
 {% block content %}
 <main class="p-4 sm:ml-64 overflow-auto">
   <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Teacher Recap</h1>
@@ -37,7 +38,7 @@
       {% if not reporters %}
       <a href="{% url 'dashboard-teachers-absence' %}"><p class="p-1 px-2 bg-red-500 text-white rounded-md font-semibold">&#128195; Switch to Data Ketidakhadiran &rarr;</p></a>
       {% else %}
-      <a href="{% url 'reporter-schedule-list' %}"><p class="p-1 px-2 bg-blue-500 text-white rounded-md font-semibold">&#128195; Switch to Jadwal Piket &rarr;</p></a>
+      <a href="{% url 'reporter-schedule-view' %}"><p class="p-1 px-2 bg-blue-500 text-white rounded-md font-semibold">&#128195; Switch to Jadwal Piket &rarr;</p></a>
       {% endif %}
     </div>
     
@@ -99,7 +100,7 @@
 
   <div class="grid grid-cols-1">
     <!-- Analytics Table -->
-    <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto">
+    <div class="p-4 mx-2 my-4 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-auto relative">
       {% if page_obj %}
       <div class="hidden md:flex mx-2 justify-center md:justify-end gap-2">
         <span class="step-links">
@@ -118,8 +119,10 @@
       </div>
       {% endif %}
       {% if object_list %}
+      <img class="hidden md:flex absolute w-auto px-6 py-8" src="{% static 'images/Binaaul-Mustaqbal.png' %}" alt="Logo"/>
+      <img class="hidden md:flex absolute end-0 px-6 py-8" src="{% static 'images/LOGO AL BINAA VISION 2030.png' %}" width="250" alt="Logo"/>
       <table class="table-auto border-collapse w-full">
-        <caption class="my-2 font-semibold mb-4 text-2xl">
+        <caption class="my-2 font-semibold mb-4 text-xl">
           {% if not reporters %}
           Rekap <span class="text-blue-500 font-semibold">Kehadiran</span> Jam Pelajaran Pengajar
           {% else %}

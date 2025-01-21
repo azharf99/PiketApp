@@ -143,7 +143,7 @@ class BaseModelDateBasedListView(ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["query_class"] = self.request.GET.get('query_class') if self.request.GET.get('query_class') else None
-        context["query_date"] = self.request.GET.get('query_date') if self.request.GET.get('query_date') else datetime.now().date()
+        context["query_date"] = self.request.GET.get('query_date') if self.request.GET.get('query_date') else str(datetime.now().date())
         context["query_day"] = self.request.GET.get('query_day') if self.request.GET.get('query_day') else None
         context["query_time"] = self.request.GET.get('query_time') if self.request.GET.get('query_time') else None
         return context
