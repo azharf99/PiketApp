@@ -90,9 +90,11 @@
     </form>
   </div>
 
+  {% if not reporters %}
   <div class="flex justify-center gap-2 text-balance text-center">
     <a href="{% url 'dashboard-teachers-absence' %}"><p class="p-1 px-2 bg-red-500 text-white rounded-md font-semibold">&#128195; Switch to Data Ketidakhadiran &rarr;</p></a>
   </div>
+  {% endif %}
 
   <div class="grid grid-cols-1">
     <!-- Analytics Table -->
@@ -126,7 +128,7 @@
           <br>
           <p class="my-2 flex justify-center items-center gap-4"><span class="p-1 bg-blue-500 rounded-md">{{initial_day}}</span> - <span class="p-1 bg-blue-500 rounded-md">{{last_day}}</span></p>
           {% else %}
-          Daftar Petugas Piket
+          Rekap Kehadiran Tim Piket
           {% endif %}
         </caption>
         <thead>
@@ -182,9 +184,12 @@
               {% blocktranslate %} {{ percentage }}% {% endblocktranslate %}
             </td>
             {% else %}
-            <td class="p-2 border border-gray-400">{{object.schedule__schedule_course__teacher__first_name}}</td>
-            <td class="p-2 border border-gray-400">{{object.schedule__schedule_course__teacher__first_name}}</td>
-            <td class="p-2 border border-gray-400">{{object.schedule__schedule_course__teacher__first_name}}</td>
+            <td class="p-2 border border-gray-400 text-center">{{object.absen_count|default:"-"}}</td>
+            <td class="p-2 border border-gray-400 text-center">{{object.total_rcount}}</td>
+            <td class="p-2 border border-gray-400 text-center">
+              {% widthratio object.hadir_count object.total_rcount 100 as percentage %}
+              {% blocktranslate %} {{ percentage }}% {% endblocktranslate %}
+            </td>
             {% endif %}
           </tr>
           {% endfor %}

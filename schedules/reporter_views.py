@@ -22,7 +22,7 @@ class ReporterScheduleView(BaseAuthorizedModelView, ListView):
     def get_queryset(self) -> QuerySet[Any]:
         groupped_qs = []
         for i in range(1, 10):
-            qs = ReporterSchedule.objects.filter(schedule_time=i)\
+            qs = ReporterSchedule.objects.select_related("reporter").filter(schedule_time=i)\
                         .values('schedule_day', 'schedule_time', 'reporter__first_name')\
                         .order_by()
             if len(qs) > 0:

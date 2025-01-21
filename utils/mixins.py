@@ -18,7 +18,7 @@ from classes.models import Class
 from courses.models import Course
 from reports.forms import ReportFormV2, ReportUpdatePetugasForm
 from reports.models import Report
-from schedules.models import Schedule
+from schedules.models import ReporterSchedule, Schedule
 from userlogs.models import UserLog
 from utils.forms import UploadModelForm
 from utils.menu_link import export_menu_link
@@ -309,15 +309,20 @@ class QuickReportMixin(BaseAuthorizedModelView, ListView):
         # Cari data jadwal di hari sesuai query dan di waktu jam 1 sampai  9
         schedule_list = Schedule.objects.select_related("schedule_course", "schedule_course__teacher","schedule_class") \
                                 .filter(schedule_day=get_day(valid_query_date), schedule_time=schedule_time)
+        try:
+            reporter_schedule = ReporterSchedule.objects.select_related("reporter").get(schedule_day=get_day(valid_query_date), schedule_time=schedule_time)
+        except:
+            reporter_schedule = None
         # Jika tidak ditemukan, maka nilai False
         if len(schedule_list) == 15:
             # Jika ditemukan, maka buat laporan dengan jadwal dimasukkan satu per satu
             for schedule in schedule_list:
-                obj, is_created = Report.objects.get_or_create(
+                obj, is_created = Report.objects.update_or_create(
                     report_date = valid_query_date,
                     schedule = schedule,
+                    # reporter = reporter_schedule.reporter,
                     defaults={
-                        'status': "Hadir"
+                        'reporter': reporter_schedule.reporter
                     }
                 )
             return True

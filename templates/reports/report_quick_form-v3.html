@@ -162,9 +162,9 @@
 
 </main>
 
-<dialog>
+<dialog class="bg-gray-300 rounded-md">
   <button autofocus class="absolute end-0 py-1 px-2 text-2xl">&Cross;</button>
-  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 w-full p-6" id="report_form">
+  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 bg-gray-300 w-full p-6" id="report_form">
     {% csrf_token %}
 
 
@@ -240,7 +240,7 @@
 
     <div class="flex flex-col">
       <label for="id_notes">Keterangan:</label>
-      <textarea name="notes" cols="40" rows="4"
+      <textarea name="notes" cols="40" rows="3"
         class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg" maxlength="250"
         aria-describedby="id_notes_helptext" id="id_notes"></textarea>
       <p class="p-2 italic text-xs" id="id_notes_helptext">
@@ -250,7 +250,7 @@
 
     <div class="flex flex-col">
       <label for="id_duty">Tugas:</label>
-      <textarea name="duty" cols="40" rows="4"
+      <textarea name="duty" cols="40" rows="3"
         class="rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg" maxlength="250"
         aria-describedby="id_duty_helptext" id="id_duty"></textarea>
       <p class="p-2 italic text-xs" id="id_duty_helptext">
@@ -269,9 +269,9 @@
 </dialog>
 
 
-<dialog id="petugas">
+<dialog id="petugas" class="bg-gray-300 rounded-md">
   <button autofocus class="absolute end-0 py-1 px-2 text-2xl">&Cross;</button>
-  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 w-full p-6" id="reporter_form">
+  <form action="" method="post" enctype="multipart/form-data" class="flex flex-col gap-2 bg-gray-300 w-full p-6" id="reporter_form">
     {% csrf_token %}
 
     <div class="flex flex-col">
