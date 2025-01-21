@@ -105,7 +105,7 @@
         <tbody>
           {% for object in object_list %}
           <tr>
-            <td class="p-2 border border-gray-400">{{forloop.counter}}</td>
+            <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
             <td class="p-2 border border-gray-400 text-center">{{object.schedule_day|default:'-'}}</td>
             <td class="p-2 border border-gray-400 text-center">{{object.schedule_time|default:'-'}}</td>
             <td class="p-2 border border-gray-400">{{object.reporter.first_name|default:'-'}}</td>

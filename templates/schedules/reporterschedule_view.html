@@ -50,11 +50,11 @@
       {% if object_list %}
 
       <table class="table-auto border-collapse w-full">
-        <caption class="my-2 font-bold">Daftar Jadwal</caption>
+        <caption class="my-2 font-bold">Daftar Jadwal Piket</caption>
         <thead>
           <th class="p-2 border border-gray-400">Jam Ke</th>
           {% for object in class %}
-          <th class="p-2 border border-gray-400">{{object.short_class_name}}</th>
+          <th class="p-2 border border-gray-400">{{object}}</th>
           {% endfor %}
         </thead>
         <tbody>
@@ -63,13 +63,7 @@
               <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
               {% for object in group %}
               <td class="p-2 border border-gray-400 text-center text-xs">
-                {% if query_type == "code" %}
-                <span class="bg-green-500 py-1 px-2 rounded-md font-semibold">{{object.schedule_course__course_code}}</span>
-                {% elif query_type == "mapel" %}
-                <span class="py-1 px-2 rounded-md font-semibold">{{object.schedule_course__course_short_name}}</span>
-                {% elif query_type == "pengajar" %}
-                <span class="py-1 px-2 rounded-md font-semibold">{{object.schedule_course__teacher__last_name}}</span>
-                {% endif %}
+                <span class="py-1 px-2 rounded-md font-semibold">{{object.reporter__first_name|default:"-"}}</span>
               </td>
               {% endfor %}
             </tr>

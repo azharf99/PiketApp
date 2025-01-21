@@ -13,7 +13,7 @@ from utils.constants import WEEKDAYS
 
 class ReporterScheduleView(BaseAuthorizedModelView, ListView):
     model = ReporterSchedule
-    menu_name = 'schedule'
+    menu_name = 'reporter-schedule'
     template_name = 'schedules/reporterschedule_view.html'
     queryset = ReporterSchedule.objects.select_related("reporter")
     permission_required = 'schedules.view_reporterschedule'
@@ -25,37 +25,34 @@ class ReporterScheduleView(BaseAuthorizedModelView, ListView):
             qs = ReporterSchedule.objects.filter(schedule_time=i)\
                         .values('schedule_day', 'schedule_time', 'reporter__first_name')\
                         .order_by()
-            print(qs)
             if len(qs) > 0:
                 groupped_qs.append(qs)
         return groupped_qs
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        day_list = WEEKDAYS.copy()
-        day_list.pop(4)
-        context["class"] = day_list
+        context["class"] = ['Sabtu', 'Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis']
         return context
     
     
 class ReporterScheduleListView(BaseAuthorizedModelView, BaseModelDateBasedListView):
     model = ReporterSchedule
     queryset = ReporterSchedule.objects.select_related("reporter")
-    menu_name = 'schedule'
+    menu_name = 'reporter-schedule'
     permission_required = 'schedules.view_schedule'
     paginate_by = 50
 
 
 class ReporterScheduleDetailView(BaseAuthorizedModelView, DetailView):
     model = ReporterSchedule
-    menu_name = 'schedule'
+    menu_name = 'reporter-schedule'
     permission_required = 'schedules.view_schedule'
     raise_exception = False
 
 
 class ReporterScheduleCreateView(BaseAuthorizedFormView, CreateView):
     model = ReporterSchedule
-    menu_name = 'schedule'
+    menu_name = 'reporter-schedule'
     form_class = ReporterScheduleForm
     permission_required = 'schedules.add_schedule'
     success_message = "Input data berhasil!"
@@ -64,7 +61,7 @@ class ReporterScheduleCreateView(BaseAuthorizedFormView, CreateView):
 
 class ReporterScheduleUpdateView(BaseAuthorizedFormView, UpdateView):
     model = ReporterSchedule
-    menu_name = 'schedule'
+    menu_name = 'reporter-schedule'
     form_class = ReporterScheduleForm
     permission_required = 'schedules.change_schedule'
     success_message = "Update data berhasil!"
@@ -73,23 +70,23 @@ class ReporterScheduleUpdateView(BaseAuthorizedFormView, UpdateView):
 
 class ReporterScheduleDeleteView(BaseModelDeleteView):
     model = ReporterSchedule
-    menu_name = 'schedule'
+    menu_name = 'reporter-schedule'
     permission_required = 'schedules.delete_schedule'
     success_url = reverse_lazy("reporter-schedule-list")
 
 
 class ReporterScheduleUploadView(BaseModelUploadView):
     template_name = 'schedules/schedule_form.html'
-    menu_name = "schedule"
+    menu_name = "reporter-schedule"
     permission_required = 'schedules.create_schedule'
     success_url = reverse_lazy("reporter-schedule-list")
     model_class = ReporterSchedule
 
 
 class ReporterScheduleDownloadExcelView(ModelDownloadExcelView):
-    menu_name = 'schedule'
+    menu_name = 'reporter-schedule'
     permission_required = 'schedules.view_schedule'
     template_name = 'schedules/download.html'
-    header_names = ['No', 'HARI', 'JAM KE-', 'KELAS', 'PELAJARAN', 'PENGAJAR']
-    filename = 'DATA JADWAL GURU SMA IT Al Binaa.xlsx'
+    header_names = ['No', 'HARI', 'JAM KE-', 'PETUGAS PIKET', 'WAKTU MULAI', 'WAKTU AKHIR']
+    filename = 'JADWAL GURU PIKET SMA IT Al Binaa.xlsx'
     queryset = ReporterSchedule.objects.select_related("reporter").all()
