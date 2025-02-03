@@ -48,12 +48,12 @@
       <table class="table-auto border-collapse w-full">
         <caption class="my-2 font-bold">Daftar Laporan {{query_date|date:"l, d F Y"}}</caption>
         <thead>
-          <th class="p-2 border border-gray-400 bg-blue-500 sticky top-0">Jam Ke</th>
-          <th class="p-2 border border-gray-400 bg-blue-500 sticky top-0">Waktu</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black sticky top-0">Jam Ke</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black sticky top-0">Waktu</th>
           {% for object in class %}
-          <th class="p-2 border border-gray-400 bg-blue-500 sticky top-0">{{object}}</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black sticky top-0">{{object}}</th>
           {% endfor %}
-          <th class="p-2 border border-gray-400 bg-blue-500 sticky top-0">Petugas Piket</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black sticky top-0">Petugas Piket</th>
         </thead>
         <tbody>
           {% for reports in grouped_report_data %}
@@ -63,10 +63,10 @@
               </tr>
             {% endif %}
           <tr>
-            <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
+            <td class="p-2 border border-gray-400 text-center bg-blue-100 text-black sticky left-0 font-bold">{{forloop.counter}}</td>
             <td class="p-2 border border-gray-400 text-xs text-center">{{reports.first.schedule__time_start|date:"H:i"}}<br> - <br>{{reports.first.schedule__time_end|date:"H:i"}}</td>
             {% for report_data in reports %}
-            <td class="p-2 border border-gray-400">
+            <td class="p-2 border border-gray-400 text-center">
               {% if report_data.status == "Hadir" %}
               <button type="button" id="{{report_data.id}}" class="report_id">
                 <p
@@ -124,7 +124,7 @@
               <p class="text-xs text-center">{{report_data.schedule__schedule_course__course_short_name}}</p>
             </td>
             {% endfor %}
-            <td class="p-2 border border-gray-400 text-center flex flex-col gap-2 flex">
+            <td class="p-2 border border-gray-400 text-center">
               <button type="button" class="reporters" id="{{query_date}}__{{forloop.counter}}">
                 <p
                   class="bg-teal-500 p-1 rounded-md text-xs text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32 flex gap-4 justify-end items-center">
@@ -136,7 +136,7 @@
                     </svg></span>
                 </p>
               </button>
-              <p class="text-xs">{{reports.first.reporter__last_name|default:"Belum input"}}</p>
+              <p class="text-xs m-1">{{reports.first.reporter__last_name|default:"Belum input"}}</p>
               <a href="" class="bg-blue-600 p-2 rounded-md text-xs text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32">Submit</a>
             </td>
           </tr>

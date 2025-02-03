@@ -55,23 +55,27 @@
       <table class="table-auto border-collapse w-full">
         <caption class="my-2 font-bold">Daftar Jadwal</caption>
         <thead>
-          <th class="p-2 border border-gray-400">Jam Ke</th>
+          <th class="p-2 border border-gray-400 bg-gray-300 text-black">Jam Ke</th>
           {% for object in class %}
-          <th class="p-2 border border-gray-400">{{object.short_class_name}}</th>
+          <th class="p-2 border border-gray-400 bg-gray-300 text-black">{{object.short_class_name}}</th>
           {% endfor %}
         </thead>
         <tbody>
           {% for group in object_list %}
             <tr>
-              <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
+              <td class="p-2 border border-gray-400 text-center sticky left-0 bg-gray-300 text-black font-bold">{{forloop.counter}}</td>
               {% for object in group %}
               <td class="p-2 border border-gray-400 text-center text-xs">
                 {% if query_type == "code" %}
                 <span class="bg-green-500 py-1 px-2 rounded-md font-semibold">{{object.schedule_course__course_code}}</span>
                 {% elif query_type == "mapel" %}
-                <span class="py-1 px-2 rounded-md font-semibold">{{object.schedule_course__course_short_name}}</span>
+                <p class="w-32">
+                  <span class="py-1 px-2 rounded-md font-semibold">{{object.schedule_course__course_short_name}}</span>
+                </p>
                 {% elif query_type == "pengajar" %}
+                <p class="w-32">
                 <span class="py-1 px-2 rounded-md font-semibold">{{object.schedule_course__teacher__last_name}}</span>
+                </p>
                 {% endif %}
               </td>
               {% endfor %}
