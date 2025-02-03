@@ -43,7 +43,7 @@
       {% endif %}
       
       <div class="p-2 flex justify-center items-center">
-        <form action="" method="get" class="flex justify-start items-center flex-wrap">
+        <form action="" method="get" class="flex justify-center items-center flex-wrap">
           <label for="query_class"></label>
           <select name="query_class" id="query_class" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
             <option value selected>---Pilih Kelas---</option>
@@ -112,7 +112,14 @@
             <td class="p-2 border border-gray-400 text-center">{{object.get_schedule_day_display|default:'-'}}</td>
             <td class="p-2 border border-gray-400 text-center">{{object.get_schedule_time_display|default:'-'}}</td>
             <td class="p-2 border border-gray-400">{{object.schedule_course.teacher.first_name|default:'-'}}</td>
-            <td class="p-2 border border-gray-400">
+            <td class="p-2 border border-gray-400 text-center">
+              {% if search %}
+              <a href="{% url 'schedule-update' object.id %}" class="flex justify-center">
+                <p class="p-2 bg-lime-500 rounded-md w-32">Ubah jadwal</p>                                              
+              </a>
+
+              {% else %}
+
               <div class="flex flex-wrap gap-2 justify-center">
                 <a href="{% url 'schedule-detail' object.id %}" class="p-1 bg-blue-500 rounded-md">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -132,14 +139,19 @@
                     </svg>                  
                   </a>
                 {% endif %}
-                </div>
+              </div>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
       {% else %}
-      <p class="text-red-500 text-center font-bold">Maaf, belum ada data tersedia</p>
+        {% if search %}
+        <p class="text-yellow-500 text-center font-bold">Silahkan cari dulu data yang mau diubah!</p>
+        {% else %}
+        <p class="text-red-500 text-center font-bold">Maaf, belum ada data tersedia</p>
+        {% endif %}
       {% endif %}
     </div>
   </div>

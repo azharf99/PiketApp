@@ -3,14 +3,22 @@
 {% load static %}
 {% block content %}
 <main class="p-4 sm:ml-64 overflow-auto">
+  {% if not reporters %}
   <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Teacher Recap</h1>
+  {% else %}
+  <h1 class="px-2 text-2xl font-bold text-blue-500 dark:text-white">Reporter Recap</h1>
+  {% endif %}
   <!-- Breadcrumb -->
   <div class="flex items-center gap-2">
     <a href="{% url 'dashboard' %}" class="pl-2">Dashboard</a>
     <p class="text-2xl">
       &triangleright;
     </p>
+    {% if not reporters %}
     <a href="{% url 'dashboard-teachers' %}">Teacher Recap</a>
+    {% else %}
+    <a href="{% url 'dashboard-reporters' %}">Teacher Recap</a>
+    {% endif %}
   </div>
 
   {% if messages %}
@@ -33,7 +41,7 @@
     {% endfor %}
   {% endif %}
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-2 border-0 sm:gap-4 gap-2 p-2" id="export">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-2 border-0 sm:gap-4 gap-2 p-2 items-center" id="export">
     <div class="flex justify-center gap-2 text-balance text-center">
       {% if not reporters %}
       <a href="{% url 'dashboard-teachers-absence' %}"><p class="p-1 px-2 bg-red-500 text-white rounded-md font-semibold">&#128195; Switch to Data Ketidakhadiran &rarr;</p></a>
@@ -43,56 +51,18 @@
     </div>
     
     <form action="" method="get" class="flex justify-center items-center flex-wrap">
-      <label for="query_month"></label>
-      <select name="query_month" id="query_month" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
-        <option value selected>--Bulan--</option>
-        <option value="1" {% if query_month == "1" %} selected {% endif %}>Januari</option>
-        <option value="2" {% if query_month == "2" %} selected {% endif %}>Februari</option>
-        <option value="3" {% if query_month == "3" %} selected {% endif %}>Maret</option>
-        <option value="4" {% if query_month == "4" %} selected {% endif %}>April</option>
-        <option value="5" {% if query_month == "5" %} selected {% endif %}>Mei</option>
-        <option value="6" {% if query_month == "6" %} selected {% endif %}>Juni</option>
-        <option value="7" {% if query_month == "7" %} selected {% endif %}>Juli</option>
-        <option value="8" {% if query_month == "8" %} selected {% endif %}>Agustus</option>
-        <option value="9" {% if query_month == "9" %} selected {% endif %}>September</option>
-        <option value="10" {% if query_month == "10" %} selected {% endif %}>Oktober</option>
-        <option value="11" {% if query_month == "11" %} selected {% endif %}>November</option>
-        <option value="12" {% if query_month == "12" %} selected {% endif %}>Desember</option>
-      </select>
-      <label for="query_year"></label>
-      <select name="query_year" id="query_year" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
-        <option value selected>Tahun</option>
-        <option value="2025" {% if query_year == "2025" %} selected {% endif %}>2025</option>
-        <option value="2026" {% if query_year == "2026" %} selected {% endif %}>2026</option>
-        <option value="2027" {% if query_year == "2027" %} selected {% endif %}>2027</option>
-      </select>
+      <label for="date_start">From:</label>
+      <input required type="date" name="date_start" id="date_start" {% if date_start_str %} value="{{date_start_str}}" {% endif %} class="text-xs border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+      <label for="date_end">To:</label>
+      <input required type="date" name="date_end" id="date_end" {% if date_end_str %} value="{{date_end_str}}" {% endif %} class="text-xs border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
       <input id="search" type="submit" value="Cari Data" class="p-2 m-1 rounded-lg text-white bg-indigo-500 text-xs cursor-pointer">
     </form>
     
     <form action="download/" method="get" class="flex justify-center items-center flex-wrap" id="query_month_and_year">
-      <label for="query_month"></label>
-      <select name="query_month" id="query_month" style="opacity: 0;" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
-        <option value selected>--Bulan--</option>
-        <option value="1" {% if query_month == "1" %} selected {% endif %}>Januari</option>
-        <option value="2" {% if query_month == "2" %} selected {% endif %}>Februari</option>
-        <option value="3" {% if query_month == "3" %} selected {% endif %}>Maret</option>
-        <option value="4" {% if query_month == "4" %} selected {% endif %}>April</option>
-        <option value="5" {% if query_month == "5" %} selected {% endif %}>Mei</option>
-        <option value="6" {% if query_month == "6" %} selected {% endif %}>Juni</option>
-        <option value="7" {% if query_month == "7" %} selected {% endif %}>Juli</option>
-        <option value="8" {% if query_month == "8" %} selected {% endif %}>Agustus</option>
-        <option value="9" {% if query_month == "9" %} selected {% endif %}>September</option>
-        <option value="10" {% if query_month == "10" %} selected {% endif %}>Oktober</option>
-        <option value="11" {% if query_month == "11" %} selected {% endif %}>November</option>
-        <option value="12" {% if query_month == "12" %} selected {% endif %}>Desember</option>
-      </select>
-      <label for="query_year"></label>
-      <select name="query_year" id="query_year" style="opacity: 0;" class="border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
-        <option value selected>Tahun</option>
-        <option value="2025" {% if query_year == "2025" %} selected {% endif %}>2025</option>
-        <option value="2026" {% if query_year == "2026" %} selected {% endif %}>2026</option>
-        <option value="2027" {% if query_year == "2027" %} selected {% endif %}>2027</option>
-      </select>
+      <label for="date_start"></label>
+      <input type="date" name="date_start" id="date_start_download" {% if date_start_str %} value="{{date_start_str}}" {% endif %} class="text-xs border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
+      <label for="date_end"></label>
+      <input type="date" name="date_end" id="date_end_download" {% if date_end_str %} value="{{date_end_str}}" {% endif %} class="text-xs border border-blue-500 rounded-md py-1 m-1 px-2 text-black">
       <input id="export" type="submit" value="&#128196; Export to Excel" class="p-2 m-1 rounded-lg text-white bg-green-500 text-xs cursor-pointer">
     </form>
   </div>
@@ -121,7 +91,7 @@
       {% if object_list %}
       <img class="hidden md:flex absolute w-auto px-6 py-8" src="{% static 'images/Binaaul-Mustaqbal.png' %}" alt="Logo"/>
       <img class="hidden md:flex absolute end-0 px-6 py-8" src="{% static 'images/LOGO AL BINAA VISION 2030.png' %}" width="250" alt="Logo"/>
-      <table class="table-auto border-collapse w-full">
+      <table class="table-auto border-collapse w-full" id="sortableTable">
         <caption class="my-2 font-semibold mb-4 text-xl">
           {% if not reporters %}
           Rekap <span class="text-blue-500 font-semibold">Kehadiran</span> Jam Pelajaran Pengajar
@@ -133,7 +103,7 @@
           <br>
           Rentang
           <br>
-          <p class="my-2 flex justify-center items-center gap-4"><span class="p-1 bg-blue-500 rounded-md">{{initial_day}}</span> - <span class="p-1 bg-blue-500 rounded-md">{{last_day}}</span></p>
+          <p class="my-2 flex justify-center items-center gap-4"><span class="p-1 bg-blue-500 rounded-md">{{date_start|date:"j F Y"}}</span> - <span class="p-1 bg-blue-500 rounded-md">{{date_end|date:"j F Y"}}</span></p>
         </caption>
         <thead>
           <th class="p-2 border border-gray-400 bg-blue-100 text-black">No</th>
@@ -143,17 +113,34 @@
             {% else %}
             Petugas Piket
             {% endif %}
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(1)">&ShortUpArrow;&ShortDownArrow;</span>
           </th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Hadir (Jam)</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Hadir (Jam)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(2)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
           {% if not reporters %}
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Sakit (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Izin (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Alpha (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Persentase (%)</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Sakit (Jam)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(3)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Izin (Jam)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(4)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Alpha (Jam)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(5)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Persentase (%)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(6)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
           {% else %}
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Tidak Hadir (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Jumlah (Jam)</th>
-          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Persentase (%)</th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Tidak Hadir (Jam)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(3)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Jumlah (Jam)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(4)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
+          <th class="p-2 border border-gray-400 bg-blue-100 text-black">Persentase (%)
+            <span class="hover:bg-fuchsia-500 m-1 p-1 rounded-lg cursor-pointer" onclick="sortTable(5)">&ShortUpArrow;&ShortDownArrow;</span>
+          </th>
           {% endif %}
         </thead>
         <tbody>
@@ -188,7 +175,7 @@
               {% blocktranslate %} {{ percentage }}% {% endblocktranslate %}
             </td>
             {% else %}
-            <td class="p-2 border border-gray-400 text-center">{{object.absen_count|default:"-"}}</td>
+            <td class="p-2 border border-gray-400 text-center">{{object.absen_count|default:"0"}}</td>
             <td class="p-2 border border-gray-400 text-center">{{object.total_rcount}}</td>
             <td class="p-2 border border-gray-400 text-center">
               {% widthratio object.hadir_count object.total_rcount 100 as percentage %}
@@ -225,6 +212,35 @@
   
 
 </main>
+
+
+<script>
+  function sortTable(columnIndex) {
+    const table = document.getElementById("sortableTable");
+    const tbody = table.querySelector("tbody");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    // Determine the current sort order
+    const isAscending = table.querySelector(`th:nth-child(${columnIndex + 1})`).classList.toggle("asc");
+
+    rows.sort((rowA, rowB) => {
+      const cellA = rowA.querySelector(`td:nth-child(${columnIndex + 1})`).textContent.trim();
+      const cellB = rowB.querySelector(`td:nth-child(${columnIndex + 1})`).textContent.trim();
+
+      if (!isNaN(cellA) && !isNaN(cellB)) {
+        // Numeric comparison
+        return isAscending ? cellA - cellB : cellB - cellA;
+      } else {
+        // String comparison
+        return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+      }
+    });
+
+    // Clear the table body and append sorted rows
+    tbody.innerHTML = "";
+    rows.forEach(row => tbody.appendChild(row));
+  }
+</script>
 
 
 {% endblock content %}

@@ -83,29 +83,54 @@ class TeacherRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     raise_exception = False
 
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
-        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
-                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year)\
-                             .values('schedule__schedule_course__teacher','schedule__schedule_course__teacher__first_name')\
-                             .annotate(
-                                 hadir_count=Count('status',  filter=Q(status="Hadir")),
-                                 izin_count=Count('status',  filter=Q(status="Izin")),
-                                 sakit_count=Count('status',  filter=Q(status="Sakit")),
-                                 alpha_count=Count('status',  filter=Q(status="Tanpa Keterangan")),
-                                 all_count=Count('status'),
-                                 )\
-                             .distinct().order_by()
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+
+        if date_start and date_end:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                                .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                                .filter(report_date__gte=date_start, report_date__lte=date_end)\
+                                .values('schedule__schedule_course__teacher','schedule__schedule_course__teacher__first_name')\
+                                .annotate(
+                                    hadir_count=Count('status',  filter=Q(status="Hadir")),
+                                    izin_count=Count('status',  filter=Q(status="Izin")),
+                                    sakit_count=Count('status',  filter=Q(status="Sakit")),
+                                    alpha_count=Count('status',  filter=Q(status="Tanpa Keterangan")),
+                                    all_count=Count('status'),
+                                    )\
+                                .distinct().order_by()
+        else:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                                .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                                .filter(report_date__month=datetime.now().month, report_date__year=datetime.now().year)\
+                                .values('schedule__schedule_course__teacher','schedule__schedule_course__teacher__first_name')\
+                                .annotate(
+                                    hadir_count=Count('status',  filter=Q(status="Hadir")),
+                                    izin_count=Count('status',  filter=Q(status="Izin")),
+                                    sakit_count=Count('status',  filter=Q(status="Sakit")),
+                                    alpha_count=Count('status',  filter=Q(status="Tanpa Keterangan")),
+                                    all_count=Count('status'),
+                                    )\
+                                .distinct().order_by()
+
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
-        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
-        
-        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
-        last_day_of_month = calendar.monthrange(int(context["query_year"]), int(context["query_month"]))[1]
-        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        this_year = datetime.now().year
+        this_month = datetime.now().month
+        last_day_of_month = calendar.monthrange(this_year, this_month)[1]
+
+        if date_start and date_end:
+            context["date_start"] = datetime.strptime(date_start, "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(date_end, "%Y-%m-%d")
+        else:
+            context["date_start"] = datetime.strptime(f"{this_year}-{this_month}-1", "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(f"{this_year}-{this_month}-{last_day_of_month}", "%Y-%m-%d")
+
+        context["date_start_str"] = date_start
+        context["date_end_str"] = date_end
         return context
     
 
@@ -117,21 +142,39 @@ class TeacherAbsenceListView(BaseAuthorizedModelView, BaseModelQueryListView):
     raise_exception = False
 
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
-        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        if date_start and date_end:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
                              .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .filter(report_date__gte=date_start, report_date__lte=date_end, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
+        
+        else:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                             .filter(report_date__month=datetime.now().month, report_date__year=datetime.now().year, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
                              .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
                              .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
-        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
-        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
-        last_day_of_month = calendar.monthrange(context["query_year"], context["query_month"])[1]
-        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        this_year = datetime.now().year
+        this_month = datetime.now().month
+        last_day_of_month = calendar.monthrange(this_year, this_month)[1]
+
+        if date_start and date_end:
+            context["date_start"] = datetime.strptime(date_start, "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(date_end, "%Y-%m-%d")
+        else:
+            context["date_start"] = datetime.strptime(f"{this_year}-{this_month}-1", "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(f"{this_year}-{this_month}-{last_day_of_month}", "%Y-%m-%d")
+
+        context["date_start_str"] = date_start
+        context["date_end_str"] = date_end
         return context
     
 
@@ -143,22 +186,40 @@ class TeacherRecapDetailView(BaseAuthorizedModelView, BaseModelQueryListView):
     template_name = 'teacher-reporter-detail.html'
 
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
         teacher_id = self.kwargs.get("teacher_id")
-        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+        if date_start and date_end:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
                              .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .filter(report_date__gte=date_start, report_date__lte=date_end, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
+        
+        else:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                             .filter(report_date__month=datetime.now().month, report_date__year=datetime.now().year, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
                              .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
                              .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
-        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
-        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
-        last_day_of_month = calendar.monthrange(context["query_year"], context["query_month"])[1]
-        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        this_year = datetime.now().year
+        this_month = datetime.now().month
+        last_day_of_month = calendar.monthrange(this_year, this_month)[1]
+
+        if date_start and date_end:
+            context["date_start"] = datetime.strptime(date_start, "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(date_end, "%Y-%m-%d")
+        else:
+            context["date_start"] = datetime.strptime(f"{this_year}-{this_month}-1", "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(f"{this_year}-{this_month}-{last_day_of_month}", "%Y-%m-%d")
+
+        context["date_start_str"] = date_start
+        context["date_end_str"] = date_end
         return context
 
 
@@ -169,12 +230,25 @@ class TeacherRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryListV
     template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
-
-        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        if date_start and date_end:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
                              .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year)\
+                             .filter(report_date__gte=date_start, report_date__lte=date_end)\
+                             .values('schedule__schedule_course__teacher__first_name')\
+                             .annotate(
+                                 hadir_count=Count('status',  filter=Q(status="Hadir")),
+                                 izin_count=Count('status',  filter=Q(status="Izin")),
+                                 sakit_count=Count('status',  filter=Q(status="Sakit")),
+                                 alpha_count=Count('status',  filter=Q(status="Tanpa Keterangan")),
+                                 all_count=Count('status'),
+                                 )\
+                             .distinct().order_by()
+        else:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                             .filter(report_date__month=datetime.now().month, report_date__year=datetime.now().year)\
                              .values('schedule__schedule_course__teacher__first_name')\
                              .annotate(
                                  hadir_count=Count('status',  filter=Q(status="Hadir")),
@@ -209,12 +283,19 @@ class TeacherAbsenceDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryLis
     template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
-
-        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        if date_start and date_end:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
                              .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .filter(report_date__gte=date_start, report_date__lte=date_end, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
+
+        else: 
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                             .filter(report_date__month=datetime.now().month, report_date__year=datetime.now().year, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
                              .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
                              .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
     
@@ -241,13 +322,21 @@ class TeacherAbsenceDetailDownloadExcelView(BaseAuthorizedModelView, BaseModelQu
     template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
         teacher_id = self.kwargs.get("teacher_id")
 
-        return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+        if date_start and date_end:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
                              .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .filter(report_date__month=date_start, report_date__year=date_end, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
+                             .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
+                             .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
+        
+        else:
+            return super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher", "schedule__schedule_class", "subtitute_teacher")\
+                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                             .filter(report_date__month=datetime.now().month, report_date__year=datetime.now().year, schedule__schedule_course__teacher_id=teacher_id, status__in=["Izin", "Sakit", "Tanpa Keterangan"])\
                              .values('report_date','schedule__schedule_course__teacher__first_name', "schedule__schedule_class__short_class_name", "schedule__schedule_time", "status")\
                              .distinct().order_by("-report_date", "schedule__schedule_class__short_class_name", "schedule__schedule_time")
     
@@ -276,23 +365,19 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
     template_name = 'teacher-reporter-recap.html'
 
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        this_year = datetime.now().year
+        this_month = datetime.now().month
 
-        if not isinstance(query_month, int):
-            try:
-                query_month = int(query_month)
-            except:
-                raise HttpResponseBadRequest("Bulan tidak sesuai")
-        if not isinstance(query_year, int):
-            try:
-                query_year = int(query_year)
-            except:
-                raise HttpResponseBadRequest("Tahun tidak sesuai")
-
-
+        if date_start and date_end:
             # Create a calendar object for the month
-        month_calendar = calendar.monthcalendar(query_year, query_month)
+            this_month = datetime.strptime(date_start, "%Y-%m-%d").month
+            this_year = datetime.strptime(date_start, "%Y-%m-%d").year
+            month_calendar = calendar.monthcalendar(this_year, this_month)
+        else:
+            month_calendar = calendar.monthcalendar(datetime.now().year, datetime.now().month)
+
         
         # Count the number of Tuesdays in the month
         # day_count_in_month = {'Senin': 4, 'Selasa': 4, 'Rabu': 5, 'Kamis': 5, 'Jumat': 5, 'Sabtu': 4, 'Ahad': 4}
@@ -303,10 +388,10 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
         reporters_counts_data = []
         # {'Tri Setyo Mardi Utomo, S.Pd': 26, 'Suharyadi, M. Pd., Gr.': 8, 'Alif Rezky, M.Pd.': 16, 'Muh. Halidi, S.Si.': 8, 'Radivan Tiravi': 27, 'Wawanto, S. Si.': 8, 'Dadan Ridwanuloh, M.Si.': 8, 'Arie Afriansyah, Lc.': 18, 'Agus Setiawan, S.T.': 8, 'Syafiq Muhammad Rwenky, B.A.': 10, 'Ahmad Reza Febrianto': 18, 'Aam Hamdani, S.Pd.': 20, 'Rifqi Aqwamuddin, Lc.': 10, 'Hario Sadewo P, S.Pd.': 8, 'Harlan, S. Pd.': 8, 'Firyan Ramdhani, S.Pd.': 8, 'Mohamad Alam Novian, M. Pd.': 8}
 
-        for key, value in day_count_in_month.items():
-            data = ReporterSchedule.objects.filter(schedule_day=key).exclude(reporter__isnull=True)\
+        for day_key, value_day_count in day_count_in_month.items():
+            data = ReporterSchedule.objects.filter(schedule_day=day_key).exclude(reporter__isnull=True)\
                                             .values("schedule_day", "reporter__first_name")\
-                                            .annotate(rcount=Count("reporter__first_name")*value)\
+                                            .annotate(rcount=Count("reporter__first_name")*value_day_count)\
                                             .distinct().order_by("reporter__first_name")
             # print(data)
             for obj in data:
@@ -325,8 +410,15 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
         # Convert back to a list of dicts if needed
         result = [{'reporter__first_name': name, 'total_rcount': count} for name, count in aggregated_counts.items()]
 
-        null_reporter = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
-                                      .filter(reporter__isnull=True)\
+        if date_start and date_end:
+            null_reporter = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                                      .filter(report_date__gte=date_start, report_date__lte=date_end, reporter__isnull=True)\
+                                      .exclude(schedule__in=[241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525])\
+                                      .values("report_date", "schedule__schedule_day", "schedule__schedule_time")\
+                                      .distinct().order_by()
+        else:
+            null_reporter = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                                      .filter(report_date__month=this_month, report_date__year=this_year, reporter__isnull=True)\
                                       .exclude(schedule__in=[241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525])\
                                       .values("report_date", "schedule__schedule_day", "schedule__schedule_time")\
                                       .distinct().order_by()
@@ -340,9 +432,17 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
             for obj in data:
                 absen_group_data.append(obj)
             # <QuerySet [<ReporterSchedule: Selasa | Jam ke-1 | radivan_tiravi>]>
-        data = super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+        if date_start and date_end:
+            data = super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
                              .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year, reporter__isnull=False)\
+                             .filter(report_date__gte=date_start, report_date__lte=date_end, reporter__isnull=False)\
+                             .values('reporter__first_name')\
+                             .annotate(hadir_count=Count('reporter__first_name')/15)\
+                             .order_by('reporter__first_name')
+        else:
+            data = super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                             .filter(report_date__month=this_month, report_date__year=this_year, reporter__isnull=False)\
                              .values('reporter__first_name')\
                              .annotate(hadir_count=Count('reporter__first_name')/15)\
                              .order_by('reporter__first_name')
@@ -357,24 +457,22 @@ class ReporterRecapListView(BaseAuthorizedModelView, BaseModelQueryListView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["query_month"] = self.request.GET.get('query_month') or datetime.now().month
-        context["query_year"] = self.request.GET.get('query_year') or datetime.now().year
-        if not isinstance(context["query_month"], int):
-            try:
-                context["query_month"] = int(context["query_month"])
-            except:
-                raise HttpResponseBadRequest("Bulan tidak sesuai")
-        if not isinstance(context["query_year"], int):
-            try:
-                context["query_year"] = int(context["query_year"])
-            except:
-                raise HttpResponseBadRequest("Tahun tidak sesuai")
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        this_year = datetime.now().year
+        this_month = datetime.now().month
+        last_day_of_month = calendar.monthrange(this_year, this_month)[1]
+
+        if date_start and date_end:
+            context["date_start"] = datetime.strptime(date_start, "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(date_end, "%Y-%m-%d")
+        else:
+            context["date_start"] = datetime.strptime(f"{this_year}-{this_month}-1", "%Y-%m-%d")
+            context["date_end"] = datetime.strptime(f"{this_year}-{this_month}-{last_day_of_month}", "%Y-%m-%d")
+
+        context["date_start_str"] = date_start
+        context["date_end_str"] = date_end
         context["reporters"] = True
-        context["initial_day"] = f'1/{context["query_month"]}/{context["query_year"]}'
-        last_day_of_month = calendar.monthrange(context["query_year"], context["query_month"])[1]
-        context["last_day"] = f'{last_day_of_month}/{context["query_month"]}/{context["query_year"]}'
-        context["query_year"] = str(context["query_year"])
-        context["query_month"] = str(context["query_month"])
         return context
     
 
@@ -386,23 +484,19 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
     template_name='teacher-reporter-recap.html'
     
     def get_queryset(self) -> QuerySet[Any]:
-        query_month = self.request.GET.get('query_month') or datetime.now().month
-        query_year = self.request.GET.get('query_year') or datetime.now().year
+        date_start = self.request.GET.get('date_start')
+        date_end = self.request.GET.get('date_end')
+        this_year = datetime.now().year
+        this_month = datetime.now().month
 
-        if not isinstance(query_month, int):
-            try:
-                query_month = int(query_month)
-            except:
-                raise HttpResponseBadRequest("Bulan tidak sesuai")
-        if not isinstance(query_year, int):
-            try:
-                query_year = int(query_year)
-            except:
-                raise HttpResponseBadRequest("Tahun tidak sesuai")
-
-
+        if date_start and date_end:
             # Create a calendar object for the month
-        month_calendar = calendar.monthcalendar(query_year, query_month)
+            this_month = datetime.strptime(date_start, "%Y-%m-%d").month
+            this_year = datetime.strptime(date_start, "%Y-%m-%d").year
+            month_calendar = calendar.monthcalendar(this_year, this_month)
+        else:
+            month_calendar = calendar.monthcalendar(datetime.now().year, datetime.now().month)
+
         
         # Count the number of Tuesdays in the month
         # day_count_in_month = {'Senin': 4, 'Selasa': 4, 'Rabu': 5, 'Kamis': 5, 'Jumat': 5, 'Sabtu': 4, 'Ahad': 4}
@@ -413,10 +507,10 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
         reporters_counts_data = []
         # {'Tri Setyo Mardi Utomo, S.Pd': 26, 'Suharyadi, M. Pd., Gr.': 8, 'Alif Rezky, M.Pd.': 16, 'Muh. Halidi, S.Si.': 8, 'Radivan Tiravi': 27, 'Wawanto, S. Si.': 8, 'Dadan Ridwanuloh, M.Si.': 8, 'Arie Afriansyah, Lc.': 18, 'Agus Setiawan, S.T.': 8, 'Syafiq Muhammad Rwenky, B.A.': 10, 'Ahmad Reza Febrianto': 18, 'Aam Hamdani, S.Pd.': 20, 'Rifqi Aqwamuddin, Lc.': 10, 'Hario Sadewo P, S.Pd.': 8, 'Harlan, S. Pd.': 8, 'Firyan Ramdhani, S.Pd.': 8, 'Mohamad Alam Novian, M. Pd.': 8}
 
-        for key, value in day_count_in_month.items():
-            data = ReporterSchedule.objects.filter(schedule_day=key).exclude(reporter__isnull=True)\
+        for day_key, value_day_count in day_count_in_month.items():
+            data = ReporterSchedule.objects.filter(schedule_day=day_key).exclude(reporter__isnull=True)\
                                             .values("schedule_day", "reporter__first_name")\
-                                            .annotate(rcount=Count("reporter__first_name")*value)\
+                                            .annotate(rcount=Count("reporter__first_name")*value_day_count)\
                                             .distinct().order_by("reporter__first_name")
             # print(data)
             for obj in data:
@@ -435,8 +529,15 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
         # Convert back to a list of dicts if needed
         result = [{'reporter__first_name': name, 'total_rcount': count} for name, count in aggregated_counts.items()]
 
-        null_reporter = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
-                                      .filter(reporter__isnull=True)\
+        if date_start and date_end:
+            null_reporter = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                                      .filter(report_date__gte=date_start, report_date__lte=date_end, reporter__isnull=True)\
+                                      .exclude(schedule__in=[241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525])\
+                                      .values("report_date", "schedule__schedule_day", "schedule__schedule_time")\
+                                      .distinct().order_by()
+        else:
+            null_reporter = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                                      .filter(report_date__month=this_month, report_date__year=this_year, reporter__isnull=True)\
                                       .exclude(schedule__in=[241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525])\
                                       .values("report_date", "schedule__schedule_day", "schedule__schedule_time")\
                                       .distinct().order_by()
@@ -450,9 +551,17 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
             for obj in data:
                 absen_group_data.append(obj)
             # <QuerySet [<ReporterSchedule: Selasa | Jam ke-1 | radivan_tiravi>]>
-        data = super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+        if date_start and date_end:
+            data = super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
                              .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
-                             .filter(report_date__month=query_month, report_date__year=query_year, reporter__isnull=False)\
+                             .filter(report_date__gte=date_start, report_date__lte=date_end, reporter__isnull=False)\
+                             .values('reporter__first_name')\
+                             .annotate(hadir_count=Count('reporter__first_name')/15)\
+                             .order_by('reporter__first_name')
+        else:
+            data = super().get_queryset().select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher")\
+                             .exclude(schedule__schedule_course__course_code__in=["APE", "TKL"])\
+                             .filter(report_date__month=this_month, report_date__year=this_year, reporter__isnull=False)\
                              .values('reporter__first_name')\
                              .annotate(hadir_count=Count('reporter__first_name')/15)\
                              .order_by('reporter__first_name')

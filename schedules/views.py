@@ -1,5 +1,8 @@
 from datetime import datetime
+from django.contrib import messages
 from django.db.models.query import QuerySet
+from django.forms import BaseModelForm
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import CreateView, UpdateView, DetailView, ListView
 from django.urls import reverse_lazy
 from classes.models import Class
@@ -60,6 +63,27 @@ class ScheduleListView(BaseAuthorizedModelView, BaseModelDateBasedListView):
     paginate_by = 50
 
 
+class ScheduleSearchView(BaseAuthorizedModelView, BaseModelDateBasedListView):
+    model = Schedule
+    queryset = Schedule.objects.select_related("schedule_course", "schedule_course__teacher", "schedule_class")
+    menu_name = 'schedule'
+    permission_required = 'schedules.view_schedule'
+    template_name = 'schedules/schedule_list.html'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        query_class = self.request.GET.get('query_class')
+        query_day = self.request.GET.get('query_day')
+        query_time = self.request.GET.get('query_time')
+        if query_class or query_day or query_time:
+            return super().get_queryset()
+        else:
+            return None
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update({"search": True})
+        return context
+
 class ScheduleDetailView(BaseAuthorizedModelView, DetailView):
     model = Schedule
     menu_name = 'schedule'
@@ -74,6 +98,21 @@ class ScheduleCreateView(BaseAuthorizedFormView, CreateView):
     permission_required = 'schedules.add_schedule'
     success_message = "Input data berhasil!"
     error_message = "Input data ditolak!"
+    success_url = reverse_lazy("schedule-list")
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        Schedule.objects.update_or_create(
+            schedule_day = form.cleaned_data["schedule_day"],
+            schedule_time = form.cleaned_data["schedule_time"],
+            schedule_class = form.cleaned_data["schedule_class"],
+            defaults=dict(
+                schedule_course = form.cleaned_data["schedule_course"],
+                time_start = form.data.get("time_start"),
+                time_end = form.data.get("time_end"),
+            )
+        )
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(self.success_url)
 
 
 class ScheduleUpdateView(BaseAuthorizedFormView, UpdateView):
