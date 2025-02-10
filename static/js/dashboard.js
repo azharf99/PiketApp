@@ -1,3 +1,4 @@
+// Get DOM elements
 const openMobileNav = document.getElementById("openMobileNav");
 const mobileNav = document.getElementById("mobileNav");
 const closeMobileNav = document.getElementById("closeMobileNav");
@@ -5,30 +6,49 @@ const toggle = document.getElementById("AcceptConditions");
 const toggle2 = document.getElementById("AcceptConditions2");
 const html = document.querySelector("html");
 
-const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-if (prefersDarkScheme) {
-  toggle.checked = true;
-  toggle2.checked = true;
-  html.classList.add("dark")
-} else {
+/**
+ * Updates dark mode state.
+ * @param {boolean} isDark - Whether dark mode should be enabled.
+ */
+function setDarkMode(isDark) {
+  if (isDark) {
+    html.classList.add("dark");
+    toggle.checked = true;
+    toggle2.checked = true;
+    localStorage.setItem("theme", "dark");
+  } else {
+    html.classList.remove("dark");
     toggle.checked = false;
     toggle2.checked = false;
-    html.classList.remove("dark")
+    localStorage.setItem("theme", "light");
+  }
 }
 
-openMobileNav.addEventListener('click', (e)=> {
-  mobileNav.classList.remove('hidden');
-  closeMobileNav.classList.remove('hidden');
-  openMobileNav.classList.add('hidden');
+// Check for a stored dark mode preference
+const storedTheme = localStorage.getItem("theme");
+
+if (storedTheme) {
+  // Use stored preference
+  setDarkMode(storedTheme === "dark");
+} else {
+  // Fall back to the system preference
+  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  setDarkMode(prefersDarkScheme);
+}
+
+// Mobile navigation event listeners
+openMobileNav.addEventListener("click", () => {
+  mobileNav.classList.remove("hidden");
+  closeMobileNav.classList.remove("hidden");
+  openMobileNav.classList.add("hidden");
 });
-closeMobileNav.addEventListener('click', ()=> {
-  mobileNav.classList.add('hidden');
-  closeMobileNav.classList.add('hidden');
-  openMobileNav.classList.remove('hidden');
 
+closeMobileNav.addEventListener("click", () => {
+  mobileNav.classList.add("hidden");
+  closeMobileNav.classList.add("hidden");
+  openMobileNav.classList.remove("hidden");
 });
-toggle.addEventListener('click', () => toggle.checked ? html.classList.add("dark") : html.classList.remove("dark"));
-toggle2.addEventListener('click', () => toggle2.checked ? html.classList.add("dark") : html.classList.remove("dark"));
 
-
+// Dark mode toggle event listeners
+toggle.addEventListener("click", () => setDarkMode(toggle.checked));
+toggle2.addEventListener("click", () => setDarkMode(toggle2.checked));

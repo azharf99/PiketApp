@@ -2,14 +2,34 @@
 const toggle = document.getElementById("AcceptConditions");
 const html = document.querySelector("html");
 
-const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-if (prefersDarkScheme) {
-  toggle.checked = true;
-  html.classList.add("dark")
-} else {
+/**
+ * Updates dark mode state.
+ * @param {boolean} isDark - Whether dark mode should be enabled.
+ */
+function setDarkMode(isDark) {
+  if (isDark) {
+    html.classList.add("dark");
+    toggle.checked = true;
+    localStorage.setItem("theme", "dark");
+  } else {
+    html.classList.remove("dark");
     toggle.checked = false;
-    html.classList.remove("dark")
+    localStorage.setItem("theme", "light");
+  }
 }
 
-toggle.addEventListener('click', () => toggle.checked ? html.classList.add("dark") : html.classList.remove("dark"));
+
+// Check for a stored dark mode preference
+const storedTheme = localStorage.getItem("theme");
+
+if (storedTheme) {
+  // Use stored preference
+  setDarkMode(storedTheme === "dark");
+} else {
+  // Fall back to the system preference
+  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  setDarkMode(prefersDarkScheme);
+}
+
+// Dark mode toggle event listeners
+toggle.addEventListener("click", () => setDarkMode(toggle.checked));
