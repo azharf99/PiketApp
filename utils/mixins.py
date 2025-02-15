@@ -24,7 +24,7 @@ from utils.forms import UploadModelForm
 from utils.menu_link import export_menu_link
 from xlsxwriter import Workbook
 from utils.validate_datetime import get_day, parse_to_date
-from utils.whatsapp_albinaa import send_whatsapp_action
+from utils.whatsapp_albinaa import send_whatsapp_action, send_whatsapp_report
 
 
 # KELAS DEFAULT UNTUK HALAMAN WAJIB LOGIN DAN PERMISSION
@@ -417,9 +417,9 @@ class ReportUpdateQuickViewMixin(BaseAuthorizedFormView, UpdateView):
         )
         redirect_url = reverse(self.redirect_url)
         query_params = f'?query_date={object.report_date}'
+        self.object = form.save()
         messages.success(self.request, self.success_message)
         send_whatsapp_action(user=reporter or self.request.user.first_name, action="update", messages=message, type="report/", slug="quick-create-v2/")
-        self.object = form.save()
         return redirect(redirect_url + query_params)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
