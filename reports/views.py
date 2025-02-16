@@ -81,9 +81,9 @@ Pukul: {datetime.now().time().strftime("%H:%M:%S")} WIB
         for index_outer in range(len(grouped_data)):
             inner_data_length = len(grouped_data[index_outer])
             if inner_data_length > 0:
+                messages += f"Jam ke {index_outer+1} ✅\n"
                 for data in grouped_data[index_outer]:
                     messages += f'''
-Jam ke {index_outer+1} ✅
 KELAS {data.schedule.schedule_class}
 {data.schedule.schedule_course}
 Keterangan : {data.status}
