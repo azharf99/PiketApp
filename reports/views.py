@@ -80,10 +80,10 @@ Pukul: {datetime.now().time().strftime("%H:%M:%S")} WIB
 '''
         for index_outer in range(len(grouped_data)):
             inner_data_length = len(grouped_data[index_outer])
-            messages += f"Jam ke {index_outer+1} ✅\n"
             if inner_data_length > 0:
                 for data in grouped_data[index_outer]:
                     messages += f'''
+Jam ke {index_outer+1} ✅
 KELAS {data.schedule.schedule_class}
 {data.schedule.schedule_course}
 Keterangan : {data.status}
@@ -93,6 +93,9 @@ Catatan : {data.notes or "-"}
                     if data == grouped_data[index_outer][-1]:
                             messages += f'\nPetugas Piket: {data.reporter.first_name if data.reporter else "-"}\n'
                             messages += '--------------------------\n\n'
+            else:
+                messages += f"Jam ke {index_outer+1} LENGKAP✅\n"
+
         send_whatsapp_report(messages)
         return super().form_valid(form)
     

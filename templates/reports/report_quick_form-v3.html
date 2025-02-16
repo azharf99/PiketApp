@@ -136,7 +136,7 @@
                     </svg></span>
                 </p>
               </button>
-              <p class="text-xs m-1">{{reports.first.reporter__last_name|default:"Belum input"}}</p>
+              <p class="text-xs m-1">{{reports.first.reporter__last_name|default:"Tidak ada"}}</p>
               <form action="{% url 'report-submit' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="date_string" id="id_date_string" value="{{query_date}}">
