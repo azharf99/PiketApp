@@ -91,7 +91,7 @@ Pengganti : {data.subtitute_teacher or "-"}
 Catatan : {data.notes or "-"}
 '''
                     if data == grouped_data[index_outer][-1]:
-                            messages += f'\nPetugas Piket: {data.reporter.first_name or "-"}\n'
+                            messages += f'\nPetugas Piket: {data.reporter.first_name if data.reporter else "-"}\n'
                             messages += '--------------------------\n\n'
         send_whatsapp_report(messages)
         return super().form_valid(form)
