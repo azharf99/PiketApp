@@ -7,6 +7,7 @@ from reports.forms import ReportFormV2, SubmitForm
 from reports.models import Report
 from typing import Any
 from django.urls import reverse, reverse_lazy
+from schedules.models import ReporterSchedule
 from utils.mixins import BaseAuthorizedFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, ModelDownloadExcelView, BaseModelQueryListView, QuickReportMixin, ReportUpdateQuickViewMixin, ReportUpdateReporterMixin
 from utils.validate_datetime import get_day
 from utils.whatsapp_albinaa import send_whatsapp_report
@@ -45,6 +46,9 @@ class SubmitButtonView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         report_date = form.cleaned_data['date_string']
         # Filter and order the queryset
         qs = self.queryset.filter(report_date=report_date).exclude(status="Hadir").order_by('schedule__schedule_time', 'schedule__schedule_class')
+        reporter_schedule = ReporterSchedule.objects.filter(schedule_day=get_day(report_date))
+
+
 
         total_time = 10
         if get_day("2025-02-16") == "Ahad":
@@ -95,6 +99,8 @@ Catatan : {data.notes or "-"}
                             messages += '--------------------------\n\n'
             else:
                 messages += f"Jam ke {index_outer+1} LENGKAP✅\n"
+                messages += f'Petugas Piket: {reporter_schedule[index_outer].first_name if reporter_schedule[index_outer] else "-"}\n'
+                messages += '--------------------------\n\n'
 
         send_whatsapp_report(messages)
         return super().form_valid(form)
