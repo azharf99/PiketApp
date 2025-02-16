@@ -51,8 +51,9 @@ class SubmitButtonView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 
         total_time = 10
-        if get_day("2025-02-16") == "Ahad":
+        if get_day(report_date) == "Ahad":
             total_time = 8
+
         # Initialize the grouped data list
         grouped_data = []
 
@@ -78,7 +79,7 @@ class SubmitButtonView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
         messages = f'''*[LAPORAN KETIDAKHADIRAN GURU DALAM KBM]*
 *TIM PIKET SMAS IT AL BINAA*
-Hari: {get_day(report_date)}, {qs.first().report_date if qs.exists() else datetime.now().date().strftime("%d %B %Y")}
+Hari: {get_day(report_date)}, {qs.first().report_date.strftime("%d %B %Y") if qs.exists() else datetime.now().date().strftime("%d %B %Y")}
 Pukul: {datetime.now().time().strftime("%H:%M:%S")} WIB
 
 '''
