@@ -16,6 +16,8 @@ class Report(models.Model):
     status = models.CharField(_("Status"), max_length=20, choices=STATUS_CHOICES, default=STATUS_CHOICES[1][0])
     subtitute_teacher = models.ForeignKey(User, related_name="subtitute_teacher", on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Guru Pengganti"))
     reporter = models.ForeignKey(User, related_name="reporter", on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Petugas Piket"))
+    is_submitted = models.BooleanField("Sudah di-submit?", default=False)
+    is_complete = models.BooleanField("Sudah complete", default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

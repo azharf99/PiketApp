@@ -42,12 +42,22 @@ class SubmitButtonView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     queryset = Report.objects.select_related("schedule__schedule_course", "schedule__schedule_course__teacher","schedule__schedule_class", "subtitute_teacher", "reporter").all()
     permission_required = 'reports.add_report'
 
+
     def form_valid(self, form: Any) -> HttpResponse:
         report_date = form.cleaned_data['date_string']
-        # Filter and order the queryset
-        qs = self.queryset.filter(report_date=report_date).exclude(status="Hadir").order_by('schedule__schedule_time', 'schedule__schedule_class')
-        reporter_schedule = ReporterSchedule.objects.filter(schedule_day=get_day(report_date))
+        schedule_time = form.cleaned_data['time_string']
 
+        reports = self.queryset.filter(report_date=report_date, schedule__schedule_time=schedule_time)
+        reports.update(is_submitted=True)
+        rep = reports.values_list("status", flat=True)
+        if "Sakit" in rep or "Izin" in rep or "Tanpa Keterangan" in rep:
+            reports.update(is_complete=False)
+        else:
+            reports.update(is_complete=True)
+
+        # Filter and order the queryset
+        qs = self.queryset.filter(report_date=report_date).order_by('schedule__schedule_time', 'schedule__schedule_class')
+        reporter_schedule = ReporterSchedule.objects.filter(schedule_day=get_day(report_date))
 
 
         total_time = 10
@@ -63,9 +73,15 @@ class SubmitButtonView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         # Group the reports by schedule_time
         for report in qs:
             schedule_time = int(report.schedule.schedule_time)
+            is_complete = report.is_complete
+            is_submitted = report.is_submitted
+            status = report.status
             if schedule_time not in grouped_dict:
                 grouped_dict[schedule_time] = []
-            grouped_dict[schedule_time].append(report)
+            elif not is_complete and status != "Hadir":
+                grouped_dict[schedule_time].append(report)
+            elif is_complete:
+                grouped_dict[schedule_time] = [report]
 
         # Create the grouped_data list based on the schedule_time
         for time_num in range(1, total_time):  # Assuming schedule_time ranges from 1 to 9
@@ -73,9 +89,6 @@ class SubmitButtonView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 grouped_data.append(grouped_dict[time_num])
             else:
                 grouped_data.append([])
-
-        # print(grouped_data)
-             
 
         messages = f'''*[LAPORAN KETIDAKHADIRAN GURU DALAM KBM]*
 *TIM PIKET SMAS IT AL BINAA*
@@ -86,26 +99,25 @@ Pukul: {datetime.now().time().strftime("%H:%M:%S")} WIB
         for index_outer in range(len(grouped_data)):
             inner_data_length = len(grouped_data[index_outer])
             if inner_data_length > 0:
-                messages += f"Jam ke {index_outer+1} ✅\n"
                 for data in grouped_data[index_outer]:
-                    messages += f'''
+                    if data.is_complete:
+                        messages += f"Jam ke {index_outer+1} ✅ LENGKAP\n"
+                        messages += f'\nPetugas Piket: {data.reporter.first_name if data.reporter else "-"}\n'
+                        messages += '--------------------------\n\n'
+                    else:
+                        messages += f"Jam ke {index_outer+1} ✅\n"
+                        messages += f'''
 KELAS {data.schedule.schedule_class}
 {data.schedule.schedule_course}
 Keterangan : {data.status}
 Pengganti : {data.subtitute_teacher or "-"}
 Catatan : {data.notes or "-"}
 '''
-                    if data == grouped_data[index_outer][-1]:
-                            messages += f'\nPetugas Piket: {data.reporter.first_name if data.reporter else "-"}\n'
-                            messages += '--------------------------\n\n'
+                        if data == grouped_data[index_outer][-1]:
+                                messages += f'\nPetugas Piket: {data.reporter.first_name if data.reporter else "-"}\n'
+                                messages += '--------------------------\n\n'
             else:
-                messages += f"Jam ke {index_outer+1} LENGKAP✅\n"
-                if reporter_schedule[index_outer].reporter:
-                    messages += f'Petugas Piket: {reporter_schedule[index_outer].reporter.first_name}\n'
-                else:
-                    messages += f'Petugas Piket: Tidak ada \n'
-
-                messages += '--------------------------\n\n'
+                messages += f"Jam ke {index_outer+1}\n"
 
         send_whatsapp_report(messages)
         return super().form_valid(form)

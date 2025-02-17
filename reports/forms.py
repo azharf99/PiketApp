@@ -131,3 +131,11 @@ class SubmitForm(forms.Form):
             }
         ),
     )
+    time_string = forms.CharField(
+        widget=forms.HiddenInput(
+            attrs={
+                "class": "rounded-md text-black px-2 py-1 border-2 border-blue-500 dark:border-none shadow-lg",
+                "type": "hidden",
+            }
+        ),
+    )

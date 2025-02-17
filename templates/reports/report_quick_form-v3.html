@@ -140,6 +140,7 @@
               <form action="{% url 'report-submit' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="date_string" id="id_date_string" value="{{query_date}}">
+                <input type="hidden" name="time_string" id="id_time_string" value="{{forloop.counter}}">
                 <input type="submit" value="Submit" class="bg-blue-600 p-2 rounded-md text-xs text-black dark:text-white font-semibold hover:bg-fuchsia-400 dark:hover:bg-gray-700 w-32">
               </form>
             </td>
