@@ -41,7 +41,7 @@ class Schedule(models.Model):
 class ReporterSchedule(models.Model):
     schedule_day = models.CharField(_("Hari"), max_length=10, blank=True, choices=SCHEDULE_WEEKDAYS)
     schedule_time = models.CharField(_("Jam Ke-"), max_length=20, choices=SCHEDULE_TIME)
-    reporter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("Pelajaran"))
+    reporter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("Tim Piket"))
     time_start = models.TimeField(_("Waktu Mulai"), default=time(7, 0, 0, 0))
     time_end = models.TimeField(_("Waktu Akhir"), default=time(7, 0, 0, 0))
     created_at = models.DateTimeField(auto_now_add=True)

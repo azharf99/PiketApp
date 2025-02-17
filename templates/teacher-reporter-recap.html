@@ -149,10 +149,11 @@
             <td class="p-2 border border-gray-400 text-center">{{forloop.counter}}</td>
             {% if reporters %}
             <td class="p-2 border border-gray-400">{{object.reporter__first_name}}</td>
+            <td class="p-2 border border-gray-400 text-center">{{object.real_count|default:"0"}}</td>
             {% else %}
             <td class="p-2 border border-gray-400">{{object.schedule__schedule_course__teacher__first_name}}</td>
-            {% endif %}
             <td class="p-2 border border-gray-400 text-center">{{object.hadir_count|default:"0"}}</td>
+            {% endif %}
             
             {% if not reporters %}
             <td class="p-2 border border-gray-400 text-center">
@@ -176,11 +177,26 @@
             </td>
             {% else %}
             <td class="p-2 border border-gray-400 text-center">{{object.absen_count|default:"0"}}</td>
-            <td class="p-2 border border-gray-400 text-center">{{object.total_rcount}}</td>
-            <td class="p-2 border border-gray-400 text-center">
-              {% widthratio object.hadir_count object.total_rcount 100 as percentage %}
-              {% blocktranslate %} {{ percentage }}% {% endblocktranslate %}
-            </td>
+              {% if object.expected_count %}
+              <td class="p-2 border border-gray-400 text-center">{{object.expected_count}}</td>
+                {% if object.real_count %}
+                <td class="p-2 border border-gray-400 text-center">
+                  {% widthratio object.real_count object.expected_count 100 as percentage %}
+                  {% blocktranslate %} {{ percentage }}% {% endblocktranslate %}
+                </td>
+                {% else %}
+                <td class="p-2 border border-gray-400 text-center">
+                  {% widthratio 0 object.expected_count 100 as percentage %}
+                  {% blocktranslate %} {{ percentage }}% {% endblocktranslate %}
+                </td>
+                {% endif %}
+              {% else %}
+              <td class="p-2 border border-gray-400 text-center">{{object.real_count}}</td>
+              <td class="p-2 border border-gray-400 text-center">
+                {% widthratio object.real_count object.real_count 100 as percentage %}
+                {% blocktranslate %} {{ percentage }}% {% endblocktranslate %}
+              </td>
+              {% endif %}
             {% endif %}
           </tr>
           {% endfor %}
