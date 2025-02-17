@@ -100,7 +100,11 @@ Catatan : {data.notes or "-"}
                             messages += '--------------------------\n\n'
             else:
                 messages += f"Jam ke {index_outer+1} LENGKAP✅\n"
-                messages += f'Petugas Piket: {reporter_schedule[index_outer].reporter.first_name if reporter_schedule[index_outer] else "-"}\n'
+                if reporter_schedule[index_outer].reporter:
+                    messages += f'Petugas Piket: {reporter_schedule[index_outer].reporter.first_name}\n'
+                else:
+                    messages += f'Petugas Piket: Tidak ada \n'
+
                 messages += '--------------------------\n\n'
 
         send_whatsapp_report(messages)
