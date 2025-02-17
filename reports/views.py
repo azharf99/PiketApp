@@ -99,22 +99,30 @@ Pukul: {datetime.now().time().strftime("%H:%M:%S")} WIB
         for index_outer in range(len(grouped_data)):
             inner_data_length = len(grouped_data[index_outer])
             if inner_data_length > 0:
-                for data in grouped_data[index_outer]:
-                    if data.is_complete:
+                for inner_index in range(inner_data_length):
+                    if grouped_data[index_outer][inner_index].is_complete:
                         messages += f"Jam ke {index_outer+1} ✅ LENGKAP\n"
-                        messages += f'\nPetugas Piket: {data.reporter.first_name if data.reporter else "-"}\n'
+                        messages += f'\nPetugas Piket: {grouped_data[index_outer][inner_index].reporter.first_name if grouped_data[index_outer][inner_index].reporter else "-"}\n'
                         messages += '--------------------------\n\n'
-                    else:
+                    elif inner_index == 0 and not grouped_data[index_outer][inner_index].is_complete:
                         messages += f"Jam ke {index_outer+1} ✅\n"
                         messages += f'''
-KELAS {data.schedule.schedule_class}
-{data.schedule.schedule_course}
-Keterangan : {data.status}
-Pengganti : {data.subtitute_teacher or "-"}
-Catatan : {data.notes or "-"}
+KELAS {grouped_data[index_outer][inner_index].schedule.schedule_class}
+{grouped_data[index_outer][inner_index].schedule.schedule_course}
+Keterangan : {grouped_data[index_outer][inner_index].status}
+Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher or "-"}
+Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
 '''
-                        if data == grouped_data[index_outer][-1]:
-                                messages += f'\nPetugas Piket: {data.reporter.first_name if data.reporter else "-"}\n'
+                    elif inner_index != 0 and not grouped_data[index_outer][inner_index].is_complete:
+                        messages += f'''
+KELAS {grouped_data[index_outer][inner_index].schedule.schedule_class}
+{grouped_data[index_outer][inner_index].schedule.schedule_course}
+Keterangan : {grouped_data[index_outer][inner_index].status}
+Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher or "-"}
+Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
+'''
+                        if grouped_data[index_outer][inner_index] == grouped_data[index_outer][-1]:
+                                messages += f'\nPetugas Piket: {grouped_data[index_outer][inner_index].reporter.first_name if grouped_data[index_outer][inner_index].reporter else "-"}\n'
                                 messages += '--------------------------\n\n'
             else:
                 messages += f"Jam ke {index_outer+1}\n"
