@@ -127,7 +127,8 @@ Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
                 messages += f"Jam ke {index_outer+1}\n"
 
         send_whatsapp_report(messages)
-        return super().form_valid(form)
+        query_params = f'?query_date={report_date}'
+        return HttpResponseRedirect(reverse("report-quick-create-v3") + query_params)
     
 
 class ReportUpdateViewV3(ReportUpdateQuickViewMixin):
