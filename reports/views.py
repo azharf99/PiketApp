@@ -102,8 +102,6 @@ Pukul: {datetime.now().time().strftime("%H:%M:%S")} WIB
                 for inner_index in range(inner_data_length):
                     if grouped_data[index_outer][inner_index].is_complete:
                         messages += f"Jam ke {index_outer+1} ✅ LENGKAP\n"
-                        messages += f'\nPetugas Piket: {grouped_data[index_outer][inner_index].reporter.first_name if grouped_data[index_outer][inner_index].reporter else "-"}\n'
-                        messages += '--------------------------\n\n'
                     elif inner_index == 0 and not grouped_data[index_outer][inner_index].is_complete:
                         messages += f"Jam ke {index_outer+1} ✅\n"
                         messages += f'''
@@ -113,9 +111,7 @@ Keterangan : {grouped_data[index_outer][inner_index].status}
 Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher.first_name if grouped_data[index_outer][inner_index].subtitute_teacher else "-"}
 Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
 '''
-                        if inner_data_length == 1:
-                            messages += f'\nPetugas Piket: {grouped_data[index_outer][inner_index].reporter.first_name if grouped_data[index_outer][inner_index].reporter else "-"}\n'
-                            messages += '--------------------------\n\n'
+                        
                     elif inner_index != 0 and not grouped_data[index_outer][inner_index].is_complete:
                         messages += f'''
 KELAS {grouped_data[index_outer][inner_index].schedule.schedule_class}
@@ -124,9 +120,9 @@ Keterangan : {grouped_data[index_outer][inner_index].status}
 Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher.first_name if grouped_data[index_outer][inner_index].subtitute_teacher else "-"}
 Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
 '''
-                        if inner_data_length > 1:
-                            messages += f'\nPetugas Piket: {grouped_data[index_outer][inner_index].reporter.first_name if grouped_data[index_outer][inner_index].reporter else "-"}\n'
-                            messages += '--------------------------\n\n'
+                    if inner_index == inner_data_length-1:
+                        messages += f'\nPetugas Piket: {grouped_data[index_outer][inner_index].reporter.first_name if grouped_data[index_outer][inner_index].reporter else "-"}\n'
+                        messages += '--------------------------\n\n'
             else:
                 messages += f"Jam ke {index_outer+1}\n"
 
