@@ -110,7 +110,7 @@ Pukul: {datetime.now().time().strftime("%H:%M:%S")} WIB
 KELAS {grouped_data[index_outer][inner_index].schedule.schedule_class}
 {grouped_data[index_outer][inner_index].schedule.schedule_course}
 Keterangan : {grouped_data[index_outer][inner_index].status}
-Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher or "-"}
+Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher.first_name if grouped_data[index_outer][inner_index].subtitute_teacher else "-"}
 Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
 '''
                         if inner_data_length == 1:
@@ -121,7 +121,7 @@ Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
 KELAS {grouped_data[index_outer][inner_index].schedule.schedule_class}
 {grouped_data[index_outer][inner_index].schedule.schedule_course}
 Keterangan : {grouped_data[index_outer][inner_index].status}
-Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher or "-"}
+Pengganti : {grouped_data[index_outer][inner_index].subtitute_teacher.first_name if grouped_data[index_outer][inner_index].subtitute_teacher else "-"}
 Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
 '''
                         if inner_data_length > 1:
