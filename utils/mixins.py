@@ -419,7 +419,6 @@ class ReportUpdateQuickViewMixin(BaseAuthorizedFormView, UpdateView):
         query_params = f'?query_date={object.report_date}'
         self.object = form.save()
         messages.success(self.request, self.success_message)
-        send_whatsapp_action(user=reporter or self.request.user.first_name, action="update", messages=message, type="report/", slug="quick-create-v2/")
         return redirect(redirect_url + query_params)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
