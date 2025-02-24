@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
 token_wablas = os.getenv("WABLAS_TOKEN")
 admin_phone = os.getenv("ADMIN_PHONE")
+piket_group_phone = os.getenv("PIKET_GROUP_PHONE")
 sender_albinaa_phone = os.getenv("SENDER_ALBINAA_PHONE")
 
 def send_whatsapp_action(user: Any = "Anda", phone: str | None = admin_phone, action: str = "", messages: str = "", type: str = "", slug: str = "") -> requests.Response | None:        
@@ -28,7 +29,7 @@ def send_whatsapp_group(messages: str = "") -> requests.Response | None:
     payload = {
         "data": [
             {
-                'phone': '120363044896599612',
+                'phone': piket_group_phone,
                 'message': messages,
                 'isGroup': 'true'
             },
@@ -36,7 +37,19 @@ def send_whatsapp_group(messages: str = "") -> requests.Response | None:
                 'phone': '120363322382144100',
                 'message': messages,
                 'isGroup': 'true'
-            }
+            },
+            {
+                'phone': '085701570100',
+                'message': messages,
+            },
+            {
+                'phone': '085860256426',
+                'message': messages,
+            },
+            {
+                'phone': '085710114880', 
+                'message': messages,
+            },
         ]
     }
 
@@ -45,9 +58,11 @@ def send_whatsapp_group(messages: str = "") -> requests.Response | None:
         "Content-Type": "application/json"
     }
     try:
-        data = requests.post(url_wablas, headers=headers, data=json.dumps(payload), verify=False)  # Disables SSL verification)
+        data = requests.post(url_wablas, headers=headers, data=json.dumps(payload), verify=False, timeout=5)  # Disables SSL verification)
+        print(data.text)
         return data
-    except:
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
         return None
 
 def send_whatsapp_report(messages: str = "") -> requests.Response | None:        
