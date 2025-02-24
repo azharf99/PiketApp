@@ -1,5 +1,4 @@
 from datetime import datetime
-from django.forms import BaseModelForm
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.views.generic import CreateView, DetailView, FormView
@@ -10,7 +9,7 @@ from django.urls import reverse, reverse_lazy
 from schedules.models import ReporterSchedule
 from utils.mixins import BaseAuthorizedFormView, BaseModelDateBasedListView, BaseModelDeleteView, BaseModelUploadView, BaseAuthorizedModelView, ModelDownloadExcelView, BaseModelQueryListView, QuickReportMixin, ReportUpdateQuickViewMixin, ReportUpdateReporterMixin
 from utils.validate_datetime import get_day
-from utils.whatsapp_albinaa import send_whatsapp_report
+from utils.whatsapp_albinaa import send_whatsapp_group
 # Create your views here.
     
 class ReportListView(BaseAuthorizedModelView, BaseModelDateBasedListView):
@@ -126,7 +125,7 @@ Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
             else:
                 messages += f"Jam ke {index_outer+1}\n"
 
-        send_whatsapp_report(messages)
+        send_whatsapp_group(messages)
         query_params = f'?query_date={report_date}'
         return HttpResponseRedirect(reverse("report-quick-create-v3") + query_params)
     
