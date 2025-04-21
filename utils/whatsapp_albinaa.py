@@ -58,9 +58,11 @@ def send_whatsapp_group(messages: str = "") -> requests.Response | None:
         "Content-Type": "application/json"
     }
     try:
-        data = requests.post(url_wablas, headers=headers, data=json.dumps(payload), verify=False, timeout=5)  # Disables SSL verification)
-        print(data.text)
-        return data
+        if not settings.DEBUG:
+            data = requests.post(url_wablas, headers=headers, data=json.dumps(payload), verify=False, timeout=5)  # Disables SSL verification)
+            return data
+        else:
+            return None
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
         return None
