@@ -140,7 +140,7 @@ Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
 
 Petugas: *{reports[0].reporter.last_name}*
 🎦🎦🎦🎦🎦🎦🎦🎦🎦🎦'''
-        send_whatsapp_report(simplified_message)
+        send_whatsapp_group(simplified_message)
         msg.success(request=self.request, message="Submit Data Berhasil!")
         query_params = f'?query_date={report_date}'
         return HttpResponseRedirect(reverse("report-quick-create-v3") + query_params)

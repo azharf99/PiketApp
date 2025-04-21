@@ -33,11 +33,11 @@ def send_whatsapp_group(messages: str = "") -> requests.Response | None:
                 'message': messages,
                 'isGroup': 'true'
             },
-            {
-                'phone': '120363322382144100',
-                'message': messages,
-                'isGroup': 'true'
-            },
+            # {
+            #     'phone': '120363322382144100',
+            #     'message': messages,
+            #     'isGroup': 'true'
+            # },
             {
                 'phone': '085701570100',
                 'message': messages,
