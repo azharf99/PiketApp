@@ -158,12 +158,12 @@
             {% if not reporters %}
             <td class="p-2 border border-gray-400 text-center">
               <a href="{% url 'dashboard-teachers-detail' object.schedule__schedule_course__teacher %}" class="bg-indigo-500 rounded-md py-1 px-3 font-semibold">
-                {{object.izin_count|default:"0"}}
+                {{object.sakit_count|default:"0"}}
               </a>
             </td>
             <td class="p-2 border border-gray-400 text-center">
               <a href="{% url 'dashboard-teachers-detail' object.schedule__schedule_course__teacher %}" class="bg-yellow-600 rounded-md py-1 px-3 font-semibold">
-                {{object.sakit_count|default:"0"}}
+                {{object.izin_count|default:"0"}}
               </a>
             </td>
             <td class="p-2 border border-gray-400 text-center">
