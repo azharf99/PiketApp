@@ -38,18 +38,18 @@ def send_whatsapp_group(messages: str = "") -> requests.Response | None:
             #     'message': messages,
             #     'isGroup': 'true'
             # },
-            {
-                'phone': '085701570100',
-                'message': messages,
-            },
-            {
-                'phone': '085860256426',
-                'message': messages,
-            },
-            {
-                'phone': '085710114880', 
-                'message': messages,
-            },
+            # {
+            #     'phone': '085701570100',
+            #     'message': messages,
+            # },
+            # {
+            #     'phone': '085860256426',
+            #     'message': messages,
+            # },
+            # {
+            #     'phone': '085710114880', 
+            #     'message': messages,
+            # },
         ]
     }
 
