@@ -132,11 +132,11 @@ Catatan : {grouped_data[index_outer][inner_index].notes or "-"}
         *{reports[0].report_day}, {report_date}*
         KBM *Jam ke-{form.cleaned_data["time_string"]}*
 
-10-A {"✅        " if reports[0].subtitute_teacher or reports[0].status == "Hadir" else "❌ (" + reports[0].status + ")"}11-A {"✅        " if reports[5].subtitute_teacher or reports[5].status == "Hadir" else "❌ (" + reports[5].status + ")"}12-A {"✅" if reports[10].subtitute_teacher or reports[10].status == "Hadir" else "❌ (" + reports[10].status + ")"}
-10-B {"✅        " if reports[1].subtitute_teacher or reports[1].status == "Hadir" else "❌ (" + reports[1].status + ")"}11-B {"✅        " if reports[6].subtitute_teacher or reports[6].status == "Hadir" else "❌ (" + reports[6].status + ")"}12-B {"✅" if reports[11].subtitute_teacher or reports[11].status == "Hadir" else "❌ (" + reports[11].status + ")"}
-10-C {"✅        " if reports[2].subtitute_teacher or reports[2].status == "Hadir" else "❌ (" + reports[2].status + ")"}11-C {"✅        " if reports[7].subtitute_teacher or reports[7].status == "Hadir" else "❌ (" + reports[7].status + ")"}12-C {"✅" if reports[12].subtitute_teacher or reports[12].status == "Hadir" else "❌ (" + reports[12].status + ")"}
-10-D {"✅        " if reports[3].subtitute_teacher or reports[3].status == "Hadir" else "❌ (" + reports[3].status + ")"}11-D {"✅        " if reports[8].subtitute_teacher or reports[8].status == "Hadir" else "❌ (" + reports[8].status + ")"}12-D {"✅" if reports[13].subtitute_teacher or reports[13].status == "Hadir" else "❌ (" + reports[13].status + ")"}
-10-E  {"✅        " if reports[4].subtitute_teacher or reports[4].status == "Hadir" else "❌ (" + reports[4].status + ")"}11-E  {"✅        " if reports[9].subtitute_teacher or reports[9].status == "Hadir" else "❌ (" + report[9].status + ")"}12-E {"✅" if reports[14].subtitute_teacher or reports[14].status == "Hadir" else "❌ (" + reports[14].status + ")"}
+10-A {"✅        " if reports[0].subtitute_teacher or reports[0].status == "Hadir" else "⚠️ (" + reports[0].status + ")"}11-A {"✅        " if reports[5].subtitute_teacher or reports[5].status == "Hadir" else "⚠️ (" + reports[5].status + ")"}
+10-B {"✅        " if reports[1].subtitute_teacher or reports[1].status == "Hadir" else "⚠️ (" + reports[1].status + ")"}11-B {"✅        " if reports[6].subtitute_teacher or reports[6].status == "Hadir" else "⚠️ (" + reports[6].status + ")"}
+10-C {"✅        " if reports[2].subtitute_teacher or reports[2].status == "Hadir" else "⚠️ (" + reports[2].status + ")"}11-C {"✅        " if reports[7].subtitute_teacher or reports[7].status == "Hadir" else "⚠️ (" + reports[7].status + ")"}
+10-D {"✅        " if reports[3].subtitute_teacher or reports[3].status == "Hadir" else "⚠️ (" + reports[3].status + ")"}11-D {"✅        " if reports[8].subtitute_teacher or reports[8].status == "Hadir" else "⚠️ (" + reports[8].status + ")"}
+10-E  {"✅        " if reports[4].subtitute_teacher or reports[4].status == "Hadir" else "⚠️ (" + reports[4].status + ")"}11-E  {"✅        " if reports[9].subtitute_teacher or reports[9].status == "Hadir" else "⚠️ (" + reports[9].status + ")"}
 
 Petugas: *{reports[0].reporter.last_name}*
 🎦🎦🎦🎦🎦🎦🎦🎦🎦🎦'''
