@@ -23,7 +23,7 @@ from django.views.generic import TemplateView
 from utils.menu_link import export_home_kwargs
 from utils.views import DashboardListView, TeacherRecapListView, TeacherRecapDetailView, TeacherRecapDownloadExcelView, \
                         ReporterRecapListView, ReporterRecapDownloadExcelView, TeacherAbsenceListView, TeacherAbsenceDownloadExcelView, \
-                        TeacherAbsenceDetailDownloadExcelView, device_webhook
+                        TeacherAbsenceDetailDownloadExcelView, device_webhook, tracking_webhook
 
 
 urlpatterns = [
@@ -46,6 +46,7 @@ urlpatterns = [
     path('report/', include('reports.urls')),
     path('schedule/', include('schedules.urls')),
     path('userlogs/', include('userlogs.urls')),
+    path('tracking/', tracking_webhook, name='tracking-status'),
 ]
 
 if not settings.TESTING:

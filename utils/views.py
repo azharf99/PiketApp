@@ -740,3 +740,21 @@ def device_webhook(request):
             return JsonResponse({"error": "Invalid JSON format"}, status=400)
     else:
         return HttpResponse("Hello, World!")
+
+@csrf_exempt  # Disable CSRF for this endpoint
+def tracking_webhook(request):    
+    if request.method == "POST":
+        try:
+            # Parse the incoming JSON payload
+            payload = json.loads(request.body)
+
+            message = f"Phone {payload.get('phone')} status: {payload.get('status')} note: {payload.get('note')} sender: {payload.get('sender')}"
+
+            send_whatsapp_action(user=payload.get('id'), messages=message)
+            
+            # Send a response back to acknowledge the webhook
+            return JsonResponse({"message": "Webhook received successfully"}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+    else:
+        return HttpResponse("Hello, World!")
