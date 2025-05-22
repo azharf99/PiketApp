@@ -758,3 +758,45 @@ def tracking_webhook(request):
             return JsonResponse({"error": "Invalid JSON format"}, status=400)
     else:
         return HttpResponse("Hello, World!")
+    
+
+
+@csrf_exempt  # Disable CSRF for this endpoint
+def message_webhook(request):
+    if request.method == "POST":
+        try:
+            # Parse the incoming JSON payload
+            payload = json.loads(request.body)
+            
+            # Check if the message is a group or personal message
+            if payload.get("isGroup"):
+                # Process group message
+                group_data = {
+                    "pushName": payload.get("pushName"),
+                    "groupSubject": payload["group"].get("subject"),
+                    "groupSender": payload["group"].get("sender"),
+                    "message": payload.get("message"),
+                    "timestamp": payload.get("timestamp"),
+                    "file": payload.get("file"),
+                    "url": payload.get("url"),
+                    "participants": payload["group"].get("participants"),
+                }
+                send_whatsapp_action(messages=f"{group_data}")
+            else:
+                # Process personal message
+                personal_data = {
+                    "pushName": payload.get("pushName"),
+                    "sender": payload.get("sender"),
+                    "message": payload.get("message"),
+                    "timestamp": payload.get("timestamp"),
+                    "file": payload.get("file"),
+                    "url": payload.get("url"),
+                }
+                send_whatsapp_action(messages=f"{personal_data}")
+            
+            # Send a response back to acknowledge the webhook
+            return JsonResponse({"message": "Webhook processed successfully"}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
