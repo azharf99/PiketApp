@@ -23,7 +23,7 @@ from django.views.generic import TemplateView
 from utils.menu_link import export_home_kwargs
 from utils.views import DashboardListView, TeacherRecapListView, TeacherRecapDetailView, TeacherRecapDownloadExcelView, \
                         ReporterRecapListView, ReporterRecapDownloadExcelView, TeacherAbsenceListView, TeacherAbsenceDownloadExcelView, \
-                        TeacherAbsenceDetailDownloadExcelView, DeviceStatusView
+                        TeacherAbsenceDetailDownloadExcelView, device_webhook
 
 
 urlpatterns = [
@@ -42,7 +42,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('class/', include('classes.urls')),
     path('course/', include('courses.urls')),
-    path('device/', DeviceStatusView.as_view(), name='device-status'),
+    path('device/', device_webhook, name='device-status'),
     path('report/', include('reports.urls')),
     path('schedule/', include('schedules.urls')),
     path('userlogs/', include('userlogs.urls')),

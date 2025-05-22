@@ -6,6 +6,7 @@ from typing import Any
 from django.db.models.query import QuerySet
 from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from classes.models import Class
 from courses.models import Course
 from django.contrib.auth.models import User
@@ -722,11 +723,9 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
     
 
 
-class DeviceStatusView(View):
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        return HttpResponse("Hello, World!")
-    
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+@csrf_exempt  # Disable CSRF for this endpoint
+def device_webhook(request):    
+    if request.method == "POST":
         try:
             # Parse the incoming JSON payload
             payload = json.loads(request.body)
@@ -739,3 +738,5 @@ class DeviceStatusView(View):
             return JsonResponse({"message": "Webhook received successfully"}, status=200)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON format"}, status=400)
+    else:
+        return HttpResponse("Hello, World!")
