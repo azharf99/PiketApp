@@ -1,9 +1,11 @@
 import calendar
 from collections import defaultdict
 from io import BytesIO
+import json
 from typing import Any
 from django.db.models.query import QuerySet
-from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseBadRequest
+from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.views import View
 from classes.models import Class
 from courses.models import Course
 from django.contrib.auth.models import User
@@ -15,6 +17,8 @@ from userlogs.models import UserLog
 from utils.mixins import BaseAuthorizedModelView, BaseModelQueryListView
 from utils.constants import WEEKDAYS
 from xlsxwriter import Workbook
+
+from utils.whatsapp_albinaa import send_whatsapp_action
 
 class DashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
@@ -715,3 +719,23 @@ class ReporterRecapDownloadExcelView(BaseAuthorizedModelView, BaseModelQueryList
         workbook.close()
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=True, filename=f'REKAP KEHADIRAN TIM PIKET SMA IT Al Binaa.xlsx')
+    
+
+
+class DeviceStatusView(View):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        return HttpResponse("Hello, World!")
+    
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        try:
+            # Parse the incoming JSON payload
+            payload = json.loads(request.body)
+
+            message = f"Device {payload.get('deviceId')} status: {payload.get('status')} note: {payload.get('note')} time: {payload.get('timestamp')}"
+
+            send_whatsapp_action(messages=message)
+            
+            # Send a response back to acknowledge the webhook
+            return JsonResponse({"message": "Webhook received successfully"}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
