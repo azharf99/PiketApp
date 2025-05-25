@@ -79,3 +79,38 @@ def send_whatsapp_report(messages: str = "") -> requests.Response | None:
         return data
     except:
         return None
+    
+
+
+def send_whatsapp_device_status(id_device: str = "", status: str = "", note: str = "", time: str = "") -> requests.Response | None:        
+    message = f'''*[DEVICE STATUS]*
+id_device: {id_device}
+status: {status}
+note: {note}
+time: {time}
+'''
+    url = f"https://albinaa.sch.id/wp-content/wa/api.php?sender={sender_albinaa_phone}&no=6285701570100&pesan={message}"
+    try:
+        data = requests.get(url, timeout=5)
+        return data
+    except:
+        return None
+    
+
+def send_whatsapp_message(pushName: str = "", groupSubject: str = "", groupSender: str = "", sender: str = "", message: str = "", timestamp: str = "", file: str = "", url: str = "") -> requests.Response | None:        
+    message = f'''*[MESSAGE WEBHOOK]*
+pushName: {pushName}
+groupSubject: {groupSubject}
+groupSender: {groupSender}
+sender: {sender}
+message: {message}
+timestamp: {timestamp}
+file: {file}
+url: {url}
+'''
+    url = f"https://albinaa.sch.id/wp-content/wa/api.php?sender={sender_albinaa_phone}&no=6285701570100&pesan={message}"
+    try:
+        data = requests.get(url, timeout=5)
+        return data
+    except:
+        return None

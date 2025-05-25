@@ -19,7 +19,7 @@ from utils.mixins import BaseAuthorizedModelView, BaseModelQueryListView
 from utils.constants import WEEKDAYS
 from xlsxwriter import Workbook
 
-from utils.whatsapp_albinaa import send_whatsapp_action
+from utils.whatsapp_albinaa import send_whatsapp_action, send_whatsapp_device_status, send_whatsapp_message
 
 class DashboardListView(BaseAuthorizedModelView, BaseModelQueryListView):
     model = Report
@@ -730,9 +730,7 @@ def device_webhook(request):
             # Parse the incoming JSON payload
             payload = json.loads(request.body)
 
-            message = f"Device {payload.get('deviceId')} status: {payload.get('status')} note: {payload.get('note')} time: {payload.get('timestamp')}"
-
-            send_whatsapp_action(messages=message)
+            send_whatsapp_device_status(id_device=payload.get('deviceId'), status=payload.get('status'), note=payload.get('note'), time=payload.get('timestamp'))
             
             # Send a response back to acknowledge the webhook
             return JsonResponse({"message": "Webhook received successfully"}, status=200)
@@ -750,7 +748,7 @@ def tracking_webhook(request):
 
             message = f"Phone {payload.get('phone')} status: {payload.get('status')} note: {payload.get('note')} sender: {payload.get('sender')}"
 
-            send_whatsapp_action(user=payload.get('id'), messages=message)
+            # send_whatsapp_action(user=payload.get('id'), messages=message)
             
             # Send a response back to acknowledge the webhook
             return JsonResponse({"message": "Webhook received successfully"}, status=200)
@@ -771,29 +769,10 @@ def message_webhook(request):
             # Check if the message is a group or personal message
             if payload.get("isGroup"):
                 # Process group message
-                group_data = {
-                    "pushName": payload.get("pushName"),
-                    "groupSubject": payload["group"].get("subject"),
-                    "groupSender": payload["group"].get("sender"),
-                    "message": payload.get("message"),
-                    "timestamp": payload.get("timestamp"),
-                    "file": payload.get("file"),
-                    "url": payload.get("url"),
-                    "participants": payload["group"].get("participants"),
-                }
-                send_whatsapp_action(messages=f"{group_data}")
+                send_whatsapp_message(pushName=payload.get("pushName"), groupSubject=payload["group"].get("subject"), groupSender=payload["group"].get("sender"), message=payload.get("message"), timestamp=payload.get("timestamp"), file=payload.get("file"), url=payload.get("url"))
             else:
                 # Process personal message
-                personal_data = {
-                    "pushName": payload.get("pushName"),
-                    "sender": payload.get("sender"),
-                    "message": payload.get("message"),
-                    "timestamp": payload.get("timestamp"),
-                    "file": payload.get("file"),
-                    "url": payload.get("url"),
-                }
-                send_whatsapp_action(messages=f"{personal_data}")
-            
+                send_whatsapp_message(pushName=payload.get("pushName"), sender=payload.get("sender"), message=payload.get("message"), timestamp=payload.get("timestamp"), file=payload.get("file"), url=payload.get("url"))
             # Send a response back to acknowledge the webhook
             return JsonResponse({"message": "Webhook processed successfully"}, status=200)
         except json.JSONDecodeError:
