@@ -317,6 +317,9 @@ class QuickReportMixin(BaseAuthorizedModelView, ListView):
         if len(schedule_list) == 15:
             # Jika ditemukan, maka buat laporan dengan jadwal dimasukkan satu per satu
             for schedule in schedule_list:
+                report_data = Report.objects.filter(report_date=valid_query_date, schedule=schedule)
+                if len(report_data) > 1:
+                    report_data.first().delete()
                 obj, is_created = Report.objects.update_or_create(
                     report_date = valid_query_date,
                     schedule = schedule,
